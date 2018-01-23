@@ -71,4 +71,4 @@ class finance_data:
             except:
                 pass
         
-        self.data = df
+        return df
