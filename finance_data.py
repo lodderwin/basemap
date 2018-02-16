@@ -55,15 +55,15 @@ class finance_data:
         for idx, code in enumerate(self.codes):
             # Not all data is available without premium subscription
             try:
-                print('Getting data for', idx + 1,'of',len(self.codes) + 1)
+                print('Getting data for', idx + 1,'of',len(self.codes))
                 # get data from quandl
                 df_temp = quandl.get(code)
                 # New columns: 1. code & 2. company name
-                df_temp['code'] = code[-4:]
+                df_temp['code'] = code[-4:].replace('/','')
                 df_temp['source'] = code[:3]
                 df_temp['name'] = self.names[idx]
                 # Reset Index
-                df_temp.reset_index()
+                df_temp = df_temp.reset_index()
                 # column headers in lower case
                 df_temp.columns = [col.lower() for col in df_temp.columns]
                 # concate to df
