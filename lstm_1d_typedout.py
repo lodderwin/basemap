@@ -9,29 +9,24 @@ import numpy as np
 from numpy import newaxis
 import matplotlib.pyplot as plt
 import matplotlib.dates as dts
-filename = 'understandBA.csv'
+from datetime import datetime
+filename = 'understandamag.csv'
 seq_len=5
 normalise_window = True
-def multiply_lst(lst):
-    a = 1
-    for i in range(len(lst)):
-        a = lst[i] * a
-    return a
 #%% call data, closing price of days will be used to train and forecast
 df = pd.read_csv(filename)
-df['Date'] = df['Date'].apply(lambda x: datetime.strptime(x, fmt))
+#df['Date'] = df['Date'].apply(lambda x: datetime.strptime(x, fmt))
 data = df['Close'].tolist()
 dates = df['Date'].tolist()
 #%%
 sequence_length = seq_len + 1 #the +1 is needed to select 'test day' which will become y
-high = []
 result = []
 #to recognise patterns in data, the data has to be normalised and divided up in to smaller training sets
 normalise_window = True
 for index in range(len(data) - sequence_length):
     result.append(data[index: index + sequence_length])
 if normalise_window:
-    result = lstm.normalise_windows(result)
+    result = normalise_windows(result)
 result = np.array(result)
 #here 90% of the data is chosen to train on, the remaining 10% will be used to test
 row = round(0.9 * result.shape[0])
@@ -79,6 +74,7 @@ model.fit(
         nb_epoch=1,
         validation_split=0.05)
 #%%
+##   
 predicted = []
 predicted_test = []
 days_ahead = 5
@@ -86,7 +82,7 @@ predictions_in_function = int(x_test.shape[0]/seq_len)
 remaining_predictions = x_test.shape[0]%5
 for i in range(predictions_in_function):
 #current_frame is x values used to predict y
-    current_frame = x_test[i]
+    current_frame = x_test[i*5]
     predicted = []
     for j in range(days_ahead):
 #4 days predicted ahead with predicted values!
@@ -98,6 +94,7 @@ for i in range(predictions_in_function):
     predicted_test.append(predicted)
 #last_prediction = predicted
 #denormalize again for a clear and understandable graph
+prediction_len=5
 corrected_predicted_test = []
 for i in range(predictions_in_function):
     corrected_predicted = []
@@ -118,7 +115,7 @@ for i, data in enumerate(corrected_predicted_test):
 #dates = dts.date2num(dates)
 #plt.plot_date(list(dates), y_test_correction)
 plt.xlabel('days')
-plt.savefig('understandBA.png',dpi=400)
+plt.savefig('understandamag.png',dpi=400)
 plt.show()
 #%%calculate mse which is quite large, however not corrected for the difference between closing day price day 1 and opening day price day 2.
 flat_predictions = np.asanyarray([item for sublist in corrected_predicted_test for item in sublist])
@@ -128,15 +125,18 @@ compare_test = compare_test
 mse = np.mean((flat_predictions-compare_test)**2)
 print(np.sqrt(mse))
 #%% build investment simulator
-investment = 1000
+investment = 1000.0
 for i in range(len(flat_predictions)-1):
     if i%5 != 0:
         if flat_predictions[i+1]>flat_predictions[i]:
             investment = investment*(compare_test[i+1]/compare_test[i])
-
-made_money_get_bitches  = investment - 1000
+            dummy = 0
+        elif flat_predictions[i+1]<flat_predictions[i] and dummy==0:
+            investment = investment-10
+            dummy = 1
+        elif flat_predictions[i+1]<flat_predictions[i] and dummy==1:
+            investment = investment
+made_money_get_bitches  = investment 
 print(made_money_get_bitches)
-
-
-
-
+#evaluate all stocks and invest in most probable stock
+#compare average growth and selling with growth of other stock
