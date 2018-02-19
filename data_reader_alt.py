@@ -4,16 +4,25 @@ import pandas as pd
 import datetime as dt
 
 class finance_data():
-    def __init__(self, start_date=None, end_date=None):
+    def __init__(self, start_date=None, end_date=None, tickers=None):
         """
         Uses Yahoo_finance fix to download stock data
         """
-        self.tickers = ['AAPL','MSFT','^GSPC',
-                        'BIDU','TRIP','AMAG','QCOM']
-        if start_date == None:
+        self.start_date = start_date
+        self.end_date = end_date
+        self.tickers = tickers
+        
+        # Define tickers to download
+        if self.tickers == None:
+            self.tickers = ['AAPL','MSFT','^GSPC',
+                            'BIDU','TRIP','AMAG',
+                            'QCOM']
+            
+        # Define start and end date
+        if self.start_date == None:
             self.start_date = '2000-01-01'
             
-        if end_date == None:
+        if self.end_date == None:
             self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
         
     def getData(self):
