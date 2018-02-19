@@ -43,8 +43,8 @@ def genFeatures(df):
     # Empty df
     df_with_features = pd.DataFrame([])
     # For each stock in data gen features
-    for code in df.code.unique():
-        df_t = df[df.code == code]
+    for ticker in df.ticker.unique():
+        df_t = df[df.ticker == ticker]
         df_t = df_t.reset_index(drop=True)
         # Date Related Features
         df_t['year'] = df_t.date.dt.year
@@ -112,19 +112,19 @@ def featureProcessing(df):
     
     return df
 
-def genTarget(df):
+def genTargets(df):
     print('\nGenerating targets')
     # Empty df
     df_with_target = pd.DataFrame([])
-    # Split dataframe into sections based on code
-    for code in df.code.unique():
+    # Split dataframe into sections based on ticker
+    for ticker in df.ticker.unique():
         # Select data and sort
-        df_t = df[df.code == code]
-        df_t = df_t.sort_values(['code','date'])
+        df_t = df[df.ticker == ticker]
+        df_t = df_t.sort_values(['ticker','date'])
         df_t = df_t.reset_index(drop=True)
         # Generate the target variable 
         df_t['regressor_y'] = df_t.close.shift(-1)
-        df_t['classification_y'] = np.where(df_t.close.shift(-1) > 0, 1, 0)
+        df_t['classifier_y'] = np.where(df_t.close.shift(-1) > 0, 1, 0)
         # drop where target is null & reset index
         df_t = df_t[~pd.isnull(df_t.regressor_y)]
         df_t = df_t.reset_index(drop=True)
@@ -133,4 +133,3 @@ def genTarget(df):
         
     # Reset index od df_with_target
     return df_with_target.reset_index(drop=True)
-    
