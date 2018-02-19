@@ -89,8 +89,8 @@ def genFeatures(df):
                                                       max(_range)),
                                    axis=1)
         
-    # Concat to df_with_feature
-    df_with_features = pd.concat([df_with_features, df_t])
+        # Concat to df_with_feature
+        df_with_features = pd.concat([df_with_features, df_t])
     
     
     return df_with_features.reset_index(drop=True)

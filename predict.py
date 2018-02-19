@@ -14,7 +14,7 @@ df = yr.getData()
 
 #%%
 # Process for predictions
-df = ps.prepData(df)
+#df = ps.prepData(df)
 df = ps.genFeatures(df)
 df = ps.featureProcessing(df)
 df = ps.genTargets(df)
