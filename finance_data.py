@@ -66,6 +66,7 @@ class finance_data:
                 df_temp = df_temp.reset_index()
                 # column headers in lower case
                 df_temp.columns = [col.lower() for col in df_temp.columns]
+                df = df.rename(columns={'code':'ticker'})
                 # concate to df
                 df = pd.concat([df, df_temp])
             except:
