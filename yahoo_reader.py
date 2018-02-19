@@ -47,9 +47,3 @@ class finance_data():
         df = df.rename(columns={'minor':'ticker'})
         
         return df
-
-#%%
-fd = finance_data()
-df = fd.getData()
-
-df.head()
