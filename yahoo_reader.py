@@ -7,6 +7,11 @@ class finance_data():
     def __init__(self, start_date=None, end_date=None, tickers=None):
         """
         Uses Yahoo_finance fix to download stock data
+        
+        Parameters
+        start_date : date from whence stock data to be downloaded, str
+        end_date : max date for stock data download, str
+        tickers : list of tickers to be downloaded, list
         """
         self.start_date = start_date
         self.end_date = end_date
@@ -18,16 +23,17 @@ class finance_data():
                             'BIDU','TRIP','AMAG',
                             'QCOM']
             
-        # Define start and end date
+        # Define start, default is January first 2000
         if self.start_date == None:
             self.start_date = '2000-01-01'
-            
+        # Define end date, defualt is today's date  
         if self.end_date == None:
             self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
         
     def getData(self):
         """
-        Gets Financial Stock data via Yahoo Finance
+        Gets Financial Stock data via Yahoo Finance for tickers defined in 
+        finance_data, if none specified a default set will be downloaded.
         
         returns
         --------
