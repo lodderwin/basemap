@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 15 21:00:12 2018
-
-@author: erwinlodder
-"""
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential
@@ -22,17 +15,20 @@ def multiply_lst(lst):
     for i in range(len(lst)):
         a = lst[i] * a
     return a
+
 def normalise_windows(window_data):
     normalised_data = []
     for window in window_data:
         normalised_window = [((float(p) / float(window[0])) - 1) for p in window]
         normalised_data.append(normalised_window)
     return normalised_data
+
 def normalise_data(data):
     normalised_data = []
     for dat in data:
         normalised_data.append(dat/data[0])
     return normalised_data
+
 #data in list format
 def create_windows(data, seq_len, normalise_window):
     sequence_length = seq_len + 1 #the +1 is needed to select 'test day' which will become y
@@ -78,6 +74,7 @@ def build_model(layers):
     model.compile(loss="mse", optimizer="rmsprop")
 #    print("Compilation Time : ", time.time() - start)
     return model
+
 def predict_test(days_ahead, x_test, seq_len, model):
     redicted = []
     predicted_test = []
@@ -97,6 +94,7 @@ def predict_test(days_ahead, x_test, seq_len, model):
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
     return predicted_test
+
 def predict_corrected(predicted_test, predictions_in_function,y_test_correction):
     corrected_predicted_test = []
     for i in range(predictions_in_function):
@@ -107,6 +105,7 @@ def predict_corrected(predicted_test, predictions_in_function,y_test_correction)
             corrected_predicted.append(multiply*y_test_correction[i*seq_len+j])
         corrected_predicted_test.append(corrected_predicted)
     return corrected_predicted_test
+
 def correct_predict_test(seq_len, predicted_test, y_test_correction):
     prediction_len=5
     corrected_predicted_test = []
@@ -122,6 +121,7 @@ def correct_predict_test(seq_len, predicted_test, y_test_correction):
     #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
         corrected_predicted_test.append(corrected_predicted)   
     return corrected_predicted_test
+
 def plot_results(y_test_correction, corrected_predicted_test, prediction_len):
     fig = plt.figure(facecolor='white')
     ax = fig.add_subplot(111)
@@ -132,8 +132,9 @@ def plot_results(y_test_correction, corrected_predicted_test, prediction_len):
             plt.plot(padding+data, label='Prediction', alpha=0.6)
 
     plt.xlabel('days')
-    plt.savefig('newpredictionamag.png',dpi=400)
+    plt.savefig('.plots/newpredictionamag.png',dpi=400)
     plt.show()
+    
 def invest_sim(corrected_predicted_test, y_test_correction):
     flat_predictions = np.asanyarray([item for sublist in corrected_predicted_test for item in sublist])
     compare_num_days = len(flat_predictions)
@@ -142,13 +143,17 @@ def invest_sim(corrected_predicted_test, y_test_correction):
     mse = np.mean((flat_predictions-compare_test)**2)
     print(np.sqrt(mse))
     investment = 1000.0
+    # What is the role of dummy?
     dummy = 0
     fee = 5.0
+    # What does bs represent?
     bs = 0
     for i in range(len(flat_predictions)-1):
         if i%5 != 0:
             if flat_predictions[i+1]>flat_predictions[i] and dummy==0 :
                 investment = investment - fee
+                # What is the stock price at i?
+                # Divide investment by stock price before investing
                 investment = investment*(compare_test[i+1]/compare_test[i])
                 dummy = 1
                 bs = bs+1
@@ -161,4 +166,5 @@ def invest_sim(corrected_predicted_test, y_test_correction):
     
             elif flat_predictions[i+1]<flat_predictions[i] and dummy==0:
                 investment = investment
+                
     return investment, bs
