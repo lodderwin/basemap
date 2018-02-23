@@ -1,31 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Feb 17 01:37:41 2018
-
-@author: erwinlodder
-"""
-
-from pandas_datareader import data
 import matplotlib.pyplot as plt
 import pandas as pd
-import datetime as dt
 import yahoo_reader as yr
 import lstm_functions as lf
 
-# Define the instruments to download. We would like to see Apple, Microsoft and the S&P500 index.
-tickers = ['AAPL', 'MSFT', '^GSPC', 'BIDU', 'TRIP', 'AMAG', 'QCOM']
-#update for today
-now = dt.datetime.now()
-start_date = '2000-01-01'
-end_date = str(now.year)+'-'+str(now.month)+'-'+str(now.day)
-df = yr.finance_data(end_date=end_date, tickers=tickers).getData()
-df.to_csv('store_data.csv')
-#%%
+# Define the instruments to download
+tickers = ['AAPL','MSFT','^GSPC','BIDU','TRIP','AMAG','QCOM']
+# Create Historic data
+df = yr.finance_data(tickers=tickers).getData()
+# Store data to csv
+df.to_csv('./csv/store_data.csv')
 
+#%%
+# What is this?
 seq_len = 5
+# What are these for?
 model_layers = [1,5,16,1]
+# attempts at what?
 attempts = 20
+
 for stock in tickers:
     best_model = 'shit'
     profit = 0.0
