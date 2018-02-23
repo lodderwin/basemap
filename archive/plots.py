@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.model_selection import learning_curve
 
@@ -13,6 +14,8 @@ def barFeatureImportance(feature_importances : np.ndarray, features : list):
     features : list of features
     
     """
+    # Seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
     # Create numpy array sort index
     sort = feature_importances.argsort()
     # Apply that sort to feature importances and features
@@ -40,6 +43,8 @@ def barFeatureImportance(feature_importances : np.ndarray, features : list):
 def scatter(x, y, title :str, xlabel : str, ylabel :str):
     """
     """
+    # Seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
     # Draw scatter plot of predicted vs actuals
     plt.plot(x, y, 
              color="#3F5D7D", linestyle='', marker='o', markersize=1, alpha=0.6)
@@ -68,10 +73,17 @@ def errorHist(errors, title :str, xlabel : str, rmse=None, unit=None, hist_range
     plt.legend()
     plt.show()
     
-def dualHist(errors1, errors2, rmse1, rmse2, label1, label2, 
+def dualHist(errors1 : np.ndarray, errors2 : np.ndarray, 
+             label1 : str, label2 : str, 
              title : str, xlabel : str, hist_range=None):
     """
     """
+    # Seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+
+    # Calculate rmse
+    rmse1 = round(np.sqrt(np.mean((errors1) ** 2)),2)
+    rmse2 = round(np.sqrt(np.mean((errors2) ** 2)),2)
     # Draw Histogram of errors
     plt.hist(errors1, bins=100, label=label1 + ' (rmse: $' + rmse1.astype(str) + ')',
              color="#3F5D7D", edgecolor='black', linewidth=0.5, normed=True, alpha=0.6,
