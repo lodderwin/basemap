@@ -39,6 +39,7 @@ for stock in tickers:
         if turnover>profit:
             best_model = model
             profit = turnover
+            
     predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
     corrected_predicted_test = lf.correct_predict_test(seq_len, predicted_test, y_test_correction)
     lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead)
