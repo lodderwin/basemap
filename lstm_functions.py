@@ -13,9 +13,13 @@ import lstm, time   #back up functions
 import pandas as pd
 import numpy as np
 from numpy import newaxis
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as dts
 from datetime import datetime
+
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+figsize = (11,11*9/16)
 
 def multiply_lst(lst):
     a = 1
@@ -78,6 +82,7 @@ def build_model(layers):
     model.compile(loss="mse", optimizer="rmsprop")
 #    print("Compilation Time : ", time.time() - start)
     return model
+
 def predict_test(days_ahead, x_test, seq_len, model):
     predicted_test = []
     days_ahead = 5
@@ -96,6 +101,7 @@ def predict_test(days_ahead, x_test, seq_len, model):
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
     return predicted_test
+
 def predict_current(seq_len,days_ahead, x_test, model):
     predicted = []
     current_frame = x_test
@@ -104,9 +110,13 @@ def predict_current(seq_len,days_ahead, x_test, model):
         current_frame = current_frame[1:]
         current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
     return predicted
+
 def plot_current(x_test,predicted,stock):
-    fig = plt.figure(facecolor='white')
-    ax = fig.add_subplot(111)
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(x_test, label='True Data', color='b')
     #padding is used to set the new predictions to an appropiate distance from 0 days
     padding = [None for p in list(range(len(x_test)))]
@@ -114,10 +124,16 @@ def plot_current(x_test,predicted,stock):
         plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='g')
     elif (predicted[-1]-predicted[0])<0.0:
         plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='r')
-        
-    plt.xlabel('days')
-    plt.savefig(stock+'_current_prediction.png',dpi=400)
+    
+    plt.legend(fontsize=13)
+    plt.title('Latest Prediction for '+ stock, size=16)
+    plt.xlabel('days', size=13)
+    plt.ylabel('% change', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/'+ stock + '_current_prediction.png',dpi=400)
     plt.show()
+    plt.close()
     
         
 def predict_corrected(predicted_test,y_test_correction):
@@ -130,6 +146,7 @@ def predict_corrected(predicted_test,y_test_correction):
             corrected_predicted.append(multiply*y_test_correction[i*seq_len+j])
         corrected_predicted_test.append(corrected_predicted)
     return corrected_predicted_test
+
 def correct_predict_test(seq_len, predicted_test, y_test_correction):
     prediction_len=5
     corrected_predicted_test = []
@@ -145,18 +162,29 @@ def correct_predict_test(seq_len, predicted_test, y_test_correction):
     #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
         corrected_predicted_test.append(corrected_predicted)   
     return corrected_predicted_test
-def plot_results(y_test_correction, corrected_predicted_test, prediction_len):
-    fig = plt.figure(facecolor='white')
-    ax = fig.add_subplot(111)
+
+def plot_results(y_test_correction, corrected_predicted_test, 
+                 prediction_len, stock):
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(y_test_correction, label='True Data')
     #padding is used to set the new predictions to an appropiate distance from 0 days
     for i, data in enumerate(corrected_predicted_test):
             padding = [None for p in list(range(int(((i) * prediction_len)/1.0)))]
             plt.plot(padding+data, label='Prediction', alpha=0.6)
 
-    plt.xlabel('days')
-    plt.savefig('newpredictionamag.png',dpi=400)
+    plt.title('Predictions for ' + stock, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Stock Price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/' + stock + '_predictions.png',dpi=400)
     plt.show()
+    plt.close()
+    
 def invest_sim(corrected_predicted_test, y_test_correction):
     flat_predictions = np.asanyarray([item for sublist in corrected_predicted_test for item in sublist])
     compare_num_days = len(flat_predictions)
