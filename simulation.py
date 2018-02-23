@@ -12,7 +12,7 @@ import lstm_functions as lf
 import operator
 
 # Define the instruments to download
-tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','TRIP','AMAG','QCOM', 'CSCO', 'BA', 'AAOI', 'GPOR']
+tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','TRIP','AMAG','QCOM', 'CSCO', 'BA', 'AAOI', 'GPOR', 'AEG']
 # Create Historic data
 df = yr.finance_data(tickers=tickers).getData()
 # Store data to csv
@@ -34,8 +34,13 @@ for stock in tickers:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
+    check = df[(df['ticker']==stock)]
+    if check.empty:
+        df_not_sufficient[stock + '_no_data'] = 'data extraction failed'
+        continue    
+        
+    data = check['close'].tolist()
     
-    data = df[(df['ticker']==stock)]['close'].tolist()
     data = [x for x in data if str(x) != 'nan']
     if len(data)<2500.0:
         df_not_sufficient[stock + '_short_on_data'] = len(data)
