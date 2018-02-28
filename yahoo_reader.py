@@ -30,7 +30,7 @@ class finance_data():
         if self.end_date == None:
             self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
         
-    def getData(self):
+    def getData(self, store=True):
         """
         Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
@@ -52,5 +52,8 @@ class finance_data():
         # Rename columns
         df.columns = [col.lower() for col in df.columns]
         df = df.rename(columns={'minor':'ticker'})
+        # Store data
+        if store:
+            df.to_csv('./csv/stock_data.csv', index=False)
         
         return df
