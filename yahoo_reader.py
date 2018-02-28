@@ -46,7 +46,8 @@ class finance_data():
                                 start=self.start_date, 
                                 end=self.end_date)
         # convert pd.Panel to pd.Frame
-        df = df.to_frame()
+        if len(self.tickers) > 1:
+            df = df.to_frame()
         df = df.reset_index()
         # Rename columns
         df.columns = [col.lower() for col in df.columns]
