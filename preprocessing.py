@@ -1,16 +1,3 @@
-"""
-Quickk How To:
-
-In your lstm_1d_typedout.py import this py file.
-Directly after downloading the data from yahoo run
-df = preProcessData(df)
-then to see what I have done call:
-    
-df[['date','ticker','close','window','normaliser','close_nmd']].head(50)
-
-"""
-
-
 import pandas as pd
 
 def normaliseWindows(df, window_length=6):
@@ -84,7 +71,7 @@ def preProcessData(df):
         # Create new df with one ticker only
         df_temp = df[df.ticker == ticker]
         # Create normalised windows
-        df_temp = normaliseWindows(df)
+        df_temp = normaliseWindows(df_temp)
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         
