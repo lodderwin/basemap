@@ -38,6 +38,8 @@ def normaliseWindows(df, window_length=6):
     df_final = pd.DataFrame([])
     
     for i in range(0, windows):
+        # Print progress counter
+        print('\r' + str(i) + ' of ' + str(windows), end='\r', flush=False)
         # Create a dataframe for every 6 rows
         df_temp = df[i:i + window_length]
         # Reset index
@@ -76,8 +78,9 @@ def preProcessData(df):
     # Create list of unique tickers
     tickers = list(df.ticker.unique())
     # For each ticker in df create normalised Windows
-    for ticker in tickers:
-        print('creating normalised windows for', ticker)
+    for idx, ticker in enumerate(tickers):
+        print('creating normalised windows for ', ticker, 
+              ' (', idx+1, '/',len(tickers), ')', sep='')
         # Create new df with one ticker only
         df_temp = df[df.ticker == ticker]
         # Create normalised windows
