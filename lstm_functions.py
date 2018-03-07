@@ -16,6 +16,11 @@ from numpy import newaxis
 import matplotlib.pyplot as plt
 import matplotlib.dates as dts
 from datetime import datetime
+import matplotlib
+from pandas.tseries.offsets import BDay
+
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+figsize = (11,11*9/16)
 
 def multiply_lst(lst):
     a = 1
@@ -41,10 +46,13 @@ def create_sets(data, seq_len, normalise_window):
         result.append(data[index: index + sequence_length])
     if normalise_window:
         result = normalise_windows(result)
+    
+    
+    #
     result = np.array(result)
     #here 90% of the data is chosen to train on, the remaining 10% will be used to test
     row = round(0.95 * result.shape[0])
-    train = result[:int(row), :]
+    train = result[:int(row)]
     #randomize and shuffle data to get rid of patterns staying the same through time
     np.random.shuffle(train)
     x_train = train[:, :-1]
@@ -80,12 +88,29 @@ def build_model(layers):
     return model
 def predict_test(days_ahead, x_test, seq_len, model):
     predicted_test = []
-    days_ahead = 5
     predictions_in_function = int(x_test.shape[0]/days_ahead)
-    remaining_predictions = x_test.shape[0]%days_ahead
+#    remaining_predictions = x_test.shape[0]%days_ahead
     for i in range(predictions_in_function):
     #current_frame is x values used to predict y
         current_frame = x_test[i*days_ahead]
+        predicted = []
+        for j in range(days_ahead):
+    #4 days predicted ahead with predicted values!
+    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
+            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+            current_frame = current_frame[1:]
+    # use predicted values for future predictions
+            current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
+        predicted_test.append(predicted)
+    return predicted_test
+def predict_test_day(days_ahead, x_test, seq_len, model, day_number):
+    predicted_test = []
+    days_ahead = 5
+    predictions_in_function = int((x_test.shape[0]-day_number-1)/days_ahead)
+#    remaining_predictions = (x_test.shape[0]-day_number-1)%days_ahead
+    for i in range(-1-day_number,-(predictions_in_function)*days_ahead-(1+day_number),-5):
+    #current_frame is x values used to predict ys
+        current_frame = x_test[i]
         predicted = []
         for j in range(days_ahead):
     #4 days predicted ahead with predicted values!
@@ -107,15 +132,31 @@ def predict_current(seq_len,days_ahead, x_test, model):
 def predict_current_corrected(current_prediction, y_test_correction):
     current_prediction_corrected = []
     for j in range(len(current_prediction)):
-        temp_pred = [x+1 for x in current_prediction[:j+1]]
-        multiply = multiply_lst(temp_pred)
+#        temp_pred = [x+1 for x in current_prediction[:j+1]]
+#        multiply = multiply_lst(temp_pred)
 #        if j<1.0:
-        current_prediction_corrected.append(multiply*y_test_correction[-1])
+        current_prediction_corrected.append((current_prediction[j]+1)*y_test_correction[-5])
     return current_prediction_corrected
         
 def plot_current(y_test_correction,predicted,stock):
-    fig = plt.figure(facecolor='white')
-    ax = fig.add_subplot(111)
+#    fig = plt.figure(facecolor='white')
+#    ax = fig.add_subplot(111)
+#    ax.plot(y_test_correction, label='True Data', color='b')
+#    #padding is used to set the new predictions to an appropiate distance from 0 days
+#    padding = [None for p in list(range(len(y_test_correction)))]
+#    if (predicted[-1]-predicted[0])>0.0:
+#        plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='g')
+#    elif (predicted[-1]-predicted[0])<0.0:
+#        plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='r')
+#        
+#    plt.xlabel('days')
+#    plt.savefig(stock+'_current_prediction.png',dpi=400)
+#    plt.show()
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(y_test_correction, label='True Data', color='b')
     #padding is used to set the new predictions to an appropiate distance from 0 days
     padding = [None for p in list(range(len(y_test_correction)))]
@@ -123,49 +164,88 @@ def plot_current(y_test_correction,predicted,stock):
         plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='g')
     elif (predicted[-1]-predicted[0])<0.0:
         plt.plot(padding+predicted, label='Prediction', alpha=0.6, color='r')
-        
-    plt.xlabel('days')
-    plt.savefig(stock+'_current_prediction.png',dpi=400)
-    plt.show()
     
+    plt.legend(fontsize=13)
+    plt.title('Latest Prediction for '+ stock, size=16)
+    plt.xlabel('days', size=13)
+    plt.ylabel('share price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/'+ stock + '_current_prediction.png',dpi=400)
+    plt.show()
+    plt.close()
         
-def predict_corrected(predicted_test,y_test_correction):
-    corrected_predicted_test = []
-    for i in range(len(predicted_test)):
-        corrected_predicted = []
-        for j in range(len(predicted_test[0])):
-            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
-            multiply = multiply_lst(temp_pred)
-            corrected_predicted.append(multiply*y_test_correction[i*seq_len+j])
-        corrected_predicted_test.append(corrected_predicted)
-    return corrected_predicted_test
-def correct_predict_test(days_ahead, predicted_test, y_test_correction):
+#def predict_corrected(predicted_test,y_test_correction):
+#    corrected_predicted_test = []
+#    for i in range(len(predicted_test)):
+#        corrected_predicted = []
+#        for j in range(len(predicted_test[0])):
+#            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
+#            multiply = multiply_lst(temp_pred)
+#            corrected_predicted.append(multiply*y_test_correction[i*seq_len+j])
+#        corrected_predicted_test.append(corrected_predicted)
+#    return corrected_predicted_test
+def correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len):
     corrected_predicted_test = []
     for i in range(len(predicted_test)):
         corrected_predicted = []
     ##include first point
         for j in range(days_ahead):
-            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
-            multiply = multiply_lst(temp_pred)
+#            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
+#            multiply = multiply_lst(temp_pred)
     #        if j<1.0:
-            corrected_predicted.append(multiply*y_test_correction[(i*days_ahead-days_ahead)])
+            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i*days_ahead-seq_len)])
+    #        else :
+    #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
+        corrected_predicted_test.append(corrected_predicted)   
+    return corrected_predicted_test
+def correct_predict_test_day(days_ahead, predicted_test, y_test_correction,day_number):
+    corrected_predicted_test = []
+    predicted_test = list(reversed(predicted_test))
+    for i in range(len(predicted_test)):
+        corrected_predicted = [-1-day_number-days_ahead*len(predicted_test)+i*5]
+    ##include first point
+        for j in range(days_ahead):
+#            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
+#            multiply = multiply_lst(temp_pred)
+    #        if j<1.0:
+            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i*days_ahead-days_ahead)])
     #        else :
     #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
         corrected_predicted_test.append(corrected_predicted)   
     return corrected_predicted_test
 def plot_results(y_test_correction, corrected_predicted_test, prediction_len,stock):
-    fig = plt.figure(facecolor='white')
-    ax = fig.add_subplot(111)
+#    fig = plt.figure(facecolor='white')
+#    ax = fig.add_subplot(111)
+#    ax.plot(y_test_correction, label='True Data')
+#    #padding is used to set the new predictions to an appropiate distance from 0 days
+#    for i, data in enumerate(corrected_predicted_test):
+#            padding = [None for p in list(range(int(((i) * prediction_len)/1.0)))]
+#            plt.plot(padding+data, label='Prediction', alpha=0.6)
+#
+#    plt.xlabel('days')
+#    plt.savefig(stock+'_selection.png',dpi=400)
+#    plt.show()
+#    return fig
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(y_test_correction, label='True Data')
     #padding is used to set the new predictions to an appropiate distance from 0 days
     for i, data in enumerate(corrected_predicted_test):
             padding = [None for p in list(range(int(((i) * prediction_len)/1.0)))]
             plt.plot(padding+data, label='Prediction', alpha=0.6)
 
-    plt.xlabel('days')
-    plt.savefig(stock+'_selection.png',dpi=400)
+    plt.title('Predictions for ' + stock, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Stock Price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/' + stock + '_predictions.png',dpi=400)
     plt.show()
-    return fig
+    plt.close()
 def invest_sim(corrected_predicted_test, y_test_correction):
     flat_predictions = np.asanyarray([item for sublist in corrected_predicted_test for item in sublist])
     compare_num_days = len(flat_predictions)
@@ -177,20 +257,73 @@ def invest_sim(corrected_predicted_test, y_test_correction):
     dummy = 0
     fee = 5.0
     bs = 0
+    check_lst = []
+    b=4
+    for i in range(60):
+        
+        check_lst.append(b)
+        b = b+5
+        
+    investment_dev = [None]
     for i in range(len(flat_predictions)-1):
-        if i%5 != 0:
-            if flat_predictions[i+1]>flat_predictions[i] and dummy==0 :
-                investment = investment - fee
-                investment = investment*(compare_test[i+1]/compare_test[i])
-                dummy = 1
-                bs = bs+1
-            elif flat_predictions[i+1]>flat_predictions[i] and dummy==1:
-                investment = investment*(compare_test[i+1]/compare_test[i])   
-            elif flat_predictions[i+1]<flat_predictions[i] and dummy==1:
-                investment = investment-fee
-                dummy = 0
-                bs = bs+1
+#        if i not in check_lst:
+        if flat_predictions[i+1]>flat_predictions[i] and dummy==0 :
+            investment = investment - fee
+            investment = investment*(compare_test[i+1]/compare_test[i])
+            dummy = 1
+            bs = bs+1
+        elif flat_predictions[i+1]>flat_predictions[i] and dummy==1:
+            investment = investment*(compare_test[i+1]/compare_test[i])   
+        elif flat_predictions[i+1]<flat_predictions[i] and dummy==1:
+            investment = investment-fee
+            dummy = 0
+            bs = bs+1
+
+        elif flat_predictions[i+1]<flat_predictions[i] and dummy==0:
+            investment = investment
+        investment_dev.append(investment)
+        
+    return investment, bs, investment_dev
+def plot_investment(investment_dev, stock):
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(investment_dev, label='Investment of '+stock)
+    plt.title('Investment over time of ' +stock, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Investment', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/' + stock + '_investment_development.png',dpi=400)
+    plt.show()
+    plt.close()
+
+def check_stocks(stock, prediction_date, df_current_data):
+    df_prediction = pd.read_csv(prediction_date+'predictions_fluc.csv')
+    check = df_prediction[stock]
+    data_prediction = check.tolist()
+    b_days = 3
+    check = df_current_data[(df_current_data['ticker']==stock)]
+    data_current = check['close'].tolist()
+    data_current = data_current[-10:]
+    padding = [None for p in list(range(b_days))]
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(data_current, label='True Data')
+    ax.plot(data_prediction, label='True Data')
+    plt.title('Compare ' + stock, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Stock Price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./compare_plots/' + stock + '_compare.png',dpi=400)
+    plt.show()
+    plt.close()
     
-            elif flat_predictions[i+1]<flat_predictions[i] and dummy==0:
-                investment = investment
-    return investment, bs
+#%%
+    
+
+    
+    
+    
