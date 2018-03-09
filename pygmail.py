@@ -8,14 +8,13 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-
+# email commaspace
 COMMASPACE = ', '
 # Load gmail accpunt settings from yml
 gm = yaml.load(open('./gmail_settings.yml'))
 # Define time now
 now = dt.datetime.now().strftime("%d-%m-%Y %H:%M")
 
-#%%
 def send_mail(recipients=['machineearning2018@gmail.com'], 
              subject=None,
              attachments=[], 
@@ -37,11 +36,13 @@ def send_mail(recipients=['machineearning2018@gmail.com'],
     
     # Create the enclosing (outer) message
     msg = MIMEMultipart()
+    
     # Add subeject to email if subject is not None
     if subject is not None:
         msg['Subject'] = subject
     msg['To'] = COMMASPACE.join(recipients)
     msg['From'] = sender
+    
     # Add message to email if body is not None
     if body is not None:
         msg.attach(MIMEText(body, 'plain'))
