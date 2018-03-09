@@ -1,6 +1,6 @@
 import pandas as pd
 
-def normaliseWindows(df, window_length=6):
+def normalise_windows(df, window_length=6):
     """
     Takes a DataFrame as input and returns a much larger DataFrame with
     normalised windows. A window of data is a run of dates of size window
@@ -44,7 +44,7 @@ def normaliseWindows(df, window_length=6):
     
     return df_final
 
-def preProcessData(df):
+def pre_process_data(df):
     """
     Processes data for LSTM model
     
@@ -71,7 +71,7 @@ def preProcessData(df):
         # Create new df with one ticker only
         df_temp = df[df.ticker == ticker]
         # Create normalised windows
-        df_temp = normaliseWindows(df_temp)
+        df_temp = normalise_windows(df_temp)
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         
