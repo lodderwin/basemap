@@ -25,10 +25,10 @@ def send_mail(recipients=['machineearning2018@gmail.com'],
     
     Parameters
     --------
-    recipients : Email recipients
-    subject : Email subject
-    attachments : Attcahments to attach to email, parse as file location, list
-    body : Text to include in message, str
+    recipients : email recipients
+    subject : email subject
+    attachments : attcahments to attach to email, parse as file location, list
+    body : text to include in message, str
     """
     
     # Define sender and password from yaml file
