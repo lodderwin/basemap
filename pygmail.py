@@ -1,12 +1,13 @@
 import os
 import sys
 import smtplib
+import yaml
+import datetime as dt
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import yaml
-import datetime as dt
+
 
 COMMASPACE = ', '
 # Load gmail accpunt settings from yml
@@ -15,12 +16,12 @@ gm = yaml.load(open('./gmail_settings.yml'))
 now = dt.datetime.now().strftime("%d-%m-%Y %H:%M")
 
 #%%
-def sendMail(recipients=['machineearning2018@gmail.com'], 
+def send_mail(recipients=['machineearning2018@gmail.com'], 
              subject=None,
              attachments=[], 
              body=None):
     """
-    Function to send emails using gmail account. When called an email is sent.
+    Function to send emails using gmail account.
     
     Parameters
     --------
@@ -35,15 +36,15 @@ def sendMail(recipients=['machineearning2018@gmail.com'],
     pswrd = gm['password']
     
     # Create the enclosing (outer) message
-    outer = MIMEMultipart()
+    msg = MIMEMultipart()
     # Add subeject to email if subject is not None
     if subject is not None:
-        outer['Subject'] = subject
-    outer['To'] = COMMASPACE.join(recipients)
-    outer['From'] = sender
+        msg['Subject'] = subject
+    msg['To'] = COMMASPACE.join(recipients)
+    msg['From'] = sender
     # Add message to email if body is not None
     if body is not None:
-        outer.attach(MIMEText(body, 'plain'))
+        msg.attach(MIMEText(body, 'plain'))
 
     # Add the attachments to the message
     for file in attachments:
@@ -54,12 +55,12 @@ def sendMail(recipients=['machineearning2018@gmail.com'],
             encoders.encode_base64(msg)
             msg.add_header('Content-Disposition', 'attachment', 
                            filename=os.path.basename(file))
-            outer.attach(msg)
+            msg.attach(msg)
         except:
             print("Unable to open one of the attachments. Error: ", sys.exc_info()[0])
             raise
 
-    composed = outer.as_string()
+    composed = msg.as_string()
 
     # Send the email
     try:
