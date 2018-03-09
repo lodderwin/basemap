@@ -21,44 +21,48 @@ tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','ASML','AMAG'
 dutch_tickers = ['ASML', 'HEI', 'KPN', 'UN', 'AKZO', 'AF', 'AMG', 'ASM', 'MT', 'BRNL', 'BINCK','BOKA', 'CLB', 'DSM', 'INGA',
                  'HYDRA', 'IMCD', 'NN', 'PNL', 'RAND', 'RDSA','UNCP7', 'VOPAK', 'WDP' ]
 fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
-              , 'QUMU', 'TSD', 'OLED', 'ITGR', 'AMAG', 'MOSY',
-               'TENX', 'BA', 'BIDU', 'MNGA', 'ADMP', 'VICR', 'DAIO', 'NEON', 'MDCA', 'NTAP','QCOM']
+              , 'QUMU', 'TSD', 'OLED', 'ITGR', 'AMAG', 'MOSY','TENX', 'BA', 'BIDU', 'MNGA', 'ADMP', 'VICR', 'DAIO', 'NEON', 'MDCA', 'NTAP','QCOM']
 # Create Historic data
 #df = yr.finance_data(tickers=fluc_stocks).getData()
 #df.to_csv('saved_stock_data.csv')
 
 #df = pp.preProcessData(df)
+promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX']
 #%%
 df = pd.read_csv('saved_stock_data.csv')
 #%% select approppiate stocks
-df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
-def choose_stocks(df_volatile_stocks):
-    volatile_stocks_list = []
-    for length in [2,3,4]:
-        for index, row in b.iterrows():
-            volatile_stocks_list.append(row['Stocks'][:length])
-    return volatile_stocks_list
-volatile_stocks_list = choose_stocks(df_volatile_stocks)   
-df = yr.finance_data(tickers=volatile_stocks_list).getData()
-#%%
-volatile_stocks_list_correct = []
-number = 1
-for stock in volatile_stocks_list:
-    print(number)
-    number=number+1
-    check = df[(df['ticker']==stock)]
-    if check.empty:
-        df_not_sufficient[stock + '_no_data'] = 'data extraction failed'
-        continue    
+#df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
+#def choose_stocks(df_volatile_stocks):
+#    volatile_stocks_list = []
+#    for length in [2,3,4]:
+#        for index, row in b.iterrows():
+#            volatile_stocks_list.append(row['Stocks'][:length])
+#    return volatile_stocks_list
+#volatile_stocks_list = choose_stocks(df_volatile_stocks)   
+#df = yr.finance_data(tickers=volatile_stocks_list).getData()
+##%%
+#volatile_stocks_list_correct = []
+#number = 1
+#for stock in volatile_stocks_list:
+#    print(number)
+#    number=number+1
+#    check = df[(df['ticker']==stock)]
+#    if check.empty:
+#        continue    
+#        
+#    data = check['close'].tolist()
+#    
+#    data = [x for x in data if str(x) != 'nan']
+#    if len(data)<2000.0:
+#        continue
+#    volatile_stocks_list_correct.append(stock)
+# #%%
+#volatile_stocks_list_correct_correct = []
+#for stock in volatile_stocks_list_correct: 
+#    if len(stock)>2:
+#        volatile_stocks_list_correct_correct.append(stock)
+
         
-    data = check['close'].tolist()
-    
-    data = [x for x in data if str(x) != 'nan']
-    if len(data)<2000.0:
-        df_not_sufficient[stock + '_short_on_data'] = len(data)
-        continue
-    volatile_stocks_list_correct.append(stock)
-    
 
 #%%
 # What is this? number of days used as input
@@ -66,7 +70,7 @@ seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 5
+attempts = 4
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -80,7 +84,7 @@ dct_plots = {}
 dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
-for stock in fluc_stocks:
+for stock in promising_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -98,7 +102,7 @@ for stock in fluc_stocks:
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
     for lstm_layer_1 in [10]:
-        for lstm_layer_2 in [25]:
+        for lstm_layer_2 in [50]:
             model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
          
             for k in range(int(attempts)):
@@ -123,18 +127,18 @@ for stock in fluc_stocks:
         df_not_sufficient[stock+'_low_turnover'] = turnover
         continue
     df_profits[stock] = profit
-    
-        
     predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
+    predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
     corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
+    corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
     lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
+    lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
     lf.plot_investment(investment_curve, stock)
     ##final and last prediction
     current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], model)
     current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction)
     highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
     dct_predictions[stock] =  current_prediction
-    
     dct_plots[stock] = lf.plot_current(y_test_correction[-40:],current_prediction_correction,stock)
 
 #%%
@@ -157,7 +161,11 @@ df_predictions.to_csv(dt.datetime.now().strftime("%Y-%m-%d") + 'predictions_fluc
     
 print(max(highest_increase_dct.items(), key=operator.itemgetter(1))[0])
 
-#add multiple curves
+
+
+    
+    
+    
     
     
     
