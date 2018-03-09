@@ -30,7 +30,7 @@ class finance_data():
         if self.end_date == None:
             self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
         
-    def getData(self, store=True):
+    def get_data(self, store=True):
         """
         Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
