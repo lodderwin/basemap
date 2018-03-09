@@ -7,7 +7,7 @@ Created on Thu Feb 15 21:00:12 2018
 """
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
-from keras.models import Sequential
+from keras.models import Sequential, model_from_yaml
 #import remaining necessary modules
 import lstm, time   #back up functions
 import pandas as pd
@@ -18,6 +18,7 @@ import matplotlib.dates as dts
 from datetime import datetime
 import matplotlib
 from pandas.tseries.offsets import BDay
+
 
 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 figsize = (11,11*9/16)
@@ -86,6 +87,22 @@ def build_model(layers):
     model.compile(loss="mse", optimizer="rmsprop")
 #    print("Compilation Time : ", time.time() - start)
     return model
+def save_model(stock, model):
+    model_yaml = model.to_yaml()
+    with open("model.yaml", "w") as yaml_file:
+        yaml_file.write(model_yaml)
+    model.save_weights('model.h5')
+    print('model saved')
+def open_model(stock):
+    yaml_file = open('model.yaml', 'r')
+    loaded_model_yaml = yaml_file.read()
+    yaml_file.close()
+    loaded_model = model_from_yaml(loaded_model_yaml)
+    loaded_model.load_weights('model.h5')
+    print('model loaded')
+    
+    
+    
 def predict_test(days_ahead, x_test, seq_len, model):
     predicted_test = []
     predictions_in_function = int(x_test.shape[0]/days_ahead)
@@ -103,13 +120,13 @@ def predict_test(days_ahead, x_test, seq_len, model):
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
     return predicted_test
-def predict_test_day(days_ahead, x_test, seq_len, model, day_number):
+
+def predict_test_day(days_ahead, x_test, seq_len, model):
     predicted_test = []
-    days_ahead = 5
-    predictions_in_function = int((x_test.shape[0]-day_number-1)/days_ahead)
-#    remaining_predictions = (x_test.shape[0]-day_number-1)%days_ahead
-    for i in range(-1-day_number,-(predictions_in_function)*days_ahead-(1+day_number),-5):
-    #current_frame is x values used to predict ys
+    predictions_in_function = int(x_test.shape[0]/days_ahead)
+#    remaining_predictions = x_test.shape[0]%days_ahead
+    for i in range(len(x_test)):
+    #current_frame is x values used to predict y
         current_frame = x_test[i]
         predicted = []
         for j in range(days_ahead):
@@ -121,6 +138,7 @@ def predict_test_day(days_ahead, x_test, seq_len, model, day_number):
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
     return predicted_test
+
 def predict_current(seq_len,days_ahead, x_test, model):
     predicted = []
     current_frame = x_test[-1]
@@ -199,34 +217,21 @@ def correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len)
     #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
         corrected_predicted_test.append(corrected_predicted)   
     return corrected_predicted_test
-def correct_predict_test_day(days_ahead, predicted_test, y_test_correction,day_number):
+def correct_predict_test_day(days_ahead, predicted_test, y_test_correction,seq_len):
     corrected_predicted_test = []
-    predicted_test = list(reversed(predicted_test))
     for i in range(len(predicted_test)):
-        corrected_predicted = [-1-day_number-days_ahead*len(predicted_test)+i*5]
+        corrected_predicted = []
     ##include first point
         for j in range(days_ahead):
 #            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
 #            multiply = multiply_lst(temp_pred)
     #        if j<1.0:
-            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i*days_ahead-days_ahead)])
+            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i-seq_len)])
     #        else :
     #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
         corrected_predicted_test.append(corrected_predicted)   
     return corrected_predicted_test
 def plot_results(y_test_correction, corrected_predicted_test, prediction_len,stock):
-#    fig = plt.figure(facecolor='white')
-#    ax = fig.add_subplot(111)
-#    ax.plot(y_test_correction, label='True Data')
-#    #padding is used to set the new predictions to an appropiate distance from 0 days
-#    for i, data in enumerate(corrected_predicted_test):
-#            padding = [None for p in list(range(int(((i) * prediction_len)/1.0)))]
-#            plt.plot(padding+data, label='Prediction', alpha=0.6)
-#
-#    plt.xlabel('days')
-#    plt.savefig(stock+'_selection.png',dpi=400)
-#    plt.show()
-#    return fig
     # Use seaborn styling
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
@@ -246,6 +251,28 @@ def plot_results(y_test_correction, corrected_predicted_test, prediction_len,sto
     plt.savefig('./plots/' + stock + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
+def plot_results_day(y_test_correction, corrected_predicted_test, prediction_len,stock,corrected_predicted_test_day):
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(y_test_correction, label='True Data', color='b')
+    #padding is used to set the new predictions to an appropiate distance from 0 days
+    for i, data in enumerate(corrected_predicted_test):
+            padding = [None for p in list(range(int(((i) * prediction_len)/1.0)))]
+            plt.plot(padding+data, label='Prediction', alpha=0.95, color='#FF9933')
+    for i, data in enumerate(corrected_predicted_test_day):
+            padding = [None for p in list(range(int(((i))/1.0)))]
+            plt.plot(padding+data, label='Prediction', alpha=0.4)
+    plt.title('Predictions for ' + stock, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Stock Price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+    plt.savefig('./plots/' + stock + '_compare_predictions.png',dpi=400)
+    plt.show()
+    plt.close()
 def invest_sim(corrected_predicted_test, y_test_correction):
     flat_predictions = np.asanyarray([item for sublist in corrected_predicted_test for item in sublist])
     compare_num_days = len(flat_predictions)
@@ -263,7 +290,7 @@ def invest_sim(corrected_predicted_test, y_test_correction):
         
         check_lst.append(b)
         b = b+5
-        
+    correct_guesses = 0
     investment_dev = [None]
     for i in range(len(flat_predictions)-1):
 #        if i not in check_lst:
@@ -272,6 +299,8 @@ def invest_sim(corrected_predicted_test, y_test_correction):
             investment = investment*(compare_test[i+1]/compare_test[i])
             dummy = 1
             bs = bs+1
+#            if compare_test[i+1]>compare_test[i]:
+#                correct = correct+1
         elif flat_predictions[i+1]>flat_predictions[i] and dummy==1:
             investment = investment*(compare_test[i+1]/compare_test[i])   
         elif flat_predictions[i+1]<flat_predictions[i] and dummy==1:
@@ -299,19 +328,21 @@ def plot_investment(investment_dev, stock):
     plt.show()
     plt.close()
 
-def check_stocks(stock, prediction_date, df_current_data):
-    df_prediction = pd.read_csv(prediction_date+'predictions_fluc.csv')
+def check_stocks(stock, prediction_date, df_current_data, diff_days):
+    df_prediction = pd.read_csv(stock+'_'+prediction_date+'_prediction.csv')
     check = df_prediction[stock]
     data_prediction = check.tolist()
-    b_days = 3
+##    
     check = df_current_data[(df_current_data['ticker']==stock)]
+    last_date = df.tail(1)['date'].tolist()[0]
+    
     data_current = check['close'].tolist()
     data_current = data_current[-10:]
-    padding = [None for p in list(range(b_days))]
+    padding = [None for p in list(range(len(data_current)-diff_days))]
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(data_current, label='True Data')
-    ax.plot(data_prediction, label='True Data')
+    ax.plot(padding + data_prediction, label='True Data')
     plt.title('Compare ' + stock, size=16)
     plt.xlabel('Days', size=13)
     plt.ylabel('Stock Price', size=13)
@@ -320,8 +351,54 @@ def check_stocks(stock, prediction_date, df_current_data):
     plt.savefig('./compare_plots/' + stock + '_compare.png',dpi=400)
     plt.show()
     plt.close()
+#give loss/profit
+#CDay stores holidays
+#create custom holiday calender
+    
+
+def distribution(data):
+    d = []
+    for i in range(len(data)-1):
+        a = data[i+1]/data[i]
+        d.append(round(a-1,3))
+    #    boundary = max()
+    counts, bins = np.histogram(d, bins=list(np.arange(-0.2,0.22,0.02)))
+    decrements = list(reversed(abs(np.asarray(np.sqrt(counts[:int(len(counts)/2.0)])))))
+    increments = list(np.sqrt(counts[int((len(counts)/2.0)):]))
+    tags_list = []
+    for i in list(np.arange(0.02,0.22,0.02)):
+        tags_list.append(str(round(i,2)))
+    fig, axes = plt.subplots(ncols=2, sharey=True)
+    axes[0].barh(tags_list, increments, align='center', color='g')
+    axes[0].set(title='Increments (squared)')
+    axes[1].barh(tags_list, decrements,align='center', color='r')
+    axes[1].set(title='decrements (squared)')
+    axes[0].invert_xaxis()
+    axes[0].set( yticklabels=tags_list)
+    axes[0].yaxis.tick_right()
+    fig.tight_layout()
+    fig.subplots_adjust(wspace=0.28)
+    extremes = len(d)-sum(counts)
+    if abs(max(d))>0.2:
+        axes[0].text(37.0,8.,str(extremes)+' times more than 20%', fontsize=15, zorder=12)
+    
+    plt.show()
+    
+
+        
+    
+
+    
+    
+        
+        
     
 #%%
+    
+
+    
+    
+    
     
 
     
