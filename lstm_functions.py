@@ -18,6 +18,8 @@ import matplotlib.dates as dts
 from datetime import datetime
 import matplotlib
 from pandas.tseries.offsets import BDay
+from pandas.tseries.offsets import CustomBusinessDay
+
 
 
 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -328,7 +330,15 @@ def plot_investment(investment_dev, stock):
     plt.show()
     plt.close()
 
-def check_stocks(stock, prediction_date, df_current_data, diff_days):
+def check_stocks(stock, df, prediction_date, y_test_correction):
+    weekmask = 'Mon Tue Wed Thu Fri'
+    holidays = [datetime(2018, 3, 30), datetime(2018, 5, 28), datetime(2018, 7, 4), datetime(2018, 5, 28),
+                datetime(2018, 7, 4), datetime(2018, 9, 3), datetime(2018, 11, 22), datetime(2018, 12, 25)]
+    bday_cust = CustomBusinessDay(holidays=holidays, weekmask=weekmask) 
+    np.busday_count(datetime(df.loc[len(df)-1, 'date'].year, df.loc[len(df)-1, 'date'].month, df.loc[len(df)-1, 'date'].day), datetime(prediction_date[:4],prediction_date[5:7] , prediction_date[8:]),
+                        weekmask=bday_custom.weekmask, 
+                        holidays=bday_custom.holidays)
+    
     df_prediction = pd.read_csv(stock+'_'+prediction_date+'_prediction.csv')
     check = df_prediction[stock]
     data_prediction = check.tolist()
@@ -385,7 +395,7 @@ def distribution(data):
     plt.show()
     
 
-        
+      
     
 
     
@@ -394,6 +404,11 @@ def distribution(data):
         
     
 #%%
+    
+
+    
+    
+    
     
 
     
