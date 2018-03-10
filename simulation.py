@@ -23,13 +23,15 @@ dutch_tickers = ['ASML', 'HEI', 'KPN', 'UN', 'AKZO', 'AF', 'AMG', 'ASM', 'MT', '
 fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
               , 'QUMU', 'TSD', 'OLED', 'ITGR', 'AMAG', 'MOSY','TENX', 'BA', 'BIDU', 'MNGA', 'ADMP', 'VICR', 'DAIO', 'NEON', 'MDCA', 'NTAP','QCOM']
 # Create Historic data
-#df = yr.finance_data(tickers=fluc_stocks).getData()
 #df.to_csv('saved_stock_data.csv')
-
+new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
+                       'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
-promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX']
+promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
+df = yr.finance_data(tickers=new_volatile_stocks).getData()
+
 #%%
-df = pd.read_csv('saved_stock_data.csv')
+#df = pd.read_csv('saved_stock_data.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -70,7 +72,7 @@ seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 4
+attempts = 6
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -84,7 +86,7 @@ dct_plots = {}
 dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
-for stock in promising_stocks:
+for stock in new_volatile_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -101,8 +103,8 @@ for stock in promising_stocks:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
-    for lstm_layer_1 in [10]:
-        for lstm_layer_2 in [50]:
+    for lstm_layer_1 in [10,20]:
+        for lstm_layer_2 in [25,50]:
             model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
          
             for k in range(int(attempts)):
@@ -160,6 +162,20 @@ df_predictions.to_csv(dt.datetime.now().strftime("%Y-%m-%d") + 'predictions_fluc
 #    date_prediction = pd.datetime.
     
 print(max(highest_increase_dct.items(), key=operator.itemgetter(1))[0])
+
+from pandas.tseries.offsets import CustomBusinessDay
+weekmask = 'Mon Tue Wed Thu Fri'
+holidays = [datetime(2018, 3, 30), datetime(2018, 5, 28), datetime(2018, 7, 4), datetime(2018, 5, 28),
+            datetime(2018, 7, 4), datetime(2018, 9, 3), datetime(2018, 11, 22), datetime(2018, 12, 25)]
+
+bday_cust = CustomBusinessDay(holidays=holidays, weekmask=weekmask) 
+np.busday_count(datetime(2017, 14, 3), datetime(2017, 3, 21),
+                    weekmask=bday_custom.weekmask, 
+                    holidays=bday_custom.holidays)
+    
+#train on multiple stocks for 10-20 day predictions
+  # compare predictions compare prediction  
+    
 
 
 
