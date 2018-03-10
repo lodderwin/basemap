@@ -18,6 +18,8 @@ import matplotlib.dates as dts
 from datetime import datetime
 import matplotlib
 from pandas.tseries.offsets import BDay
+from pandas.tseries.offsets import CustomBusinessDay
+
 
 
 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -328,17 +330,23 @@ def plot_investment(investment_dev, stock):
     plt.show()
     plt.close()
 
-def check_stocks(stock, prediction_date, df_current_data, diff_days):
-    df_prediction = pd.read_csv(stock+'_'+prediction_date+'_prediction.csv')
+def check_stocks(stock, df, prediction_date, y_test_correction):
+    weekmask = 'Mon Tue Wed Thu Fri'
+    holidays = [datetime(2018, 3, 30), datetime(2018, 5, 28), datetime(2018, 7, 4), datetime(2018, 5, 28),
+                datetime(2018, 7, 4), datetime(2018, 9, 3), datetime(2018, 11, 22), datetime(2018, 12, 25)]
+    bday_cust = CustomBusinessDay(holidays=holidays, weekmask=weekmask) 
+    diff = np.busday_count(datetime(df.loc[len(df)-1, 'date'].year, df.loc[len(df)-1, 'date'].month, df.loc[len(df)-1, 'date'].day), datetime(int(prediction_date[:4]),int(prediction_date[5:7]) , int(prediction_date[8:])),
+                        weekmask=bday_cust.weekmask, 
+                        holidays=bday_cust.holidays)
+    
+    df_prediction = pd.read_csv(prediction_date+'predictions_fluc.csv')
     check = df_prediction[stock]
     data_prediction = check.tolist()
-##    
-    check = df_current_data[(df_current_data['ticker']==stock)]
-    last_date = df.tail(1)['date'].tolist()[0]
     
-    data_current = check['close'].tolist()
-    data_current = data_current[-10:]
-    padding = [None for p in list(range(len(data_current)-diff_days))]
+##    
+    data_current = y_test_correction[-10:]
+    
+    padding = [None for p in list(range(len(data_current)-diff+1))]
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111)#, figsize=figsize)
     ax.plot(data_current, label='True Data')
@@ -352,9 +360,7 @@ def check_stocks(stock, prediction_date, df_current_data, diff_days):
     plt.show()
     plt.close()
 #give loss/profit
-#CDay stores holidays
-#create custom holiday calender
-    
+#    do it to real data not y_test_correction
 
 def distribution(data):
     d = []
@@ -385,7 +391,7 @@ def distribution(data):
     plt.show()
     
 
-        
+      
     
 
     
@@ -394,6 +400,11 @@ def distribution(data):
         
     
 #%%
+    
+
+    
+    
+    
     
 
     
