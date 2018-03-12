@@ -29,10 +29,10 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-#df = yr.finance_data(tickers=new_volatile_stocks).getData()
+df = yr.finance_data(tickers=promising_stocks).get_data()
 
 #%%
-df = pd.read_csv('saved_stock_data.csv')
+#df = pd.read_csv('saved_stock_data.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -88,7 +88,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in fluc_stocks:
+for stock in promising_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -105,9 +105,9 @@ for stock in fluc_stocks:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
-    for lstm_layer_1 in [10,20]:
-        for lstm_layer_2 in [25,50]:
-            for batch_size in [32,64,128]:
+    for lstm_layer_1 in [10,15]:
+        for lstm_layer_2 in [25,40]:
+            for batch_size in [32]:
                 model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
              
                 for k in range(int(attempts)):
@@ -119,10 +119,10 @@ for stock in fluc_stocks:
                             nb_epoch=1,
                             validation_split=0.05)
                     days_ahead = 5
-                    predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
+                    predicted_test_temp = lf.predict_test(days_ahead, x_test, seq_len, model)
                     predictions_in_function = int(x_test.shape[0]/days_ahead)
-                    corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len)
-                    turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test, y_test_correction)
+                    corrected_predicted_test_temp = lf.correct_predict_test(days_ahead, predicted_test_temp, y_test_correction, seq_len)
+                    turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test_temp, y_test_correction)
                     print(turnover,profit,'model:'+str(lstm_layer_1) + ' ' + str(lstm_layer_2))
                     if turnover>profit:
                         investment_curve = investment_dev
@@ -133,15 +133,7 @@ for stock in fluc_stocks:
                         predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
                         predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
                         current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], best_model)
-                        corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
-                        corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
-                        lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
-                        lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
-                        lf.plot_investment(investment_curve, stock)
-                        ##final and last prediction
-                        current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
-                        highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
-                        dct_predictions[stock] =  current_prediction_correction
+                        
                     ##
 
     if profit<1000.0: 
@@ -160,6 +152,15 @@ for stock in fluc_stocks:
 #    current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
 #    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
 #    dct_predictions[stock] =  current_prediction_correction
+    corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
+    corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
+    lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
+    lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
+    lf.plot_investment(investment_curve, stock)
+    ##final and last prediction
+    current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
+    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
+    dct_predictions[stock] =  current_prediction_correction
     if current_prediction_correction[-1]>current_prediction_correction[0] and current_prediction_correction[-1]>y_test_correction[-1]:
         dct_promising[stock] = current_prediction_correction
 #    dct_plots[stock] = lf.plot_current(y_test_correction[-40:],current_prediction_correction,stock)
