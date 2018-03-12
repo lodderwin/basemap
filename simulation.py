@@ -13,6 +13,7 @@ import operator
 import datetime as dt
 from pandas.tseries.offsets import BDay
 import preprocessing as pp
+import pygmail
 
 # Define the instruments to download
 tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','ASML','AMAG'
@@ -28,10 +29,10 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-df = yr.finance_data(tickers=new_volatile_stocks).getData()
+#df = yr.finance_data(tickers=new_volatile_stocks).getData()
 
 #%%
-#df = pd.read_csv('saved_stock_data.csv')
+df = pd.read_csv('saved_stock_data.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -68,11 +69,11 @@ df = yr.finance_data(tickers=new_volatile_stocks).getData()
 
 #%%
 # What is this? number of days used as input
-seq_len = 5
+seq_len = 6
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 6
+attempts = 5
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -86,7 +87,8 @@ dct_plots = {}
 dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
-for stock in new_volatile_stocks:
+dct_promising = {}
+for stock in fluc_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -105,43 +107,62 @@ for stock in new_volatile_stocks:
     model = lf.build_model(model_layers)
     for lstm_layer_1 in [10,20]:
         for lstm_layer_2 in [25,50]:
-            model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
-         
-            for k in range(int(attempts)):
-                print(stock)
-                model.fit(
-                        x_train,
-                        y_train,
-                        batch_size=64,
-                        nb_epoch=1,
-                        validation_split=0.05)
-                days_ahead = 5
-                predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
-                predictions_in_function = int(x_test.shape[0]/days_ahead)
-                corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len)
-                turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test, y_test_correction)
-                if turnover>profit:
-                    investment_curve = investment_dev
-                    best_model = model
-                    profit = turnover
-                    print(turnover)
+            for batch_size in [32,64,128]:
+                model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
+             
+                for k in range(int(attempts)):
+                    print(stock)
+                    model.fit(
+                            x_train,
+                            y_train,
+                            batch_size=batch_size,
+                            nb_epoch=1,
+                            validation_split=0.05)
+                    days_ahead = 5
+                    predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
+                    predictions_in_function = int(x_test.shape[0]/days_ahead)
+                    corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len)
+                    turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test, y_test_correction)
+                    print(turnover,profit,'model:'+str(lstm_layer_1) + ' ' + str(lstm_layer_2))
+                    if turnover>profit:
+                        investment_curve = investment_dev
+                        best_model = model
+                        profit = turnover
+                        ##
+                        df_profits[stock] = profit
+                        predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
+                        predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
+                        current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], best_model)
+                        corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
+                        corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
+                        lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
+                        lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
+                        lf.plot_investment(investment_curve, stock)
+                        ##final and last prediction
+                        current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
+                        highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
+                        dct_predictions[stock] =  current_prediction_correction
+                    ##
+
     if profit<1000.0: 
         df_not_sufficient[stock+'_low_turnover'] = turnover
         continue
-    df_profits[stock] = profit
-    predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
-    predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
-    corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
-    corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
-    lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
-    lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
-    lf.plot_investment(investment_curve, stock)
-    ##final and last prediction
-    current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], model)
-    current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction)
-    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
-    dct_predictions[stock] =  current_prediction
-    dct_plots[stock] = lf.plot_current(y_test_correction[-40:],current_prediction_correction,stock)
+#    df_profits[stock] = profit
+#    predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
+#    predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
+#    current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], best_model)
+#    corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
+#    corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
+#    lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
+#    lf.plot_results_day(y_test_correction, corrected_predicted_test, days_ahead,stock,corrected_predicted_test_day)
+#    lf.plot_investment(investment_curve, stock)
+#    ##final and last prediction
+#    current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
+#    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
+#    dct_predictions[stock] =  current_prediction_correction
+    if current_prediction_correction[-1]>current_prediction_correction[0] and current_prediction_correction[-1]>y_test_correction[-1]:
+        dct_promising[stock] = current_prediction_correction
+#    dct_plots[stock] = lf.plot_current(y_test_correction[-40:],current_prediction_correction,stock)
 
 #%%
 from pandas.tseries.offsets import BDay
@@ -162,21 +183,19 @@ df_predictions.to_csv(dt.datetime.now().strftime("%Y-%m-%d") + 'predictions_fluc
 #    date_prediction = pd.datetime.
     
 print(max(highest_increase_dct.items(), key=operator.itemgetter(1))[0])
-
-from pandas.tseries.offsets import CustomBusinessDay
-weekmask = 'Mon Tue Wed Thu Fri'
-holidays = [datetime(2018, 3, 30), datetime(2018, 5, 28), datetime(2018, 7, 4), datetime(2018, 5, 28),
-            datetime(2018, 7, 4), datetime(2018, 9, 3), datetime(2018, 11, 22), datetime(2018, 12, 25)]
-
-bday_cust = CustomBusinessDay(holidays=holidays, weekmask=weekmask) 
-np.busday_count(datetime(2017, 14, 3), datetime(2017, 3, 21),
-                    weekmask=bday_custom.weekmask, 
-                    holidays=bday_custom.holidays)
-    
+print(dct_promising.keys())    
 #train on multiple stocks for 10-20 day predictions
   # compare predictions compare prediction  
     
 
+#%%
+# Create email body
+subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
+
+# Send email
+pygmail.send_mail(subject=subject,
+          attachments=attachments,
+          body=body)
 
 
     

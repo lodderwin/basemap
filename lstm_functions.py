@@ -149,13 +149,13 @@ def predict_current(seq_len,days_ahead, x_test, model):
         current_frame = current_frame[1:]
         current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
     return predicted
-def predict_current_corrected(current_prediction, y_test_correction):
+def predict_current_corrected(current_prediction, y_test_correction, seq_len):
     current_prediction_corrected = []
     for j in range(len(current_prediction)):
 #        temp_pred = [x+1 for x in current_prediction[:j+1]]
 #        multiply = multiply_lst(temp_pred)
 #        if j<1.0:
-        current_prediction_corrected.append((current_prediction[j]+1)*y_test_correction[-5])
+        current_prediction_corrected.append((current_prediction[j]+1)*y_test_correction[-seq_len])
     return current_prediction_corrected
         
 def plot_current(y_test_correction,predicted,stock):
@@ -338,14 +338,10 @@ def check_stocks(stock, df, prediction_date, y_test_correction):
     diff = np.busday_count(datetime(df.loc[len(df)-1, 'date'].year, df.loc[len(df)-1, 'date'].month, df.loc[len(df)-1, 'date'].day), datetime(int(prediction_date[:4]),int(prediction_date[5:7]) , int(prediction_date[8:])),
                         weekmask=bday_cust.weekmask, 
                         holidays=bday_cust.holidays)
-    
     df_prediction = pd.read_csv(prediction_date+'predictions_fluc.csv')
     check = df_prediction[stock]
-    data_prediction = check.tolist()
-    
-##    
+    data_prediction = check.tolist()  
     data_current = y_test_correction[-10:]
-    
     padding = [None for p in list(range(len(data_current)-diff+1))]
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111)#, figsize=figsize)
