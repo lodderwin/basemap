@@ -14,7 +14,7 @@ import datetime as dt
 from pandas.tseries.offsets import BDay
 import preprocessing as pp
 import pygmail
-
+import yaml
 # Define the instruments to download
 tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','ASML','AMAG'
           ,'QCOM', 'CSCO', 'BA', 'AAOI', 'GPOR', 'AEG'
@@ -24,15 +24,15 @@ dutch_tickers = ['ASML', 'HEI', 'KPN', 'UN', 'AKZO', 'AF', 'AMG', 'ASM', 'MT', '
 fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
               , 'QUMU', 'TSD', 'OLED', 'ITGR', 'AMAG', 'MOSY','TENX', 'BA', 'BIDU', 'MNGA', 'ADMP', 'VICR', 'DAIO', 'NEON', 'MDCA', 'NTAP','QCOM']
 # Create Historic data
-#df.to_csv('saved_stock_data.csv')
 new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
 df = yr.finance_data(tickers=promising_stocks).get_data()
+#df.to_csv('saved_stock_data_1.csv')
 
 #%%
-#df = pd.read_csv('saved_stock_data.csv')
+#df = pd.read_csv('saved_stock_data_1.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -69,11 +69,11 @@ df = yr.finance_data(tickers=promising_stocks).get_data()
 
 #%%
 # What is this? number of days used as input
-seq_len = 6
+seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 5
+attempts = 1
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -105,8 +105,8 @@ for stock in promising_stocks:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
-    for lstm_layer_1 in [10,15]:
-        for lstm_layer_2 in [25,40]:
+    for lstm_layer_1 in [15]:
+        for lstm_layer_2 in [40]:
             for batch_size in [32]:
                 model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
              
@@ -129,10 +129,11 @@ for stock in promising_stocks:
                         best_model = model
                         profit = turnover
                         ##
-                        df_profits[stock] = profit
                         predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
                         predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
                         current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], best_model)
+                        df_profits[stock] = profit
+                        lf.save_model(stock, model)
                         
                     ##
 
@@ -152,6 +153,9 @@ for stock in promising_stocks:
 #    current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
 #    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
 #    dct_predictions[stock] =  current_prediction_correction
+#    best_model = lf.open_model(stock)
+    
+                        
     corrected_predicted_test = lf.correct_predict_test(days_ahead, predicted_test, y_test_correction,seq_len)
     corrected_predicted_test_day = lf.correct_predict_test_day(days_ahead, predicted_test_day, y_test_correction,seq_len)
     lf.plot_results(y_test_correction, corrected_predicted_test, days_ahead,stock)
@@ -161,9 +165,11 @@ for stock in promising_stocks:
     current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
     highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
     dct_predictions[stock] =  current_prediction_correction
+
+    #load
     if current_prediction_correction[-1]>current_prediction_correction[0] and current_prediction_correction[-1]>y_test_correction[-1]:
         dct_promising[stock] = current_prediction_correction
-#    dct_plots[stock] = lf.plot_current(y_test_correction[-40:],current_prediction_correction,stock)
+    lf.plot_current(y_test_correction[-30:],current_prediction_correction,stock)
 
 #%%
 from pandas.tseries.offsets import BDay
@@ -197,7 +203,9 @@ subject, body, attachments = pygmail.compose_email(expected_deltas=highest_incre
 pygmail.send_mail(subject=subject,
           attachments=attachments,
           body=body)
-
+#%%
+prediction_date = '2018-03-04'
+lf.check_stocks(stock, df, prediction_date, y_test_correction)
 
     
     

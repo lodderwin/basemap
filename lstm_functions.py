@@ -19,6 +19,7 @@ from datetime import datetime
 import matplotlib
 from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
+import yaml
 
 
 
@@ -91,18 +92,18 @@ def build_model(layers):
     return model
 def save_model(stock, model):
     model_yaml = model.to_yaml()
-    with open("model.yaml", "w") as yaml_file:
-        yaml_file.write(model_yaml)
-    model.save_weights('model.h5')
+    with open('model.yaml', 'w') as outfile:
+        yaml.dump(model_yaml, outfile)
+#    model.save_weights('model.h5')
     print('model saved')
+
 def open_model(stock):
-    yaml_file = open('model.yaml', 'r')
-    loaded_model_yaml = yaml_file.read()
-    yaml_file.close()
-    loaded_model = model_from_yaml(loaded_model_yaml)
-    loaded_model.load_weights('model.h5')
+    with open('model.yaml', 'r') as inpfile:
+        yamlRec4=yaml.load(inpfile)
+    model4 = model_from_yaml(yamlRec4)
+    model4.summary() # will print
     print('model loaded')
-    
+    return model4
     
     
 def predict_test(days_ahead, x_test, seq_len, model):
