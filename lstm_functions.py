@@ -21,6 +21,20 @@ from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 import yaml
 
+import os
+
+#%%
+# Define plot folder directory as today's date
+today = datetime.now().strftime("%Y-%m-%d")
+
+# If the folder with today's date doesnt exist then make it
+plot_folder = './plots/' + today + '/'
+if not os.path.exists(plot_folder):
+    os.mkdir(plot_folder)
+
+
+#%%
+
 
 
 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -144,7 +158,7 @@ def predict_test_day(days_ahead, x_test, seq_len, model):
 
 def predict_current(seq_len,days_ahead, x_test, model):
     predicted = []
-    current_frame = x_test[-1]
+    current_frame = x_test
     for j in range(days_ahead):
         predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
         current_frame = current_frame[1:]
@@ -192,7 +206,7 @@ def plot_current(y_test_correction,predicted,stock):
     plt.ylabel('share price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig('./plots/'+ stock + '_current_prediction.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_current_prediction.png',dpi=400)
     plt.show()
     plt.close()
         
@@ -251,7 +265,7 @@ def plot_results(y_test_correction, corrected_predicted_test, prediction_len,sto
     plt.ylabel('Stock Price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig('./plots/' + stock + '_predictions.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
 def plot_results_day(y_test_correction, corrected_predicted_test, prediction_len,stock,corrected_predicted_test_day):
@@ -273,7 +287,7 @@ def plot_results_day(y_test_correction, corrected_predicted_test, prediction_len
     plt.ylabel('Stock Price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig('./plots/' + stock + '_compare_predictions.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_compare_predictions.png',dpi=400)
     plt.show()
     plt.close()
 def invest_sim(corrected_predicted_test, y_test_correction):
@@ -327,7 +341,7 @@ def plot_investment(investment_dev, stock):
     plt.ylabel('Investment', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig('./plots/' + stock + '_investment_development.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_investment_development.png',dpi=400)
     plt.show()
     plt.close()
 
@@ -353,7 +367,7 @@ def check_stocks(stock, df, prediction_date, y_test_correction):
     plt.ylabel('Stock Price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig('./compare_plots/' + stock + '_compare.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_compare.png',dpi=400)
     plt.show()
     plt.close()
 #give loss/profit

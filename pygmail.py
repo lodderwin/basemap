@@ -15,9 +15,9 @@ COMMASPACE = ', '
 # Load gmail accpunt settings from yml
 gm = yaml.load(open('./configs/gmail_settings.yml'))
 # Define time now
-now = dt.datetime.now().strftime("%d-%m-%Y %H:%M")
+now = dt.datetime.now().strftime("%Y-%m-%d %H:%M")
 # Define today
-today = dt.datetime.now().strftime("%d-%m-%Y")
+today = dt.datetime.now().strftime("%Y-%m-%d")
 # List of recipients
 recipients = ['machineearning2018@gmail.com', 'erwin.lodder@gmail.com',
               'howardriddiough@gmail.com']

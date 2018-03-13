@@ -28,11 +28,11 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-df = yr.finance_data(tickers=promising_stocks).get_data()
+#df = yr.finance_data(tickers=promising_stocks).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
 #%%
-#df = pd.read_csv('saved_stock_data_1.csv')
+df = pd.read_csv('saved_stock_data_1.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -88,7 +88,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in promising_stocks:
+for stock in ['AMAG']:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -129,9 +129,9 @@ for stock in promising_stocks:
                         best_model = model
                         profit = turnover
                         ##
-                        predicted_test = lf.predict_test(days_ahead, x_test, seq_len, best_model)
-                        predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, best_model)
-                        current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-4:], best_model)
+                        predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
+                        predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
+                        current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-1], model)
                         df_profits[stock] = profit
                         lf.save_model(stock, model)
                         
@@ -205,6 +205,10 @@ pygmail.send_mail(subject=subject,
           body=body)
 #%%
 prediction_date = '2018-03-04'
+
+
+
+
 lf.check_stocks(stock, df, prediction_date, y_test_correction)
 
     
