@@ -55,5 +55,7 @@ class finance_data():
         # Store data
         if store:
             df.to_csv('./csv/stock_data.csv', index=False)
-        
+            
+        df['date'] = pd.to_datetime(df['date'])
+     
         return df
