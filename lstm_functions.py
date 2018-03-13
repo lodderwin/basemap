@@ -20,24 +20,18 @@ import matplotlib
 from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 import yaml
-
 import os
 
-#%%
 # Define plot folder directory as today's date
 today = datetime.now().strftime("%Y-%m-%d")
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # If the folder with today's date doesnt exist then make it
 plot_folder = './plots/' + today + '/'
 if not os.path.exists(plot_folder):
     os.mkdir(plot_folder)
 
-
-#%%
-
-
-
-now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# Configure plot size 
 figsize = (11,11*9/16)
 
 def multiply_lst(lst):
