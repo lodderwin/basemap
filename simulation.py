@@ -27,7 +27,8 @@ fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
 new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
-promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
+promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
+                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
 df = yr.finance_data(tickers=promising_stocks).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
