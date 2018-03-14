@@ -205,7 +205,7 @@ def plot_current(y_test_correction,predicted,stock):
     plt.ylabel('share price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig(plot_folder + stock + '_current_prediction.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_current_prediction_test.png',dpi=400)
     plt.show()
     plt.close()
         
@@ -352,7 +352,7 @@ def check_stocks(stock, df, prediction_date, y_test_correction):
     diff = np.busday_count(datetime(df.loc[len(df)-1, 'date'].year, df.loc[len(df)-1, 'date'].month, df.loc[len(df)-1, 'date'].day), datetime(int(prediction_date[:4]),int(prediction_date[5:7]) , int(prediction_date[8:])),
                         weekmask=bday_cust.weekmask, 
                         holidays=bday_cust.holidays)
-    df_prediction = pd.read_csv(prediction_date+'predictions_fluc.csv')
+    df_prediction = pd.read_csv('2018-03-14'+'predictions_fluc.csv')
     check = df_prediction[stock]
     data_prediction = check.tolist()  
     data_current = y_test_correction[-10:]

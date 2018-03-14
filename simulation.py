@@ -29,7 +29,8 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
                     'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-df = yr.finance_data(tickers=promising_stocks).get_data()
+new_new_volatile_stocks = ['A', 'AA', 'AABA', 'AAME', 'AAN', 'AAON', 'AAP', 'AAXN', 'AB', 'ABAX', 'ABB','ABC', 'ABCB', 'ABE', 'ABEO', 'ABEV', 'ABG' ]
+df = yr.finance_data(tickers=new_new_volatile_stocks).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
 #%%
@@ -74,7 +75,7 @@ seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 1
+attempts = 2
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -89,7 +90,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in promising_stocks:
+for stock in new_new_volatile_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -106,8 +107,8 @@ for stock in promising_stocks:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
-    for lstm_layer_1 in [15]:
-        for lstm_layer_2 in [40]:
+    for lstm_layer_1 in [16]:
+        for lstm_layer_2 in [45]:
             for batch_size in [32]:
                 model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
              
