@@ -89,7 +89,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in ['AMAG']:
+for stock in promising_stocks:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -132,7 +132,7 @@ for stock in ['AMAG']:
                         ##
                         predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
                         predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
-                        current_prediction = lf.predict_current(seq_len,days_ahead, x_test[-1], model)
+                        current_prediction = lf.predict_current(seq_len,days_ahead, data[-5:], model)
                         df_profits[stock] = profit
                         lf.save_model(stock, model)
                         

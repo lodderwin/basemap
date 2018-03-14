@@ -150,9 +150,14 @@ def predict_test_day(days_ahead, x_test, seq_len, model):
         predicted_test.append(predicted)
     return predicted_test
 
-def predict_current(seq_len,days_ahead, x_test, model):
+def predict_current(seq_len,days_ahead, data, model):
     predicted = []
-    current_frame = x_test
+    current_frame = []
+    for d in data:
+        current_frame.append([d/data[0]-1])
+#    current_frame = normalise_data(data)
+#    current_frame[:] = [x - 1 for x in current_frame]
+    current_frame  = np.asarray(current_frame)
     for j in range(days_ahead):
         predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
         current_frame = current_frame[1:]
