@@ -85,7 +85,7 @@ def lstm_ary_splits(cols=None):
     arys = {}
     
     for i, col in enumerate(array_cols):
-        print('\rsplitting column' + str(i + 1) + ' of ' + str(len(array_cols)), 
+        print('\rsplitting column ' + str(i + 1) + ' of ' + str(len(array_cols)), 
               end='\r', flush=False)
         # Use df to create multidimensional array for column
         ary = series_to_ndarray(df, column=col)
