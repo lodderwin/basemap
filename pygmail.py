@@ -143,7 +143,7 @@ def compose_email(expected_deltas : dict):
     # Merge df and df_graphs
     df_graphs = df_graphs.merge(df, on='ticker', how='inner')
     # Sort df_graphs by expected delta
-    df_graphs = df_graphs.sort_values(['exp_delta','graph_type'])
+    df_graphs = df_graphs.sort_values(['exp_delta','graph_type'], ascending=False)
     
     # Create list of attachments
     attachments = df_graphs.filename.tolist()
@@ -151,14 +151,3 @@ def compose_email(expected_deltas : dict):
     
         
     return subject, body, attachments
-
-"""
-# Create email body
-subject, body, attachments = compose_email(expected_deltas=invest_dict)
-
-# Send email
-send_mail(subject=subject,
-          attachments=attachments,
-          body=body)
-"""
-
