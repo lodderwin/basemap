@@ -28,8 +28,13 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
-                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-new_new_volatile_stocks = ['A', 'AA', 'AABA', 'AAME', 'AAN', 'AAON', 'AAP', 'AAXN', 'AB', 'ABAX', 'ABB','ABC', 'ABCB', 'ABE', 'ABEO', 'ABEV', 'ABG' ]
+                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 
+                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 
+                    'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+                    'ALT', 'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR']
+new_new_volatile_stocks = ['AMX', 'AMZN', 'AN', 'ANAT', 'ANDE', 'ANDV', 'ANF', 'ANH', 'ANIK', 'ANIP', 'ANSS', 'ANTM', 'AOBC', 'AOI', 'AON', 'AOS', 'AP', 'APA', 'APB', 'APC', 'APD', 'APF', 'APH', 'APHB', 'APOG', 'APRN', 'APT', 'APU', 'AQUA', 'ARA','ARCB', 'ARDM', 'ARE', 'ARKR', 'ARL', 'ARLP', 'ARLZ', 'ARNA', 'ARNC', 'AROW', 'ARQL', 'ARRS', 'ARRY', 'ARTNA', 'ARTW', 'ARTX', 'ARW', 'ARWR']
 df = yr.finance_data(tickers=new_new_volatile_stocks).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
@@ -199,12 +204,12 @@ print(dct_promising.keys())
 
 #%%
 # Create email body
-subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
-
-# Send email
-pygmail.send_mail(subject=subject,
-          attachments=attachments,
-          body=body)
+#subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
+#
+## Send email
+#pygmail.send_mail(subject=subject,
+#          attachments=attachments,
+#          body=body)
 #%%
 prediction_date = '2018-03-04'
 
