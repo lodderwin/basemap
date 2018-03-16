@@ -2,6 +2,8 @@ import yahoo_reader as yr
 import preprocessing as pp
 import pandas as pd
 import numpy as np
+from scipy.stats import randint
+
 
 #%%
 yr_data = yr.finance_data()
@@ -17,7 +19,7 @@ df = pp.pre_process_data(df)
 #%%
 
 def series_to_ndarray(df, column : str):
-    """Returns numpar array using pd.DataFrame as input
+    """Returns numpy array of shape (1,6,1) using pd.DataFrame as input
     """
     # Create empty list of arrays
     arrs_list = []
@@ -103,30 +105,31 @@ import lstm
 import time
 
 
-def build_model(layers):
+def build_model(params):
     """
     """
     #
     model = Sequential()
     #
     model.add(LSTM(
-        input_dim=layers[0],
-        output_dim=layers[1],
+        input_dim = params['input_dim'],
+        output_dim = params['node1'],
         return_sequences=True))
     #
     model.add(Dropout(0.2))
     #
     model.add(LSTM(
-        layers[2],
+        params['node2'],
         return_sequences=False))
     #
     model.add(Dropout(0.2))
     #
     model.add(Dense(
-        output_dim=layers[3]))
+        output_dim = params['output_dim']))
     model.add(Activation("linear"))
-
-    model.compile(loss="mse", optimizer="rmsprop")
+    
+    # Compile model
+    model.compile(loss="mse", optimizer="rmsprop", metrics=['mse'])
     
     return model
 
@@ -135,14 +138,36 @@ def build_model(layers):
 arys, dict_df = lstm_ary_splits()
 
 #%%
-# Build Model and fit
-model = build_model([1,15,40,1])
-batch_size=32
-model.fit(arys['close_nmd'][0],
-          arys['close_nmd'][1],
-          batch_size=batch_size,
-          nb_epoch=1,
-          validation_split=0.05)
+#
+def randomised_model_config(mse=10, iterations=10):
+    """
+    """
+    for iteration in range(0, iterations):
+        print('iteration: ', iteration + 1, 'of', iterations)
+        params = {'input_dim':1,
+                  'node1':np.random.randint(10,20),
+                  'node2':np.random.randint(35,45),
+                  'output_dim':1,
+                  'batch_size':np.random.randint(10,40)}
+        
+        # Build Model
+        model = build_model(params)
+        # Fit using x and y test and validate on x and y test
+        model.fit(arys['close_nmd'][0],
+                  arys['close_nmd'][1],
+                  validation_data = (arys['close_nmd'][2], arys['close_nmd'][3]),
+                  batch_size = params['batch_size'],
+                  nb_epoch=10)
+        # Get models MSE 
+        score = model.evaluate(arys['close_nmd'][2], arys['close_nmd'][3], verbose=0)[1]
+        
+        if score < mse:
+            mse  = score
+            best_model = model
+            
+    return best_model
+    
+model = randomised_model_config()
 
 #%%
 # How many days should the model predict ahead for?
