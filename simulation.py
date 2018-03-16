@@ -34,16 +34,19 @@ promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED',
                     'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
                     'ALT', 'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
                     'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 
-                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS']
+                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+                    'CRNT', 'CRZO', 'DWSN', 'AXTI' ]
 df_tickers = pd.read_csv('volatile_stocks.csv', sep=';')
 #200 done
-tickers_lst = df_tickers['ticker'].tolist()[1:200]
+
 new_new_volatile_stocks = ['ASA', 'ASB', 'ASFI', 'ASG', 'ASGN', 'ASH', 'ASML', 'ASNA', 'ASNA', 'ASR', 'ASRV', 'AST', 'ASTC', 'ASTE', 'ASUR', 'ASX', 'ASYS', 'ATAX', 'ATGE', 'ATI', 'ATLC', 'ATLO', 'ATNI', 'ATO', 'ATR', 'ATRI', 'ATRO', 'ATRS', 'ATTU', 'ATU', 'ATVI', 'AU', 'AUBN', 'AUDC', 'AUO', 'AUTO', 'AVA', 'AVB', 'AVD', 'AVDL', 'AVID', 'AVK', 'AVNW', 'AVP', 'AVT', 'AVX', 'AVY', 'AWF', 'AWR', 'AWRE', 'AXAS', 'AXDX', 'AXE', 'AXGN', 'AXL', 'AXP', 'AXR', 'AXTI', 'AYI', 'AZN', 'AZO', 'AZPN', 'AZZ']
 df = yr.finance_data(tickers=tickers_lst).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
 #%%
-
+tickers_lst = df_tickers['ticker'].tolist()[93:200]
+tickers_lst = list(set(tickers_lst))
 #df = pd.read_csv('saved_stock_data_1.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
@@ -118,8 +121,8 @@ for stock in tickers_lst:
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
     for lstm_layer_1 in [16]:
-        for lstm_layer_2 in [30,45]:
-            for batch_size in [32]:
+        for lstm_layer_2 in [45]:
+            for batch_size in [32,64]:
                 model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
              
                 for k in range(int(attempts)):
