@@ -205,7 +205,7 @@ def plot_current(y_test_correction,predicted,stock):
     plt.ylabel('share price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-    plt.savefig(plot_folder + stock + '_current_prediction_test.png',dpi=400)
+    plt.savefig(plot_folder + stock + '_current_prediction.png',dpi=400)
     plt.show()
     plt.close()
         

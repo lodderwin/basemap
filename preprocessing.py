@@ -26,7 +26,7 @@ def normalise_windows(df, window_length=6):
     
     for i in range(0, windows):
         # Print progress counter
-        print('\r' + str(i) + ' of ' + str(windows), end='\r', flush=False)
+        print('\r' + str(i + 1) + ' of ' + str(windows), end='\r', flush=False)
         # Create a dataframe for every 6 rows
         df_temp = df[i:i + window_length]
         # Reset index
