@@ -1,9 +1,13 @@
 import yahoo_reader as yr
 import preprocessing as pp
 import pandas as pd
+from pandas.tseries.offsets import BDay
 import numpy as np
-from scipy.stats import randint
-
+from keras.layers.recurrent import LSTM
+from keras.layers.core import Dense, Activation, Dropout
+from keras.models import Sequential, model_from_yaml
+import lstm
+import time
 
 #%%
 yr_data = yr.finance_data()
@@ -98,13 +102,6 @@ def lstm_ary_splits(cols=None):
         
     return arys, dict_df
 
-from keras.layers.recurrent import LSTM
-from keras.layers.core import Dense, Activation, Dropout
-from keras.models import Sequential, model_from_yaml
-import lstm
-import time
-
-
 def build_model(params):
     """
     """
@@ -170,43 +167,70 @@ def randomised_model_config(mse=10, iterations=10):
 model = randomised_model_config()
 
 #%%
-# How many days should the model predict ahead for?
-days_ahead = 5
+def predict(X):
+    """X being x_train or x_test
+    """
+    # How many days should the model predict ahead for?
+    days_ahead = 5
+    
+    predictions = []
+    
+    for idx, window in enumerate(X):
+        print('\rpredicting window ' + str(idx + 1) + ' of ' + str(X.shape[0]),
+              end='\r', flush=False)
+        # Reshape window as lstm predict needs np array of shape (1,5,1)
+        window = np.reshape(window, (1, window.shape[0], window.shape[1]))
+        for day in range(days_ahead):
+            # Predict & extract prediction from resulting array
+            prediction = model.predict(window)[0][0]
+            # Reshape prediction so it can be appened to window
+            prediction = np.reshape([prediction], (1, 1, 1))
+            # Add new value to window and remove first value
+            window = np.append(window, prediction)[1:]
+            # Above appendage flattens np array so needs to be rehaped
+            window = np.reshape(window, (1, window.shape[0], 1))
+    
+        # Result of inner loop is a window of five days no longer containing any original days   
+        predictions.append(window)
+        
+    # predictions is a list, create np array with shape matching X
+    predictions = np.reshape(predictions, X.shape)
+        
+    return predictions
 
-predictions = []
-
-for idx, window in enumerate(arys['close_nmd'][0]):
-    print('\rpredicting window ' + str(idx + 1) + ' of ' + str(arys['close_nmd'][0].shape[0]),
-          end='\r', flush=False)
-    # Reshape window as lstm predict needs np array of shape (1,5,1)
-    window = np.reshape(window, (1, window.shape[0], window.shape[1]))
-    for day in range(days_ahead):
-        # Predict & extract prediction from resulting array
-        prediction = model.predict(window)[0][0]
-        # Reshape prediction so it can be appened to window
-        prediction = np.reshape([prediction], (1, 1, 1))
-        # Add new value to window and remove first value
-        window = np.append(window, prediction)[1:]
-        # Above appendage flattens np array so needs to be rehaped
-        window = np.reshape(window, (1, window.shape[0], 1))
-
-    # Result of inner loop is a window of five days no longer containing any original days   
-    predictions.append(window)
+predictions = predict(arys['close_nmd'][2])
 
 
 #%%
 # The first set of predictions are
 predictions[0]
 # The normaliser for this set of predictions is
-arys['normaliser'][0][0]
+arys['normaliser'][2][0]
 # That means the actual prices for those predictions are
-arys['normaliser'][0][0] * predictions[0]
+arys['normaliser'][2][0] * predictions[0]
 # We can also see what window these predictions were made for
-arys['window'][0][0]
+arys['window'][2][0]
 # And we can check our original data for this window
-df[df.window == 3452][['date','ticker','close','window','normaliser']]
+df[df.window == 4118][['date','ticker','close','window','normaliser']]
 # The next five days are predicted to do the following
-arys['normaliser'][0][0] * predictions[0]
+arys['normaliser'][2][0] * predictions[0]
+
+#%%
+f = pd.DataFrame(arys['date'][2][457], columns=['date'])
+f['date'] = f['date'] + BDay(5)
+
+pred_normd = predictions[457] * arys['normaliser'][2][457]
+
+p = pd.DataFrame(pred_normd, columns=['close'])
+
+f = pd.concat([f, p], axis=1)
+
+df_plot = pd.concat([df[['date','close']][-6:][:-1], f])
+
+#%%
+plt.figure(figsize=(10,5))
+plt.plot(df_plot.date, df_plot.close)
+plt.show()
 
 
 
