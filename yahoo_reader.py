@@ -57,5 +57,6 @@ class finance_data():
             df.to_csv('./csv/stock_data.csv', index=False)
             
         df['date'] = pd.to_datetime(df['date'])
+        df['day_number'] = df['date'].apply(lambda x: x.weekday())
      
         return df

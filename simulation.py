@@ -28,12 +28,25 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
-                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 'VISI']
-new_new_volatile_stocks = ['A', 'AA', 'AABA', 'AAME', 'AAN', 'AAON', 'AAP', 'AAXN', 'AB', 'ABAX', 'ABB','ABC', 'ABCB', 'ABE', 'ABEO', 'ABEV', 'ABG' ]
-df = yr.finance_data(tickers=new_new_volatile_stocks).get_data()
+                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 
+                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 
+                    'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+                    'ALT', 'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 
+                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+                    'CRNT', 'CRZO', 'DWSN', 'AXTI' ]
+df_tickers = pd.read_csv('volatile_stocks.csv', sep=';')
+#200 done
+
+new_new_volatile_stocks = ['ASA', 'ASB', 'ASFI', 'ASG', 'ASGN', 'ASH', 'ASML', 'ASNA', 'ASNA', 'ASR', 'ASRV', 'AST', 'ASTC', 'ASTE', 'ASUR', 'ASX', 'ASYS', 'ATAX', 'ATGE', 'ATI', 'ATLC', 'ATLO', 'ATNI', 'ATO', 'ATR', 'ATRI', 'ATRO', 'ATRS', 'ATTU', 'ATU', 'ATVI', 'AU', 'AUBN', 'AUDC', 'AUO', 'AUTO', 'AVA', 'AVB', 'AVD', 'AVDL', 'AVID', 'AVK', 'AVNW', 'AVP', 'AVT', 'AVX', 'AVY', 'AWF', 'AWR', 'AWRE', 'AXAS', 'AXDX', 'AXE', 'AXGN', 'AXL', 'AXP', 'AXR', 'AXTI', 'AYI', 'AZN', 'AZO', 'AZPN', 'AZZ']
+df = yr.finance_data(tickers=tickers_lst).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 
 #%%
+tickers_lst = df_tickers['ticker'].tolist()[93:200]
+tickers_lst = list(set(tickers_lst))
 #df = pd.read_csv('saved_stock_data_1.csv')
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
@@ -75,7 +88,7 @@ seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 2
+attempts = 3
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -90,7 +103,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in new_new_volatile_stocks:
+for stock in tickers_lst:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
@@ -109,7 +122,7 @@ for stock in new_new_volatile_stocks:
     model = lf.build_model(model_layers)
     for lstm_layer_1 in [16]:
         for lstm_layer_2 in [45]:
-            for batch_size in [32]:
+            for batch_size in [32,64]:
                 model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
              
                 for k in range(int(attempts)):
@@ -135,7 +148,7 @@ for stock in new_new_volatile_stocks:
                         predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
                         current_prediction = lf.predict_current(seq_len,days_ahead, data[-5:], model)
                         df_profits[stock] = profit
-                        lf.save_model(stock, model)
+#                        lf.save_model(stock, model)
                         
                     ##
 
@@ -198,20 +211,20 @@ print(dct_promising.keys())
     
 
 #%%
-# Create email body
-subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
-
-# Send email
-pygmail.send_mail(subject=subject,
-          attachments=attachments,
-          body=body)
+## Create email body
+#subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
+#
+## Send email
+#pygmail.send_mail(subject=subject,
+#          attachments=attachments,
+#          body=body)
 #%%
 prediction_date = '2018-03-04'
 
 
 
-
-lf.check_stocks(stock, df, prediction_date, y_test_correction)
+#
+#lf.check_stocks(stock, df, prediction_date, y_test_correction)
 
     
     
