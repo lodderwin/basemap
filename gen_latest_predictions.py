@@ -46,5 +46,7 @@ for ticker in yr.tickers:
 # Compose and send email
 subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)
 pygmail.send_mail(subject=subject,
-                  attachments=attachments, 
+                  attachments=['./plots/2018-03-20/latest_prediction_CRNT.png',
+                               './plots/2018-03-20/latest_prediction_BOOM.png',
+                               './plots/2018-03-20/latest_prediction_AVD.png'], 
                   body=body)
