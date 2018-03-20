@@ -8,11 +8,9 @@ import lstm_model
 import plotting
 import pygmail
 
-#%%
 yr = yahoo_reader.finance_data(tickers=['CRNT','AVD','BOOM'])
 df_main = yr.get_data()
 
-#%%
 ticker_dict = {}
 
 # Prep data for LSTM model
