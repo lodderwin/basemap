@@ -35,7 +35,7 @@ def normalise_windows(df, window_length=6):
         df_temp['window'] = i + 1
         # Normailse close price column
         df_temp['normaliser'] = df_temp.close[0]
-        df_temp['close_nmd'] = df_temp.close / df_temp.normaliser
+        df_temp['close_nmd'] = (df_temp.close / df_temp.normaliser) - 1
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         
