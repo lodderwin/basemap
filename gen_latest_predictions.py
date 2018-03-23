@@ -8,7 +8,7 @@ import lstm_model
 import plotting
 import pygmail
 
-yr = yahoo_reader.finance_data(tickers=['CRNT','AVD','BOOM'])
+yr = yahoo_reader.finance_data(tickers=['AMSC','IFON'])#,'SMRT'])
 df_main = yr.get_data()
 
 ticker_dict = {}
@@ -28,7 +28,7 @@ for ticker in yr.tickers:
     # Create X based on last five days of close data
     X = utils.series_to_ndarray(df_p[-5:], column='close')
     # Normailse X, by dividing all numbers in array but first number
-    X_nmd = X / X[0][0]
+    X_nmd = (X / X[0][0]) - 1
  
     predictions_nmd = lstm_model.predict(model, X_nmd)
     predictions = predictions_nmd * X[0][0]
@@ -45,8 +45,8 @@ for ticker in yr.tickers:
 
 # Compose and send email
 subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)
-pygmail.send_mail(subject=subject,
-                  attachments=['./plots/2018-03-20/latest_prediction_CRNT.png',
-                               './plots/2018-03-20/latest_prediction_BOOM.png',
-                               './plots/2018-03-20/latest_prediction_AVD.png'], 
-                  body=body)
+#pygmail.send_mail(subject=subject,
+#                  attachments=['./plots/2018-03-20/latest_prediction_CRNT.png',
+#                               './plots/2018-03-20/latest_prediction_BOOM.png',
+#                               './plots/2018-03-20/latest_prediction_AVD.png'], 
+#                  body=body)
