@@ -28,26 +28,31 @@ new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'B
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
 promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
-                    'RAS', 'TENX', 'BKYI', 'BOOM', 'GALT', 'GEN', 'IFON', 
-                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI', 'UUU', 
-                    'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
-                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
-                    'ALT', 'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
-                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 
-                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
-                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
-                    'CRNT', 'CRZO', 'DWSN', 'AXTI' ]
-df_tickers = pd.read_csv('volatile_stocks.csv', sep=';')
-#200 done
+                     'TENX', 'BKYI', 'GALT', 'GEN', 'IFON', 
+                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI',
+                    'UUU']
+#promising_stocks = [                    'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+#                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+#                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+#                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD']
+#promising_stocks =    ['ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+#                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+#                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
+#                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK']
 
-new_new_volatile_stocks = ['ASA', 'ASB', 'ASFI', 'ASG', 'ASGN', 'ASH', 'ASML', 'ASNA', 'ASNA', 'ASR', 'ASRV', 'AST', 'ASTC', 'ASTE', 'ASUR', 'ASX', 'ASYS', 'ATAX', 'ATGE', 'ATI', 'ATLC', 'ATLO', 'ATNI', 'ATO', 'ATR', 'ATRI', 'ATRO', 'ATRS', 'ATTU', 'ATU', 'ATVI', 'AU', 'AUBN', 'AUDC', 'AUO', 'AUTO', 'AVA', 'AVB', 'AVD', 'AVDL', 'AVID', 'AVK', 'AVNW', 'AVP', 'AVT', 'AVX', 'AVY', 'AWF', 'AWR', 'AWRE', 'AXAS', 'AXDX', 'AXE', 'AXGN', 'AXL', 'AXP', 'AXR', 'AXTI', 'AYI', 'AZN', 'AZO', 'AZPN', 'AZZ']
+#add avd boom crnt
+current = ['ASTC', 'ACY']
+df_tickers = pd.read_csv('volatilestocks.csv', sep=';')
+#200 done
+tickers_lst = df_tickers['ticker'].tolist()[:50]
+tickers_lst = list(set(tickers_lst))
+
 df = yr.finance_data(tickers=tickers_lst).get_data()
 #df.to_csv('saved_stock_data_1.csv')
+#df = pd.read_csv('saved_stock_data_1.csv')
 
 #%%
-tickers_lst = df_tickers['ticker'].tolist()[93:200]
-tickers_lst = list(set(tickers_lst))
-#df = pd.read_csv('saved_stock_data_1.csv')
+
 #%% select approppiate stocks
 #df_volatile_stocks = pd.read_csv('volatile_stocks.csv' , encoding='latin-1')
 #def choose_stocks(df_volatile_stocks):
@@ -120,35 +125,36 @@ for stock in tickers_lst:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
     model = lf.build_model(model_layers)
-    for lstm_layer_1 in [16]:
-        for lstm_layer_2 in [45]:
-            for batch_size in [32,64]:
-                model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
-             
-                for k in range(int(attempts)):
-                    print(stock)
-                    model.fit(
-                            x_train,
-                            y_train,
-                            batch_size=batch_size,
-                            nb_epoch=1,
-                            validation_split=0.05)
-                    days_ahead = 5
-                    predicted_test_temp = lf.predict_test(days_ahead, x_test, seq_len, model)
-                    predictions_in_function = int(x_test.shape[0]/days_ahead)
-                    corrected_predicted_test_temp = lf.correct_predict_test(days_ahead, predicted_test_temp, y_test_correction, seq_len)
-                    turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test_temp, y_test_correction)
-                    print(turnover,profit,'model:'+str(lstm_layer_1) + ' ' + str(lstm_layer_2))
-                    if turnover>profit:
-                        investment_curve = investment_dev
-                        best_model = model
-                        profit = turnover
-                        ##
-                        predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
-                        predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
-                        current_prediction = lf.predict_current(seq_len,days_ahead, data[-5:], model)
-                        df_profits[stock] = profit
-#                        lf.save_model(stock, model)
+    for lstm_layer_1 in [10,15]:
+        for lstm_layer_2 in [25,40]:
+            for batch_size in [32]:
+                for epoch in [1]:
+                    model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
+                 
+                    for k in range(int(attempts)):
+                        print(stock)
+                        model.fit(
+                                x_train,
+                                y_train,
+                                batch_size=batch_size,
+                                nb_epoch=epoch,
+                                validation_split=0.05)
+                        days_ahead = 5
+                        predicted_test_temp = lf.predict_test(days_ahead, x_test, seq_len, model)
+                        predictions_in_function = int(x_test.shape[0]/days_ahead)
+                        corrected_predicted_test_temp = lf.correct_predict_test(days_ahead, predicted_test_temp, y_test_correction, seq_len)
+                        turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test_temp, y_test_correction)
+                        print(turnover,profit,'model:'+str(lstm_layer_1) + ' ' + str(lstm_layer_2))
+                        if turnover>profit:
+                            investment_curve = investment_dev
+                            best_model = model
+                            profit = turnover
+                            ##
+                            predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
+                            predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
+                            current_prediction,compare_value = lf.predict_current(seq_len,days_ahead, data[-5:], model)
+                            df_profits[stock] = profit
+    #                        lf.save_model(stock, model)
                         
                     ##
 
@@ -178,7 +184,7 @@ for stock in tickers_lst:
     lf.plot_investment(investment_curve, stock)
     ##final and last prediction
     current_prediction_correction = lf.predict_current_corrected(current_prediction, y_test_correction, seq_len)
-    highest_increase_dct[stock]= current_prediction_correction[-1]-y_test_correction[-1]
+    highest_increase_dct[stock]= current_prediction[-1]-compare_value
     dct_predictions[stock] =  current_prediction_correction
 
     #load
@@ -211,20 +217,15 @@ print(dct_promising.keys())
     
 
 #%%
-## Create email body
-#subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
-#
-## Send email
-#pygmail.send_mail(subject=subject,
-#          attachments=attachments,
-#          body=body)
+# Create email body
+subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
+
+# Send email
+pygmail.send_mail(subject=subject,
+          attachments=attachments,
+          body=body)
 #%%
-prediction_date = '2018-03-04'
 
-
-
-#
-#lf.check_stocks(stock, df, prediction_date, y_test_correction)
 
     
     
