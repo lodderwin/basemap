@@ -158,11 +158,12 @@ def predict_current(seq_len,days_ahead, data, model):
 #    current_frame = normalise_data(data)
 #    current_frame[:] = [x - 1 for x in current_frame]
     current_frame  = np.asarray(current_frame)
+    compare_value = current_frame[-1]
     for j in range(days_ahead):
         predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
         current_frame = current_frame[1:]
         current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
-    return predicted
+    return predicted, compare_value
 def predict_current_corrected(current_prediction, y_test_correction, seq_len):
     current_prediction_corrected = []
     for j in range(len(current_prediction)):
