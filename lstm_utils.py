@@ -89,3 +89,24 @@ def lstm_ary_splits(df, cols=None):
         arys[col] = [x_train, y_train, x_test, y_test]
         
     return arys, dict_df
+
+def top_x_of_dict(dictionary, x):
+    """Returns the top x items of given dictionary.
+    
+    Parameters
+    --------
+    dictionary : Dictionary you would like to reduce to top x only, dict
+    x : The number of items you would like to return, int
+    
+    Returns
+    --------
+    dictionary : Dictionary reduced to top x items, dict
+    """
+    # Sort dict keys from highest to lowest
+    keys = sorted(dictionary, key=dictionary.get, reverse=True)
+    # Select top x keys
+    keys = keys[:x]
+    # Reduce dict to only those in keys
+    dictionary = {key : value for key, value in dictionary.items() if key in keys}
+    
+    return dictionary
