@@ -23,7 +23,7 @@ for ticker in yr.tickers:
     x_train, y_train, x_test, y_test = utils.train_test_split(close_nmd_array)
 
     # Build model
-    model = lstm_model.randomised_model_config(x_train, y_train, x_test, y_test)
+    model, mse = lstm_model.randomised_model_config(x_train, y_train, x_test, y_test)
 
     # Create X based on last five days of close data
     X = utils.series_to_ndarray(df_p[-5:], column='close')
@@ -31,11 +31,10 @@ for ticker in yr.tickers:
     X_nmd = (X / X[0][0]) - 1
  
     predictions_nmd = lstm_model.predict(model, X_nmd)
-    predictions = predictions_nmd * X[0][0]
+    predictions = (predictions_nmd + 1) * X[0][0]
     
     # Calculate predicted growth over 5 days
-    growth = round((predictions_nmd[0][predictions_nmd.shape[1] - 1]
-        - predictions_nmd[0][0])[0] * 100, 2)
+    growth = np.round(((predictions[0][4] / X[0][4]) -1) * 100, 2)[0]
     
     # Plot predictions
     plotting.plot_latest_prediction(df, predictions, ticker, growth)

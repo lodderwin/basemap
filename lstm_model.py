@@ -35,7 +35,7 @@ def build_model(params):
     return model
 
 def randomised_model_config(x_train, y_train, x_test, y_test, 
-                            mse=10, iterations=20):
+                            mse=10, iterations=1):
     """
     """
     for iteration in range(0, iterations):
@@ -55,7 +55,7 @@ def randomised_model_config(x_train, y_train, x_test, y_test,
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs=10)
+                  epochs=1)
     
         # Get models MSE 
         score = model.evaluate(x_test, y_test, verbose=0)[1]
@@ -64,7 +64,7 @@ def randomised_model_config(x_train, y_train, x_test, y_test,
             mse = score
             best_model = model
             
-    return best_model
+    return best_model, mse
 
 def predict(model, X):
     """X being x_train or x_test
