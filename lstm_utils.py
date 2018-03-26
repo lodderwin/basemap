@@ -79,7 +79,7 @@ def lstm_ary_splits(df, cols=None):
     arys = {}
     
     for i, col in enumerate(array_cols):
-        print('\rsplitting column ' + str(i + 1) + ' of ' + str(len(array_cols)), 
+        print('\rsplitting column {} of {}'.format(i + 1, len(array_cols)), 
               end='\r', flush=False)
         # Use df to create multidimensional array for column
         ary = series_to_ndarray(df, column=col)
@@ -110,3 +110,13 @@ def top_x_of_dict(dictionary, x):
     dictionary = {key : value for key, value in dictionary.items() if key in keys}
     
     return dictionary
+
+def gen_X(df, window=0):
+    # Define which window to use as X
+    df = df[df.window == df.window.max() - window][-5:]
+    # Create X based on last five days of close data
+    X = series_to_ndarray(df, column='close')
+    # Normailse X, by dividing all numbers in array but first number
+    X_nmd = (X / X[0][0]) - 1
+    
+    return X, X_nmd
