@@ -27,24 +27,25 @@ fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
 new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
-promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
+promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED', 
                      'TENX', 'BKYI', 'GALT', 'GEN', 'IFON', 
                     'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI',
-                    'UUU']
-#promising_stocks = [                    'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
-#                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
-#                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
-#                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD']
-#promising_stocks =    ['ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
-#                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
-#                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
-#                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK']
+                    'UUU', 'ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD',
+                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
+                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
+                      'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
+                    
 
 #add avd boom crnt
 current = ['ASTC', 'ACY']
 df_tickers = pd.read_csv('volatilestocks.csv', sep=';')
 #200 done
-tickers_lst = df_tickers['ticker'].tolist()[:50]
+tickers_lst = df_tickers['ticker'].tolist()[150:200]
 tickers_lst = list(set(tickers_lst))
 
 df = yr.finance_data(tickers=tickers_lst).get_data()
@@ -225,7 +226,29 @@ pygmail.send_mail(subject=subject,
           attachments=attachments,
           body=body)
 #%%
+def top_x_of_dict(dictionary, x):
+    """Returns the top x items of given dictionary.
+    
+    Parameters
+    --------
+    dictionary : Dictionary you would like to reduce to top x only, dict
+    x : The number of items you would like to return, int
+    
+    Returns
+    --------
+    dictionary : Dictionary reduced to top x items, dict
+    """
+    # Sort dict keys from highest to lowest
+    keys = sorted(dictionary, key=dictionary.get, reverse=True)
+    # Select top x keys
+    keys = keys[:x]
+    # Reduce dict to only those in keys
+    dictionary = {key : value for key, value in dictionary.items() if key in keys}
+    
+    return dictionary
 
+#%%
+top_x_of_dict(df_profits, 15)
 
     
     
