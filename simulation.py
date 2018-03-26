@@ -27,19 +27,19 @@ fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
 new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
-promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'NEON', 'OLED', 
+promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED', 
                      'TENX', 'BKYI', 'GALT', 'GEN', 'IFON', 
                     'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI',
-                    'UUU']
-#promising_stocks = [ 'VISI','ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
-#                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
-#                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
-#                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD']
-#promising_stocks =    ['ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
-#                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
-#                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
-#                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
-#                       'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
+                    'UUU', 'ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD',
+                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
+                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
+                      'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
+                    
 
 #add avd boom crnt
 current = ['ASTC', 'ACY']
