@@ -8,7 +8,7 @@ import lstm_model
 import plotting
 import pygmail
 
-yr = yahoo_reader.finance_data(tickers=['AMSC'])#,'GEN','SMRT'])
+yr = yahoo_reader.finance_data(tickers=['AMSC','GEN','SMRT'])
 df_main = yr.get_data()
 
 ticker_dict = {}
@@ -27,8 +27,8 @@ for ticker in yr.tickers:
                                                     y_train, 
                                                     x_test,
                                                     y_test,
-                                                    iterations=1,
-                                                    epochs=1)
+                                                    iterations=20,
+                                                    epochs=10)
 
     # Create X based on last window in data (last window is 0)
     X, X_nmd = utils.gen_X(df_p, window=0)
