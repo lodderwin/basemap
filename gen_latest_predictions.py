@@ -8,7 +8,7 @@ import lstm_model
 import plotting
 import pygmail
 
-yr = yahoo_reader.finance_data(tickers=['AMSC','IFON'])#,'SMRT'])
+yr = yahoo_reader.finance_data(tickers=['AMSC','GEN','SMRT'])
 df_main = yr.get_data()
 
 ticker_dict = {}
@@ -23,12 +23,15 @@ for ticker in yr.tickers:
     x_train, y_train, x_test, y_test = utils.train_test_split(close_nmd_array)
 
     # Build model
-    model, mse = lstm_model.randomised_model_config(x_train, y_train, x_test, y_test)
+    model, mse = lstm_model.randomised_model_config(x_train,
+                                                    y_train, 
+                                                    x_test,
+                                                    y_test,
+                                                    iterations=20,
+                                                    epochs=10)
 
-    # Create X based on last five days of close data
-    X = utils.series_to_ndarray(df_p[-5:], column='close')
-    # Normailse X, by dividing all numbers in array but first number
-    X_nmd = (X / X[0][0]) - 1
+    # Create X based on last window in data (last window is 0)
+    X, X_nmd = utils.gen_X(df_p, window=0)
  
     predictions_nmd = lstm_model.predict(model, X_nmd)
     predictions = (predictions_nmd + 1) * X[0][0]
@@ -37,15 +40,14 @@ for ticker in yr.tickers:
     growth = np.round(((predictions[0][4] / X[0][4]) -1) * 100, 2)[0]
     
     # Plot predictions
-    plotting.plot_latest_prediction(df, predictions, ticker, growth)
+    plt = plotting.plot_latest_prediction(df, predictions, ticker, growth, mse,
+                                          model, df_p)
     
     # Add predicted growth to ticker_dict
     ticker_dict[ticker] = growth
 
 # Compose and send email
 subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)
-#pygmail.send_mail(subject=subject,
-#                  attachments=['./plots/2018-03-20/latest_prediction_CRNT.png',
-#                               './plots/2018-03-20/latest_prediction_BOOM.png',
-#                               './plots/2018-03-20/latest_prediction_AVD.png'], 
-#                  body=body)
+pygmail.send_mail(subject=subject,
+                  attachments=attachments, 
+                  body=body)

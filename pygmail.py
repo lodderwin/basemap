@@ -129,9 +129,7 @@ def compose_email(expected_deltas : dict):
     tickers_in_dict = list(expected_deltas.keys())
     
     # Create list of graphs that are only in tickers_in_dict list
-    graphs = [file for file in files if file[:4] in tickers_in_dict or file[:3] in tickers_in_dict]
-    # Select graph file if it is a compare_predictions or current_predictions
-    graphs = [file for file in graphs if file[-27:] == 'current_prediction_test.png' or file[-15:] == 'predictions.png']
+    graphs = [f for f in files if f[:4] in tickers_in_dict or f[:3] in tickers_in_dict]
     
     # Use pandas to sort list of graph names by expected delta
     df_graphs = pd.DataFrame(graphs, columns=['filename'])

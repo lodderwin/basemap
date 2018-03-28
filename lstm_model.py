@@ -35,11 +35,11 @@ def build_model(params):
     return model
 
 def randomised_model_config(x_train, y_train, x_test, y_test, 
-                            mse=10, iterations=20):
+                            mse=10, iterations=20, epochs=10):
     """
     """
     for iteration in range(0, iterations):
-        print('iteration: ', iteration + 1, 'of', iterations)
+        print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
         params = {'input_dim':1,
                   'node1':np.random.randint(10,20),
@@ -55,7 +55,7 @@ def randomised_model_config(x_train, y_train, x_test, y_test,
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs=10)
+                  epochs = epochs)
     
         # Get models MSE 
         score = model.evaluate(x_test, y_test, verbose=0)[1]
@@ -75,7 +75,7 @@ def predict(model, X):
     predictions = []
     
     for idx, window in enumerate(X):
-        print('\rpredicting window ' + str(idx + 1) + ' of ' + str(X.shape[0]),
+        print('\rpredicting window {} of {}'.format(idx + 1, X.shape[0]),
               end='\r', flush=False)
         # Reshape window as lstm predict needs np array of shape (1,5,1)
         window = np.reshape(window, (1, window.shape[0], window.shape[1]))
