@@ -40,15 +40,15 @@ promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED',
                     'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
                       'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
                     
-
+current = ['SMRT', 'GEN', 'AMSC', 'DAIO', 'EXTR', 'EXEL', 'ELTK', 'INFI', 'INSY']
+current = ['DAIO', 'UUU', 'OLED']
 #add avd boom crnt
-current = ['ASTC', 'ACY']
 df_tickers = pd.read_csv('volatilestocks.csv', sep=';')
 #200 done
 tickers_lst = df_tickers['ticker'].tolist()[150:200]
 tickers_lst = list(set(tickers_lst))
 
-df = yr.finance_data(tickers=tickers_lst).get_data()
+df = yr.finance_data(tickers=current).get_data()
 #df.to_csv('saved_stock_data_1.csv')
 #df = pd.read_csv('saved_stock_data_1.csv')
 
@@ -109,7 +109,7 @@ dct_predictions = {}
 dct_dates = {}
 investment_curve = 0
 dct_promising = {}
-for stock in tickers_lst:
+for stock in current:
     #reset for each stock
     best_model = 'shit'
     profit = 0.0
