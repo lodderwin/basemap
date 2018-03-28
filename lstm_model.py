@@ -3,8 +3,9 @@ make predictions.
 """
 import numpy as np
 from keras.layers.recurrent import LSTM
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation, Dropout
+import datetime as dt
 
 def build_model(params):
     """
@@ -34,10 +35,8 @@ def build_model(params):
     
     return model
 
-def randomised_model_config(x_train, y_train, x_test, y_test, 
+def randomised_model_config(ticker,x_train, y_train, x_test, y_test,
                             mse=10, iterations=20, epochs=10):
-    """
-    """
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
@@ -59,12 +58,16 @@ def randomised_model_config(x_train, y_train, x_test, y_test,
     
         # Get models MSE 
         score = model.evaluate(x_test, y_test, verbose=0)[1]
-        
+        ## add simulator
+        date_today = dt.datetime.now().strftime("%Y-%m-%d")
         if score < mse:
             mse = score
+            model.save(date_today+'_'+ticker+'_model.h5', overwrite=True)
             best_model = model
-            
+    best_model = load_model(date_today+'_'+ticker+'_model.h5')
+       
     return best_model, mse
+
 
 def predict(model, X):
     """X being x_train or x_test

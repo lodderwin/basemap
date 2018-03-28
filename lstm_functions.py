@@ -117,7 +117,8 @@ def open_model(stock):
 def predict_test(days_ahead, x_test, seq_len, model):
     predicted_test = []
     predictions_in_function = int(x_test.shape[0]/days_ahead)
-#    remaining_predictions = x_test.shape[0]%days_ahead
+    remaining_predictions = x_test.shape[0]-predictions_in_function*days_ahead
+    predicted_test_remaining = []
     for i in range(predictions_in_function):
     #current_frame is x values used to predict y
         current_frame = x_test[i*days_ahead]
@@ -130,7 +131,19 @@ def predict_test(days_ahead, x_test, seq_len, model):
     # use predicted values for future predictions
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
-    return predicted_test
+        
+    for k in range(remaining_predictions):
+        current_frame = x_test[(i+1)*days_ahead+k]
+        predicted = []
+        for j in range(days_ahead):
+    #4 days predicted ahead with predicted values!
+    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
+            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+            current_frame = current_frame[1:]
+    # use predicted values for future predictions
+            current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
+        predicted_test_remaining.append(predicted)
+    return predicted_test, predicted_test_remaining
 
 def predict_test_day(days_ahead, x_test, seq_len, model):
     predicted_test = []

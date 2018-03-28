@@ -31,7 +31,7 @@ def x_y_array_split(array):
     
     return X, y
 
-def train_test_split(array, ratio=0.9):
+def train_test_split(array, ratio=0.95):
     """Takes multi-dimensional array as input and returns arrays for:
     x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
     fixed random state.

@@ -20,7 +20,7 @@ def normalise_windows(df, window_length=6):
     de-normalisation), close_nmd (nomrlaised close price)
     """
     # Minus 5 instead of 6 due to range function used in loop
-    windows = len(df) - 5
+    windows = len(df) - (window_length-1)
     # Create empty dataframe to be filled with windows
     df_final = pd.DataFrame([])
     
@@ -44,7 +44,7 @@ def normalise_windows(df, window_length=6):
     
     return df_final
 
-def pre_process_data(df):
+def pre_process_data(df,window_length=6):
     """
     Processes data for LSTM model
     
@@ -72,7 +72,7 @@ def pre_process_data(df):
         # Create new df with one ticker only
         df_temp = df[df.ticker == ticker]
         # Create normalised windows
-        df_temp = normalise_windows(df_temp)
+        df_temp = normalise_windows(df_temp, window_length=window_length)
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         

@@ -15,6 +15,7 @@ from pandas.tseries.offsets import BDay
 import preprocessing as pp
 import pygmail
 import yaml
+from keras.models import load_model
 # Define the instruments to download
 tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','ASML','AMAG'
           ,'QCOM', 'CSCO', 'BA', 'AAOI', 'GPOR', 'AEG'
@@ -27,17 +28,17 @@ fluc_stocks = ['EMMS', 'RAS', 'DTRM', 'INT'
 new_volatile_stocks = ['IFON', 'AUTO', 'DXR', 'CHRS', 'SNMX', 'AMWD', 'SMRT', 'BOOM', 'UUU', 'BRID','SCX', 'VISI', 'PDLI','BKYI', 'GEN', 'GALT','BIG', 'BFLS', 'INFI',
                        'CECE', 'INSY', 'FIZZ', 'MGEN', 'UTSI', 'OMEX', 'IPAR']
 #df = pp.preProcessData(df)
-promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED', 
-                     'TENX', 'BKYI', 'GALT', 'GEN', 'IFON', 
-                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI',
-                    'UUU', 'ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
-                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
-                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
-                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD',
-                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
-                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
-                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
-                    'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
+#promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED', 
+#                     'TENX', 'BKYI', 'GALT', 'GEN', 'IFON', 
+#                    'INFI', 'INSY', 'OMEX', 'SMRT', 'SNMX', 'UTSI',
+#                    'UUU', 'ABEO', 'AA','ACY', 'ACHV', 'ACLS', 'AEMD, AEZS', 
+#                    'AEHR', 'AGEN', 'AGM', 'AHPI', 'AIRI', 'AKS' , 'ALQA', 
+#                     'AMD', 'AMSC', 'ANF', 'AOI', 'AP', 'ARCB', 'ARDM',
+#                    'ARL', 'ARLZ', 'ARNA', 'ARQL', 'ARRY', 'ARTW', 'ARWR', 'BOOM', 'CRNT', 'AVD',
+#                    'ASFI', 'ASNA', 'ASTC', 'ASUR' , 'ASYS', 'ATLC', 'AXAS',
+#                    'ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX', 'CGEN', 'CLWT', 
+#                      'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS',
+promising_stocks = [ 'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCRX', 'BELFA', 'CAMT', 'CBI','BBGI',
                       'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
                     
 current = ['SMRT', 'GEN', 'AMSC', 'DAIO', 'EXTR', 'EXEL', 'ELTK', 'INFI', 'INSY']
@@ -94,7 +95,7 @@ seq_len = 5
 # What are these for? configuring model
 model_layers = [1,5,16,1]
 # attempts at what? #attempts at finding the correct model
-attempts = 3
+attempts = 2
 
 #what stock to invest in?
 highest_increase_dct = {}
@@ -125,21 +126,22 @@ for stock in current:
         df_not_sufficient[stock + '_short_on_data'] = len(data)
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
-    model = lf.build_model(model_layers)
-    for lstm_layer_1 in [10,15]:
-        for lstm_layer_2 in [25,40]:
+#    model = lf.build_model(model_layers)
+    for lstm_layer_1 in [10]:
+        for lstm_layer_2 in [25]:
             for batch_size in [32]:
-                for epoch in [1,2]:
-                    model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
+                for epoch in [1]:
+#                    model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
+                    model = load_model('test.h5')
                  
                     for k in range(int(attempts)):
                         print(stock)
-                        model.fit(
-                                x_train,
-                                y_train,
-                                batch_size=batch_size,
-                                nb_epoch=epoch,
-                                validation_split=0.05)
+#                        model.fit(
+#                                x_train,
+#                                y_train,
+#                                batch_size=batch_size,
+#                                nb_epoch=epoch,
+#                                validation_split=0.05)
                         days_ahead = 5
                         predicted_test_temp = lf.predict_test(days_ahead, x_test, seq_len, model)
                         predictions_in_function = int(x_test.shape[0]/days_ahead)
@@ -151,11 +153,11 @@ for stock in current:
                             best_model = model
                             profit = turnover
                             ##
-                            predicted_test = lf.predict_test(days_ahead, x_test, seq_len, model)
+                            predicted_test,predicted_test_remaining = lf.predict_test(days_ahead, x_test, seq_len, model)
                             predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
                             current_prediction,compare_value = lf.predict_current(seq_len,days_ahead, data[-5:], model)
                             df_profits[stock] = profit
-    #                        lf.save_model(stock, model)
+                            
                         
                     ##
 
