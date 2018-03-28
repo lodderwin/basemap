@@ -2,6 +2,7 @@
 make predictions.
 """
 import numpy as np
+from numpy import newaxis
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation, Dropout
@@ -63,7 +64,6 @@ def randomised_model_config(ticker,x_train, y_train, x_test, y_test,
         if score < mse:
             mse = score
             model.save(date_today+'_'+ticker+'_model.h5', overwrite=True)
-            best_model = model
     best_model = load_model(date_today+'_'+ticker+'_model.h5')
        
     return best_model, mse
@@ -99,3 +99,27 @@ def predict(model, X):
     predictions = np.reshape(predictions, X.shape)
         
     return predictions
+
+def predict_test(days_ahead, x_test, model,df):
+    predicted_test = []
+    predictions_in_function = int(x_test.shape[0]/days_ahead)
+    for i in range(predictions_in_function):
+        current_frame = x_test[i*days_ahead]
+        predicted = []
+        for j in range(days_ahead):
+    #4 days predicted ahead with predicted values!
+    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
+            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+            current_frame = current_frame[1:]
+    # use predicted values for future predictions
+            current_frame = np.insert(current_frame, [len(x_test[0])-1], predicted[-1], axis=0)
+        predicted_test.append(predicted)
+    corrected_predicted_test = []
+    for i in range(predictions_in_function):
+        correct_predicted = []
+        for j in range(len(predicted_test[0])):
+            value = predicted_test[i][j]*df.loc[-len(x_test)-days_ahead+i*days_ahead,'close']
+            correct_predicted.append(value)
+        corrected_predicted_test.append(correct_predicted)
+        
+    return corrected_predicted_test
