@@ -41,7 +41,7 @@ promising_stocks = ['AMAG', 'ADMP', 'DAIO', 'MOSY', 'OLED',
                       'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
                     
 current = ['SMRT', 'GEN', 'AMSC', 'DAIO', 'EXTR', 'EXEL', 'ELTK', 'INFI', 'INSY']
-current = ['DAIO', 'UUU', 'OLED']
+current = ['OMEX', 'IFON']
 #add avd boom crnt
 df_tickers = pd.read_csv('volatilestocks.csv', sep=';')
 #200 done
@@ -129,7 +129,7 @@ for stock in current:
     for lstm_layer_1 in [10,15]:
         for lstm_layer_2 in [25,40]:
             for batch_size in [32]:
-                for epoch in [1]:
+                for epoch in [1,2]:
                     model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
                  
                     for k in range(int(attempts)):
