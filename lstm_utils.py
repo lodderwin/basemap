@@ -31,7 +31,7 @@ def x_y_array_split(array):
     
     return X, y
 
-def train_test_split(array, ratio=0.95):
+def train_test_split(array, ratio=0.97):
     """Takes multi-dimensional array as input and returns arrays for:
     x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
     fixed random state.
@@ -46,14 +46,14 @@ def train_test_split(array, ratio=0.95):
     # Split X into train and test
     x_train, x_test = np.split(X, [split_row])
     # Shuffle train dataset using fixed random state
-    np.random.RandomState(0).shuffle(x_train)
+    np.random.RandomState(1).shuffle(x_train)
     
     # Take last day of each window as y
     y = ary[:, -1, :]
     # Split X into train and test
     y_train, y_test = np.split(y, [split_row])
     # Shuffle train dataset using fixed random state
-    np.random.RandomState(0).shuffle(y_train)
+    np.random.RandomState(1).shuffle(y_train)
     
     return x_train, y_train, x_test, y_test
 

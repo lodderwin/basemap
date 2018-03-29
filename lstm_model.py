@@ -42,16 +42,16 @@ def randomised_model_config(ticker,df,days_ahead,x_train, y_train, x_test, y_tes
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
-#        params = {'input_dim':1,
-#                  'node1':np.random.randint(10,20),
-#                  'node2':np.random.randint(35,45),
-#                  'output_dim':1,
-#                  'batch_size':np.random.randint(10,40)}
         params = {'input_dim':1,
-                  'node1':15,
-                  'node2':45,
+                  'node1':np.random.randint(20,30),
+                  'node2':np.random.randint(40,60),
                   'output_dim':1,
-                  'batch_size':32}
+                  'batch_size':np.random.randint(10,40)}
+#        params = {'input_dim':1,
+#                  'node1':15,
+#                  'node2':45,
+#                  'output_dim':1,
+#                  'batch_size':32}
         
         # Build model
         model = build_model(params)
@@ -86,11 +86,11 @@ def randomised_model_config(ticker,df,days_ahead,x_train, y_train, x_test, y_tes
     return best_model, investment
 
 
-def predict(model, X):
+def predict(model, X, days_ahead):
     """X being x_train or x_test
     """
     # How many days should the model predict ahead for?
-    days_ahead = 5
+    days_ahead = days_ahead
     
     predictions = []
     
@@ -148,16 +148,16 @@ def invest_sim(corrected_predicted_test_1, real_prices):
     dummy = 0
     investment_dev = [1000]
     for i in range(len(corrected_predicted_test)-1):
-        if corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==0 :
+        if corrected_predicted_test[i+1]>real_prices[i] and dummy==0 :
             investment = investment - (int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
             investment = investment*(real_prices[i+1]/real_prices[i])
             dummy = 1
-        elif corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==1:
+        elif corrected_predicted_test[i+1]>real_prices[i] and dummy==1:
             investment = investment*(real_prices[i+1]/real_prices[i])   
-        elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==1:
+        elif corrected_predicted_test[i+1]<real_prices[i] and dummy==1:
             investment = investment-(int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
             dummy = 0
-        elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==0:
+        elif corrected_predicted_test[i+1]<real_prices[i] and dummy==0:
             investment = investment
         investment_dev.append(investment)      
     return investment, investment_dev

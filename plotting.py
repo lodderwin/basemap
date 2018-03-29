@@ -19,12 +19,12 @@ plot_folder = './plots/{}/'.format(today)
 if not os.path.exists(plot_folder):
     os.mkdir(plot_folder)
     
-def add_predictions_to_plt(df, model, stock):
+def add_predictions_to_plt(df, model, stock,days_ahead):
     df['date'] = df['date'] + BDay(5)
     for window in range(0,17):
         X, X_nmd = utils.gen_X(df, window=window)
         
-        predictions_nmd = lstm_model.predict(model, X_nmd)
+        predictions_nmd = lstm_model.predict(model, X_nmd, days_ahead)
         predictions = (predictions_nmd + 1) * X[0][0]
         
         # Prep prediction data for plotting
@@ -37,7 +37,7 @@ def add_predictions_to_plt(df, model, stock):
         plt.plot(df_pred.date, df_pred.close, color='b', linestyle='--', alpha=0.6)
         
 
-def plot_latest_prediction(df, predictions, stock, growth, mse,
+def plot_latest_prediction(days_ahead,df, predictions, stock, growth, mse,
                            model, processed_df, days_of_history=20):
     """ Line plot of historical stock price and predicted stock price.
     Actuals are plotted with solid line and prediction continues as dotted
@@ -61,7 +61,7 @@ def plot_latest_prediction(df, predictions, stock, growth, mse,
     plt.plot(df_hist.date, df_hist.close, color='b', label='actual')
     
     # Plot predicted stock prices   
-    add_predictions_to_plt(processed_df, model, stock)
+    add_predictions_to_plt(processed_df, model, stock,days_ahead)
     
     # Configure 
     plt.title('Expected growth for {}: {}% (mse: {})'.format(stock, 
@@ -91,7 +91,7 @@ def plot_investment(investment_dev, ticker):
     plt.ylabel('Investment', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-#    plt.savefig(plot_folder + stock + '_investment_development.png',dpi=400)
+    plt.savefig(plot_folder + ticker + '_investment_development.png',dpi=400)
     plt.show()
     plt.close()
 def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
@@ -111,7 +111,7 @@ def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
     plt.ylabel('Stock Price', size=13)
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
-#    plt.savefig(plot_folder + stock + '_predictions.png',dpi=400)
+    plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
 
