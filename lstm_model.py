@@ -7,6 +7,7 @@ from keras.layers.recurrent import LSTM
 from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation, Dropout
 import datetime as dt
+import plotting
 
 def build_model(params):
     """
@@ -36,16 +37,21 @@ def build_model(params):
     
     return model
 
-def randomised_model_config(ticker,x_train, y_train, x_test, y_test,
-                            mse=10, iterations=20, epochs=10):
+def randomised_model_config(ticker,df,days_ahead,x_train, y_train, x_test, y_test,
+                            initial_investment=100, iterations=20, epochs=10):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
+#        params = {'input_dim':1,
+#                  'node1':np.random.randint(10,20),
+#                  'node2':np.random.randint(35,45),
+#                  'output_dim':1,
+#                  'batch_size':np.random.randint(10,40)}
         params = {'input_dim':1,
-                  'node1':np.random.randint(10,20),
-                  'node2':np.random.randint(35,45),
+                  'node1':15,
+                  'node2':45,
                   'output_dim':1,
-                  'batch_size':np.random.randint(10,40)}
+                  'batch_size':32}
         
         # Build model
         model = build_model(params)
@@ -58,15 +64,26 @@ def randomised_model_config(ticker,x_train, y_train, x_test, y_test,
                   epochs = epochs)
     
         # Get models MSE 
-        score = model.evaluate(x_test, y_test, verbose=0)[1]
+#        score = model.evaluate(x_test, y_test, verbose=0)[1]
+        
         ## add simulator
         date_today = dt.datetime.now().strftime("%Y-%m-%d")
-        if score < mse:
-            mse = score
+        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
+        corrected_predicted_test = predict_test(days_ahead, x_test, model,df)
+        investment, investment_dev = invest_sim(corrected_predicted_test, real_prices)
+        
+        if initial_investment < investment:
+            initial_investment = investment
+            print(investment)
+            plotting.plot_investment(investment_dev,ticker)
+            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
             model.save(date_today+'_'+ticker+'_model.h5', overwrite=True)
+            
+    del model        
+    print('Loading model')
     best_model = load_model(date_today+'_'+ticker+'_model.h5')
        
-    return best_model, mse
+    return best_model, investment
 
 
 def predict(model, X):
@@ -118,8 +135,29 @@ def predict_test(days_ahead, x_test, model,df):
     for i in range(predictions_in_function):
         correct_predicted = []
         for j in range(len(predicted_test[0])):
-            value = predicted_test[i][j]*df.loc[-len(x_test)-days_ahead+i*days_ahead,'close']
+            value = (predicted_test[i][j]+1)*df.loc[len(df)-len(x_test)-days_ahead+i*days_ahead,'close']
             correct_predicted.append(value)
-        corrected_predicted_test.append(correct_predicted)
-        
+        corrected_predicted_test.append(correct_predicted)    
     return corrected_predicted_test
+
+def invest_sim(corrected_predicted_test_1, real_prices):
+    corrected_predicted_test = [item for sublist in corrected_predicted_test_1 for item in sublist]
+    investment = 1000.0
+    fee_per_stock = 0.004
+    fee = 0.5
+    dummy = 0
+    investment_dev = [1000]
+    for i in range(len(corrected_predicted_test)-1):
+        if corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==0 :
+            investment = investment - (int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
+            investment = investment*(real_prices[i+1]/real_prices[i])
+            dummy = 1
+        elif corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==1:
+            investment = investment*(real_prices[i+1]/real_prices[i])   
+        elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==1:
+            investment = investment-(int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
+            dummy = 0
+        elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==0:
+            investment = investment
+        investment_dev.append(investment)      
+    return investment, investment_dev

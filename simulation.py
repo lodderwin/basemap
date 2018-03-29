@@ -16,6 +16,7 @@ import preprocessing as pp
 import pygmail
 import yaml
 from keras.models import load_model
+#%%
 # Define the instruments to download
 tickers = ['AAPL', 'NTAP', 'MSFT','BIDU','ASML','AMAG'
           ,'QCOM', 'CSCO', 'BA', 'AAOI', 'GPOR', 'AEG'
@@ -42,7 +43,7 @@ promising_stocks = [ 'FSTR', 'INOD', 'HBIO', 'EXTR', 'LINK', 'ACH', 'BASI', 'BCR
                       'CGEN', 'CGI', 'CHKE', 'CRR', 'CVTI', 'CYBE', 'CYH', 'DO', 'DRRX', 'ELTK', 'ESIO', 'EXTR', 'EXEL']
                     
 current = ['SMRT', 'GEN', 'AMSC', 'DAIO', 'EXTR', 'EXEL', 'ELTK', 'INFI', 'INSY']
-current = ['OMEX', 'IFON']
+#current = ['OMEX', 'IFON']
 #add avd boom crnt
 df_tickers = pd.read_csv('volatilestocks.csv', sep=';')
 #200 done
@@ -127,23 +128,23 @@ for stock in current:
         continue    
     x_train, y_train, x_test, y_test, y_test_correction =  lf.create_sets(data,seq_len,True)
 #    model = lf.build_model(model_layers)
-    for lstm_layer_1 in [10]:
-        for lstm_layer_2 in [25]:
+    for lstm_layer_1 in [15]:
+        for lstm_layer_2 in [40]:
             for batch_size in [32]:
                 for epoch in [1]:
-#                    model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
-                    model = load_model('test.h5')
+                    model = lf.build_model([1,lstm_layer_1,lstm_layer_2,1])
+#                    model = load_model('test.h5')
                  
                     for k in range(int(attempts)):
                         print(stock)
-#                        model.fit(
-#                                x_train,
-#                                y_train,
-#                                batch_size=batch_size,
-#                                nb_epoch=epoch,
-#                                validation_split=0.05)
-                        days_ahead = 5
-                        predicted_test_temp = lf.predict_test(days_ahead, x_test, seq_len, model)
+                        model.fit(
+                                x_train,
+                                y_train,
+                                batch_size=batch_size,
+                                nb_epoch=epoch,
+                                validation_split=0.05)
+                        days_ahead = 2
+                        predicted_test_temp, predicted_test_temp_remaining= lf.predict_test(days_ahead, x_test, seq_len, model)
                         predictions_in_function = int(x_test.shape[0]/days_ahead)
                         corrected_predicted_test_temp = lf.correct_predict_test(days_ahead, predicted_test_temp, y_test_correction, seq_len)
                         turnover, investments, investment_dev = lf.invest_sim(corrected_predicted_test_temp, y_test_correction)
@@ -153,7 +154,7 @@ for stock in current:
                             best_model = model
                             profit = turnover
                             ##
-                            predicted_test,predicted_test_remaining = lf.predict_test(days_ahead, x_test, seq_len, model)
+                            predicted_test, predicted_test_remaining = lf.predict_test(days_ahead, x_test, seq_len, model)
                             predicted_test_day = lf.predict_test_day(days_ahead, x_test, seq_len, model)
                             current_prediction,compare_value = lf.predict_current(seq_len,days_ahead, data[-5:], model)
                             df_profits[stock] = profit
@@ -221,12 +222,12 @@ print(dct_promising.keys())
 
 #%%
 # Create email body
-subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
-
-# Send email
-pygmail.send_mail(subject=subject,
-          attachments=attachments,
-          body=body)
+#subject, body, attachments = pygmail.compose_email(expected_deltas=highest_increase_dct)
+#
+## Send email
+#pygmail.send_mail(subject=subject,
+#          attachments=attachments,
+#          body=body)
 #%%
 def top_x_of_dict(dictionary, x):
     """Returns the top x items of given dictionary.

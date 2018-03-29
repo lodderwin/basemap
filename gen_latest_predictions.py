@@ -16,29 +16,27 @@ ticker_dict = {}
 # Prep data for LSTM model
 for ticker in yr.tickers:
     df = df_main[df_main.ticker == ticker].reset_index(drop=True)
-#%%
     df_p = pp.pre_process_data(df)
-    df_t = pp.pre_process_data(df,window_length=5)
-#%%
+#    df_t = pp.pre_process_data(df,window_length=5)
     # Split closing price into test and train
     close_nmd_array = utils.series_to_ndarray(df_p, column='close_nmd')
-
-#%%
     x_train, y_train, x_test, y_test = utils.train_test_split(close_nmd_array)
-#%%
-    days_ahead=5
+    days_ahead=2
     # Build model
     model, mse = lstm_model.randomised_model_config(ticker,
+                                                    df,
+                                                    days_ahead,
                                                     x_train,
                                                     y_train, 
                                                     x_test,
                                                     y_test,
-                                                    iterations=2,
-                                                    epochs=6)
+                                                    iterations=3,
+                                                    epochs=10)
 
     # Create X based on last window in data (last window is 0)
+    
     X, X_nmd = utils.gen_X(df_p, window=0)
- 
+
     predictions_nmd = lstm_model.predict(model, X_nmd)
     predictions = (predictions_nmd + 1) * X[0][0]
     
@@ -53,7 +51,7 @@ for ticker in yr.tickers:
     ticker_dict[ticker] = growth
 
 # Compose and send email
-subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)
-pygmail.send_mail(subject=subject,
-                  attachments=attachments, 
-                  body=body)
+#subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)
+#pygmail.send_mail(subject=subject,
+#                  attachments=attachments, 
+#                  body=body)

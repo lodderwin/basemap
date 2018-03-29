@@ -80,7 +80,40 @@ def plot_latest_prediction(df, predictions, stock, growth, mse,
     
     return plt
 
+def plot_investment(investment_dev, ticker):
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(investment_dev, label='Investment of '+ticker)
+    plt.title('Investment over time of ' +ticker, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Investment', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+#    plt.savefig(plot_folder + stock + '_investment_development.png',dpi=400)
+    plt.show()
+    plt.close()
+def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
+    # Use seaborn styling
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(real_prices, label='True Data')
+    #padding is used to set the new predictions to an appropiate distance from 0 days
+    for i, data in enumerate(corrected_predicted_test):
+            padding = [None for p in list(range(int(((i) * days_ahead)/1.0)))]
+            plt.plot(padding+data, label='Prediction', alpha=0.6)
 
+    plt.title('Predictions for ' + ticker, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Stock Price', size=13)
+    plt.figtext(0.5, 0.01, 'date created: ' + now, 
+                horizontalalignment='center', size=10)
+#    plt.savefig(plot_folder + stock + '_predictions.png',dpi=400)
+    plt.show()
+    plt.close()
 
         
         
