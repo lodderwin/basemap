@@ -37,12 +37,12 @@ def build_model(params):
     
     return model
 
-def randomised_model_config(ticker,df,days_ahead,x_train, y_train, x_test, y_test,
+def randomised_model_config(input_dim ,ticker,df,days_ahead,x_train, y_train, x_test, y_test,
                             initial_investment=100, iterations=20, epochs=10):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
-        params = {'input_dim':1,
+        params = {'input_dim':2,
                   'node1':np.random.randint(20,30),
                   'node2':np.random.randint(40,60),
                   'output_dim':1,

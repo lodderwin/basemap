@@ -31,7 +31,7 @@ def x_y_array_split(array):
     
     return X, y
 
-def train_test_split(array, ratio=0.97):
+def train_test_split(array, input_dim, ratio=0.95):
     """Takes multi-dimensional array as input and returns arrays for:
     x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
     fixed random state.
@@ -54,13 +54,16 @@ def train_test_split(array, ratio=0.97):
     y_train, y_test = np.split(y, [split_row])
     # Shuffle train dataset using fixed random state
     np.random.RandomState(1).shuffle(y_train)
+    if input_dim>1.0:
+        y_train = y_train[:,0]
+        y_test = y_test[:,0]
     
     return x_train, y_train, x_test, y_test
 
 def lstm_ary_splits(df, cols=None):
     """This function makes use of train_test_split to split metric given in 
     cols. 
-    
+                                                                   
     Returns
     --------
     arys : dictionary indexed by metric, for each metric a list of arrays is 

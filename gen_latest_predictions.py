@@ -19,18 +19,24 @@ for ticker in yr.tickers:
 #    df_t = pp.pre_process_data(df,window_length=5)
     # Split closing price into test and train
     close_nmd_array = utils.series_to_ndarray(df_p, column='close_nmd')
-    x_train, y_train, x_test, y_test = utils.train_test_split(close_nmd_array)
+    #%%
+### 2D preperation
+    day_number_array = utils.series_to_ndarray(df_p, column='day_number')
+    combined_input = np.concatenate((close_nmd_array,day_number_array),axis=2)
+    #%%
+    x_train, y_train, x_test, y_test = utils.train_test_split(combined_input,2)
     days_ahead=1
     # Build model
-    model, mse = lstm_model.randomised_model_config(ticker,
+    model, mse = lstm_model.randomised_model_config(2,
+                                                    ticker,
                                                     df,
                                                     days_ahead,
                                                     x_train,
                                                     y_train, 
                                                     x_test,
                                                     y_test,
-                                                    iterations=5,
-                                                    epochs=8)
+                                                    iterations=2,
+                                                    epochs=20)
 
     # Create X based on last window in data (last window is 0)
     
