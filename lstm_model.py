@@ -8,6 +8,7 @@ from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation, Dropout
 import datetime as dt
 import plotting
+import random
 
 def build_model(params):
     """
@@ -43,10 +44,10 @@ def randomised_model_config(input_dim ,ticker,df,days_ahead,x_train, y_train, x_
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
         params = {'input_dim':2,
-                  'node1':np.random.randint(20,30),
-                  'node2':np.random.randint(40,60),
+                  'node1':np.random.randint(30,40),
+                  'node2':np.random.randint(50,70),
                   'output_dim':1,
-                  'batch_size':np.random.randint(10,40)}
+                  'batch_size':random.choice(np.asarray([8,16,32,64]))}
 #        params = {'input_dim':1,
 #                  'node1':15,
 #                  'node2':45,
@@ -116,6 +117,13 @@ def predict(model, X, days_ahead):
     predictions = np.reshape(predictions, X.shape)
         
     return predictions
+def predict_single(model, X, days_ahead):
+    days_ahead = days_ahead
+    prediction = []
+    current_frame = X
+    for day in range(days_ahead):
+        prediction.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+    return prediction
 
 def predict_test(days_ahead, x_test, model,df):
     predicted_test = []
@@ -144,7 +152,7 @@ def invest_sim(corrected_predicted_test_1, real_prices):
     corrected_predicted_test = [item for sublist in corrected_predicted_test_1 for item in sublist]
     investment = 1000.0
     fee_per_stock = 0.004
-    fee = 0.5
+    fee = 1.0
     dummy = 0
     investment_dev = [1000]
     for i in range(len(corrected_predicted_test)-1):

@@ -114,11 +114,11 @@ def top_x_of_dict(dictionary, x):
     
     return dictionary
 
-def gen_X(df, window=0):
+def gen_X(df,column,window_length, window=0):
     # Define which window to use as X
-    df = df[df.window == df.window.max() - window][-5:]
+    df = df[df.window == df.window.max() - window][-window_length:]
     # Create X based on last five days of close data
-    X = series_to_ndarray(df, column='close')
+    X = series_to_ndarray(df, column=column)
     # Normailse X, by dividing all numbers in array but first number
     X_nmd = (X / X[0][0]) - 1
     
