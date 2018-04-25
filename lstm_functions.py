@@ -45,6 +45,12 @@ def normalise_windows(window_data):
         normalised_window = [((float(p) / float(window[0])) - 1) for p in window]
         normalised_data.append(normalised_window)
     return normalised_data
+def normalise_window(window_data):
+#    normalised_data = []
+
+    normalised_window = [[((float(p) / float(window_data[0])) - 1)] for p in window_data]
+#        normalised_data.append(normalised_window)
+    return normalised_window
 def normalise_data(data):
     normalised_data = []
     for dat in data:
@@ -74,7 +80,7 @@ def create_sets(data, seq_len, normalise_window):
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1)) 
     #correction list for denormalizing data
-    y_test_correction = normalise_data(data[int(row):])
+    y_test_correction = normalise_data(data[int(row)+6:])
     #for future plots, exact dates might come in handy
     return x_train, y_train, x_test, y_test, y_test_correction
 
@@ -113,28 +119,10 @@ def open_model(stock):
     print('model loaded')
     return model4
     
-    
-def predict_test(days_ahead, x_test, seq_len, model):
-    predicted_test = []
-    predictions_in_function = int(x_test.shape[0]/days_ahead)
-#    remaining_predictions = x_test.shape[0]%days_ahead
-    for i in range(predictions_in_function):
-    #current_frame is x values used to predict y
-        current_frame = x_test[i*days_ahead]
-        predicted = []
-        for j in range(days_ahead):
-    #4 days predicted ahead with predicted values!
-    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
-            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
-            current_frame = current_frame[1:]
-    # use predicted values for future predictions
-            current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
-        predicted_test.append(predicted)
-    return predicted_test
+
 
 def predict_test_day(days_ahead, x_test, seq_len, model):
     predicted_test = []
-    predictions_in_function = int(x_test.shape[0]/days_ahead)
 #    remaining_predictions = x_test.shape[0]%days_ahead
     for i in range(len(x_test)):
     #current_frame is x values used to predict y
@@ -149,20 +137,53 @@ def predict_test_day(days_ahead, x_test, seq_len, model):
             current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
         predicted_test.append(predicted)
     return predicted_test
-
+    
+def predict_test(days_ahead, x_test, seq_len, model):
+    predicted_test = []
+    predictions_in_function = int(x_test.shape[0]/days_ahead)
+    remaining_predictions = x_test.shape[0]-predictions_in_function*days_ahead
+    predicted_test_remaining = []
+    for i in range(predictions_in_function):
+    #current_frame is x values used to predict y
+        current_frame = x_test[i*days_ahead]
+        predicted = []
+        for j in range(days_ahead):
+    #4 days predicted ahead with predicted values!
+    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
+            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+            current_frame = current_frame[1:]
+    # use predicted values for future predictions
+            current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
+        predicted_test.append(predicted)
+        
+    for k in range(remaining_predictions):
+        current_frame = x_test[(i+1)*days_ahead+k]
+        predicted = []
+        for j in range(days_ahead):
+    #4 days predicted ahead with predicted values!
+    #model.predict only accepts 3 dimension numpy matrices therefore newaxis
+            predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
+            current_frame = current_frame[1:]
+    # use predicted values for future predictions
+            current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
+        predicted_test_remaining.append(predicted)
+    return predicted_test, predicted_test_remaining
 def predict_current(seq_len,days_ahead, data, model):
     predicted = []
-    current_frame = []
-    for d in data:
-        current_frame.append([d/data[0]-1])
+#    current_frame_1 = []
+#    for d in data:
+#        current_frame_1.append([d/data[0]-1])
+    current_frame = normalise_window(data)
+    current_frame  = np.reshape(current_frame, (5,1))
 #    current_frame = normalise_data(data)
 #    current_frame[:] = [x - 1 for x in current_frame]
-    current_frame  = np.asarray(current_frame)
+#    current_frame  = np.asarray(current_frame_1)
+    compare_value = current_frame[-1]
     for j in range(days_ahead):
         predicted.append((model.predict(current_frame[newaxis,:,:])[0,0]))
         current_frame = current_frame[1:]
         current_frame = np.insert(current_frame, [seq_len-1], predicted[-1], axis=0)
-    return predicted
+    return predicted, compare_value
 def predict_current_corrected(current_prediction, y_test_correction, seq_len):
     current_prediction_corrected = []
     for j in range(len(current_prediction)):
@@ -171,6 +192,20 @@ def predict_current_corrected(current_prediction, y_test_correction, seq_len):
 #        if j<1.0:
         current_prediction_corrected.append((current_prediction[j]+1)*y_test_correction[-seq_len])
     return current_prediction_corrected
+def correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len):
+    corrected_predicted_test = []
+    for i in range(len(predicted_test)):
+        corrected_predicted = []
+    ##include first point
+        for j in range(days_ahead):
+#            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
+#            multiply = multiply_lst(temp_pred)
+    #        if j<1.0:
+            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i*days_ahead-seq_len)])
+    #        else :
+    #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
+        corrected_predicted_test.append(corrected_predicted)   
+    return corrected_predicted_test
         
 def plot_current(y_test_correction,predicted,stock):
 #    fig = plt.figure(facecolor='white')
@@ -219,20 +254,7 @@ def plot_current(y_test_correction,predicted,stock):
 #            corrected_predicted.append(multiply*y_test_correction[i*seq_len+j])
 #        corrected_predicted_test.append(corrected_predicted)
 #    return corrected_predicted_test
-def correct_predict_test(days_ahead, predicted_test, y_test_correction, seq_len):
-    corrected_predicted_test = []
-    for i in range(len(predicted_test)):
-        corrected_predicted = []
-    ##include first point
-        for j in range(days_ahead):
-#            temp_pred = [x+1 for x in predicted_test[i][:j+1]]
-#            multiply = multiply_lst(temp_pred)
-    #        if j<1.0:
-            corrected_predicted.append((predicted_test[i][j]+1)*y_test_correction[(i*days_ahead-seq_len)])
-    #        else :
-    #            corrected_predicted.append(multiply*y_test_correction[i*seq_len])
-        corrected_predicted_test.append(corrected_predicted)   
-    return corrected_predicted_test
+
 def correct_predict_test_day(days_ahead, predicted_test, y_test_correction,seq_len):
     corrected_predicted_test = []
     for i in range(len(predicted_test)):

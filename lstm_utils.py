@@ -2,17 +2,40 @@
 """
 import numpy as np
 
-def series_to_ndarray(df, column : str):
+def series_to_ndarray(df, window_len, column : str, dates=False):
     """Returns numpy array of shape (1, length of window,1)
     using pd.DataFrame as input
     """
     # Create empty list of arrays
     arrs_list = []
-      
+    not_correct = 0
     # Stack array for each window vertically
+#    if dates:
+#        for window in df.window.unique():
+#            # Create array and reshape
+#            arr = df[df.window == window][column].values
+#            if len(arr)<window_len or len(arr)>window_len:
+#                not_correct = not_correct + 1 
+#                
+#                continue
+#            
+#            # Reshape: (, number of days per array, number of columns)
+#            arr = arr.reshape(1, len(df[df.window == window][column]), 1)
+#            # append arr to arrs_list
+#            arrs_list.append(arr)
+#            
+#        # Use numpy vstack to create array of arrays
+#        arr = np.vstack(arrs_list)
+#        return arr
+#        
     for window in df.window.unique():
         # Create array and reshape
         arr = df[df.window == window][column].values
+        if len(arr)<window_len or len(arr)>window_len:
+            not_correct = not_correct + 1 
+            
+            continue
+        
         # Reshape: (, number of days per array, number of columns)
         arr = arr.reshape(1, len(df[df.window == window][column]), 1)
         # append arr to arrs_list
@@ -31,7 +54,7 @@ def x_y_array_split(array):
     
     return X, y
 
-def train_test_split(array, ratio=0.9):
+def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     """Takes multi-dimensional array as input and returns arrays for:
     x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
     fixed random state.
@@ -46,21 +69,32 @@ def train_test_split(array, ratio=0.9):
     # Split X into train and test
     x_train, x_test = np.split(X, [split_row])
     # Shuffle train dataset using fixed random state
-    np.random.RandomState(0).shuffle(x_train)
+    np.random.RandomState(1).shuffle(x_train)
+    
     
     # Take last day of each window as y
     y = ary[:, -1, :]
     # Split X into train and test
     y_train, y_test = np.split(y, [split_row])
     # Shuffle train dataset using fixed random state
-    np.random.RandomState(0).shuffle(y_train)
+    np.random.RandomState(1).shuffle(y_train)
     
-    return x_train, y_train, x_test, y_test
+    #dates
+    
+    train_days, test_days = np.split(dates_array,[split_row])
+    np.random.RandomState(1).shuffle(train_days)
+    train_windows_non_randomized, test_windows = np.split(window_array,[split_row])
+    if input_dim>1.0:
+        y_train = y_train[:,0]
+        y_test = y_test[:,0]
+    
+    
+    return x_train, y_train, x_test, y_test, train_days, test_days, test_windows
 
 def lstm_ary_splits(df, cols=None):
     """This function makes use of train_test_split to split metric given in 
     cols. 
-    
+                                                                   
     Returns
     --------
     arys : dictionary indexed by metric, for each metric a list of arrays is 
@@ -79,7 +113,7 @@ def lstm_ary_splits(df, cols=None):
     arys = {}
     
     for i, col in enumerate(array_cols):
-        print('\rsplitting column ' + str(i + 1) + ' of ' + str(len(array_cols)), 
+        print('\rsplitting column {} of {}'.format(i + 1, len(array_cols)), 
               end='\r', flush=False)
         # Use df to create multidimensional array for column
         ary = series_to_ndarray(df, column=col)
@@ -89,3 +123,34 @@ def lstm_ary_splits(df, cols=None):
         arys[col] = [x_train, y_train, x_test, y_test]
         
     return arys, dict_df
+
+def top_x_of_dict(dictionary, x):
+    """Returns the top x items of given dictionary.
+    
+    Parameters
+    --------
+    dictionary : Dictionary you would like to reduce to top x only, dict
+    x : The number of items you would like to return, int
+    
+    Returns
+    --------
+    dictionary : Dictionary reduced to top x items, dict
+    """
+    # Sort dict keys from highest to lowest
+    keys = sorted(dictionary, key=dictionary.get, reverse=True)
+    # Select top x keys
+    keys = keys[:x]
+    # Reduce dict to only those in keys
+    dictionary = {key : value for key, value in dictionary.items() if key in keys}
+    
+    return dictionary
+
+def gen_X(df,column,window_length, window=0):
+    # Define which window to use as X
+    df = df[df.window == df.window.max() - window][-window_length:]
+    # Create X based on last five days of close data
+    X = series_to_ndarray(df, column=column)
+    # Normailse X, by dividing all numbers in array but first number
+    X_nmd = (X / X[0][0]) - 1
+    
+    return X, X_nmd
