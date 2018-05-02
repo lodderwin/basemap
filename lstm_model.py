@@ -14,6 +14,8 @@ from datetime import datetime
 from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 import time
+short_term_folder = './short_term_models/'
+long_term_folder = './long_term_models/'
 
 def build_model(params):
     """
@@ -49,10 +51,10 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
         params = {'input_dim':input_dim,
-                  'node1':np.random.randint(30,90),
-                  'node2':np.random.randint(30,90),
+                  'node1':np.random.randint(20,90),
+                  'node2':np.random.randint(20,90),
                   'output_dim':1,
-                  'batch_size':random.choice(np.asarray([16,32]))}
+                  'batch_size':random.choice(np.asarray([16]))}
         # Build model
         model = build_model(params)   
         # Fit using x and y test and validate on 10% of those arrays
@@ -61,18 +63,18 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs = epochs)
-        time.sleep(50.1)
+                  epochs = random.choice(np.asarray([5,6,10,14])))
+#        time.sleep(12.1)
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
         ## add simulator
-        date_today = dt.datetime.now().strftime("%Y-%m-%d")
+#        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
         print(df_predict.tail(5))
         print('letsgo')
-        margins = [1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1]
+        margins = list(np.linspace(1.0,1.1,40))
         for margin in margins:
             investment, investment_dev,investment_dev_df = invest_sim(df_predict,df,margin,ticker)
             
@@ -80,27 +82,27 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
                 initial_investment = investment
                 best_investment_dev = investment_dev_df
                 print(investment)
-                plotting.plot_investment(investment_dev,ticker,params,margin)
+                plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
     #            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
-                model.save(date_today+'_'+ticker+'_model.h5', overwrite=True)
+                model.save(short_term_folder+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
             print(investment)
             
     del model        
     print('Loading model')
-    best_model = load_model(date_today+'_'+ticker+'_model.h5')
+    best_model = load_model(short_term_folder+ticker+'_'+str(window_length)+'_model.h5')
        
-    return best_model, investment, best_investment_dev
+    return best_model, initial_investment, best_investment_dev
 
 def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,window_length,ticker,df,days_average,x_train, y_train, x_test, y_test,
-                            mse=10., iterations=20, epochs=10):
+                            initial_investment=100., iterations=20, epochs=10):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
         params = {'input_dim':2,
-                  'node1':np.random.randint(15,50),
-                  'node2':np.random.randint(35,80),
+                  'node1':np.random.randint(15,80),
+                  'node2':np.random.randint(15,80),
                   'output_dim':1,
-                  'batch_size':random.choice(np.asarray([8,16]))}
+                  'batch_size':random.choice(np.asarray([16,32]))}
 #        params = {'input_dim':1,
 #                  'node1':15,
 #                  'node2':45,
@@ -115,29 +117,34 @@ def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs = epochs)
+                  epochs = random.choice(np.asarray([6,12,18])))
     
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
 #        ## add simulator
-        date_today = dt.datetime.now().strftime("%Y-%m-%d")
+#        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
-        corrected_predicted_test = predict_test_days_average(test_windows,test_days, df_p,x_test,window_length, days_average, model, df)
-        investment, investment_dev = invest_sim_days_average(corrected_predicted_test, real_prices, days_average)
-        if score < mse:
-            mse = score
-            plotting.plot_investment(investment_dev,ticker)
- 
+        df_predict = predict_test_days_average(test_windows,test_days, df_p,x_test,window_length, days_average, model, df)
+        margins = list(np.linspace(1.0,1.1,40))
+        
+        for margin in margins:
+            investment, investment_dev,investment_dev_df = invest_sim(df_predict,df,margin,ticker)
             
-#            plotting.plot_results_days_average(real_prices,corrected_predicted_test, days_average, ticker)
-            model.save(date_today+'_'+ticker+'_model.h5', overwrite=True)
+            if initial_investment < investment:
+                initial_investment = investment
+                best_investment_dev = investment_dev_df
+                print(investment)
+                plotting.plot_investment(investment_dev,ticker,params,margin)
+    #            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
+                model.save(long_term_folder+ticker+'_'+str(window_length)+'_'+str(days_average)+'_model.h5', overwrite=True)
+            print(investment)
             
     del model        
     print('Loading model')
-    best_model = load_model(date_today+'_'+ticker+'_model.h5')
+    best_model = load_model(long_term_folder+ticker+'_'+str(window_length)+'_'+str(days_average)+'_model.h5')
        
-    return best_model
+    return best_model, investment, best_investment_dev
 
 
 def predict(model, X, days_ahead):
@@ -210,19 +217,6 @@ def predict_test(test_windows,df_p,test_days, days_ahead,window_length, x_test, 
             df_predict = df_predict.append({'date': pd.to_datetime(y_date+bday_cust*j), 'y_predict': (predicted_value+1)*normaliser.unique()[0] },ignore_index=True)
             current_frame = current_frame[1:]
             current_frame = np.insert(current_frame, [len(x_test[0])-1], predicted[-1], axis=0)
-#    y_date_last = y_date+pd.DateOffset(days_ahead-1)
-#    df_p = df_p.reset_index(drop=True)
-#    df_predict = df_predict.reset_index(drop=True)
-#    df_predict = df_predict.set_index(df_predict['date'])
-#    df_p1 = df_p.set_index(df_p['date'])
-    
-#    df_merge = pd.merge(df_p1, df_predict, how='left', left_on=[np.asarray(df_p1.index.year).astype(np.str), np.asarray(df_p1.index.month).astype(np.str),np.asarray(df_p1.index.day).astype(np.str)],
-#                        right_on=[np.asarray(df_predict.index.year).astype(np.str),np.asarray(df_predict.index.month).astype(np.str),np.asarray(df_predict.index.day).astype(np.str)])
-#    mask = (df_merge['date_x'] >= y_date_first) & (df_merge['date_x']<=y_date_last)
-#    df_merge = df_merge.loc[mask]
-#    df_merge['de_normalised'] = (df_merge['y_predict']+1.0)*df_merge['normaliser']
-
-#    print(df_predict)
             
     return df_predict
 
@@ -254,23 +248,7 @@ def predict_test_days_average(test_windows,test_days, df_p,x_test,window_length,
     #model.predict only accepts 3 dimension numpy matrices therefore newaxis
             predicted.append( (model.predict(current_frame[newaxis,:,:])[0,0]))
             predicted_value = predicted[-1]
-            df_predict = df_predict.append({'date': pd.to_datetime(y_date+bday_cust*j), 'y_predict': (predicted_value+1)*normaliser.unique()[0] },ignore_index=True)
-#            current_frame = current_frame[1:]
-#            current_frame = np.insert(current_frame, [len(x_test[0])-1], predicted[-1], axis=0)
-#    y_date_last = y_date+pd.DateOffset(days_ahead-1)
-#    df_p = df_p.reset_index(drop=True)
-#    df_predict = df_predict.reset_index(drop=True)
-#    df_predict = df_predict.set_index(df_predict['date'])
-#    df_p1 = df_p.set_index(df_p['date'])
-    
-#    df_merge = pd.merge(df_p1, df_predict, how='left', left_on=[np.asarray(df_p1.index.year).astype(np.str), np.asarray(df_p1.index.month).astype(np.str),np.asarray(df_p1.index.day).astype(np.str)],
-#                        right_on=[np.asarray(df_predict.index.year).astype(np.str),np.asarray(df_predict.index.month).astype(np.str),np.asarray(df_predict.index.day).astype(np.str)])
-#    mask = (df_merge['date_x'] >= y_date_first) & (df_merge['date_x']<=y_date_last)
-#    df_merge = df_merge.loc[mask]
-#    df_merge['de_normalised'] = (df_merge['y_predict']+1.0)*df_merge['normaliser']
-
-#    print(df_predict)
-            
+            df_predict = df_predict.append({'date': pd.to_datetime(y_date+bday_cust*j), 'y_predict': (predicted_value+1)*normaliser.unique()[0] },ignore_index=True)            
     return df_predict
     
     
@@ -324,34 +302,53 @@ def invest_sim(df_predict, df,margin,ticker):
 
 
 
-def invest_sim_days_average(corrected_predicted_test, real_prices, days_average):
-    investment = 1000.0
-    number_of_investments = int(len(corrected_predicted_test)/days_average)
-    invest_i = [4]
-    for i in range(1,number_of_investments-2):
-        invest_i.append(i*5+4)
-        
-    fee_per_stock = 0.004
-    fee = 1.0
+def invest_sim_days_average(df_predict, df,margin,ticker):
+    df_index = df.set_index(df['date'])
+    df_predict = df_predict.set_index(df_predict['date'])
+    df_merge = pd.merge(df_index, df_predict, how='left', left_on=[np.asarray(df_index.index.year).astype(np.str), np.asarray(df_index.index.month).astype(np.str),np.asarray(df_index.index.day).astype(np.str)],
+                        right_on=[np.asarray(df_predict.index.year).astype(np.str),np.asarray(df_predict.index.month).astype(np.str),np.asarray(df_predict.index.day).astype(np.str)])
+    df_merge = df_merge.dropna(subset=['y_predict'])
+    df_merge = df_merge.dropna(subset=['close'])
+    df_merge = df_merge.reset_index(drop=True)
+    investment = 300.0
+    fee_per_stock = 0.005
+    fee = 0.60
     dummy = 0
-    investment_dev = [1000]
-    for i in range(len(corrected_predicted_test)-1):
-        if i in invest_i:
-            
-            if corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==0 :
-                investment = investment - (int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
-                investment = investment*(real_prices[i+1]/real_prices[i])
+    investment_dev = []
+    end_index = len(df_merge)-1
+    dct_df = {}
+    
+    dct_df['dates'] = [df_merge.loc[0,'date_x']]
+    dct_df['y_predict_'+ticker] = [df_merge.loc[0,'close']]
+    dct_df['close_real_'+ticker] = [df_merge.loc[0,'close']]
+    for index, row in df_merge.iterrows():
+        if index<end_index:
+            dct_df['dates'].append(df_merge.loc[index+1, 'date_x'])
+            dct_df['y_predict_'+ticker].append(df_merge.loc[index+1, 'y_predict'])
+            dct_df['close_real_'+ticker].append(df_merge.loc[index+1, 'close'])
+
+            if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin and dummy==0 :
+                investment = investment - (int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
+                investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
-            elif corrected_predicted_test[i+1]>corrected_predicted_test[i] and dummy==1:
-                investment = investment*(real_prices[i+1]/real_prices[i])   
-            elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==1:
-                investment = investment-(int(investment/corrected_predicted_test[i])*fee_per_stock+fee)
+            elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
+                investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])   
+            elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==1:
+                investment = investment-(int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
                 dummy = 0
-            elif corrected_predicted_test[i+1]<corrected_predicted_test[i] and dummy==0:
+            elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==0:
                 investment = investment
-        elif dummy == 1 :
-            investment = investment*(real_prices[i+1]/real_prices[i])
-            
-            
+                #### dict to datafram, output dataframe!
         investment_dev.append(investment)      
-    return investment, investment_dev
+    
+    investment_dev_df = pd.DataFrame(dct_df)
+    return investment, investment_dev, investment_dev_df
+
+def fluc_check(graph):
+    total_log = 0
+    for i in range(len(graph)-1):
+        total_log = (np.log10(graph[i+1])-np.log10(graph[i]))**2 + total_log
+    return total_log
+        
+        
+        
