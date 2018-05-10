@@ -135,7 +135,7 @@ def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,
                 initial_investment = investment
                 best_investment_dev = investment_dev_df
                 print(investment)
-                plotting.plot_investment(investment_dev,ticker,params,margin)
+                plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
     #            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
                 model.save(long_term_folder+ticker+'_'+str(window_length)+'_'+str(days_average)+'_model.h5', overwrite=True)
             print(investment)
