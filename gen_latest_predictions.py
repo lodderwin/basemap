@@ -22,7 +22,7 @@ run_model = True
 current = [ 'ASNA', 'ASUR', 'ATLC', 'AIRI', 'SNMX']
 current = ['A','ACHV','SNMX', 'AEHR', 'CBI', 'CAMT', 'AMAG', 'ADMP', 'DAIO', 'GALT', 'GEN']
 yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete[:30])
-df_main = yr.get_data()
+df_main = yr.main()
 #%%
 ticker_dict = {}
 #df_main = pd.read_csv('saved_stock_data.csv')
