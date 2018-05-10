@@ -7,13 +7,13 @@ import lstm_utils as utils
 import lstm_model
 import plotting
 import pygmail
-volatile_tickers = pd.read_csv('volatile_complete.csv')
-volatile_tickers_list = volatile_tickers['tickers'].tolist()
-volatile_tickers_done = pd.read_csv('tickers_done_long.csv')
+volatile_tickers = pd.read_csv('volatile_complete.csv', sep=';')
+volatile_tickers_list = volatile_tickers['ticker'].tolist()
+volatile_tickers_done = pd.read_csv('tickers_done_long.csv', sep=',')
 volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done]
 #%%
 yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete)
-df_main = yr.get_data()
+df_main = yr.main()
 
 ticker_dict = {}
 #df_main = pd.read_csv('saved_stock_data.csv')
