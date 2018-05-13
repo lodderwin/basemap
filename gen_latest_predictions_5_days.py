@@ -7,13 +7,13 @@ import lstm_utils as utils
 import lstm_model
 import plotting
 import pygmail
-volatile_tickers = pd.read_csv('volatile_complete.csv', sep=';')
-volatile_tickers_list = volatile_tickers['ticker'].tolist()
-volatile_tickers_done = pd.read_csv('tickers_done_long.csv', sep=',')
+volatile_tickers = pd.read_csv('volatile_complete.csv')
+dvolatile_tickers_list = volatile_tickers['tickers'].tolist()
+volatile_tickers_done = pd.read_csv('tickers_done_long.csv')
 volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done]
 #%%
 yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete)
-df_main = yr.main()
+df_main = yr.get_data()
 
 ticker_dict = {}
 #df_main = pd.read_csv('saved_stock_data.csv')
@@ -71,11 +71,11 @@ for ticker in volatile_tickers_to_complete:
             predicted = (predicted_normalised + 1.0)*df_pred.loc[0,'normaliser']
             growth = predicted/df_pred.loc[len(df_pred)-1,'close']
             ticker_dict[ticker] = growth
-            volatile_tickers_done = pd.read_csv('tickers_done.csv')
+            volatile_tickers_done = pd.read_csv('tickers_done_long.csv')
             volatile_tickers_done_lst = volatile_tickers_done['tickers'].tolist()
             volatile_tickers_done_lst.append(ticker)
             df_temp = pd.DataFrame({'tickers':volatile_tickers_done_lst})
-            df_temp.to_csv('tickers_done_short.csv')
+            df_temp.to_csv('tickers_done_long.csv')
 
 # Compose and send email
 #subject, body, attachments = pygmail.compose_email(expected_deltas=ticker_dict)

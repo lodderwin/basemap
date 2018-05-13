@@ -51,10 +51,10 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
         params = {'input_dim':input_dim,
-                  'node1':np.random.randint(20,90),
-                  'node2':np.random.randint(20,90),
+                  'node1':np.random.randint(40,90),
+                  'node2':np.random.randint(40,90),
                   'output_dim':1,
-                  'batch_size':random.choice(np.asarray([16]))}
+                  'batch_size':random.choice(np.asarray([16,32]))}
         # Build model
         model = build_model(params)   
         # Fit using x and y test and validate on 10% of those arrays
@@ -64,7 +64,7 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
                   epochs = random.choice(np.asarray([5,6,10,14])))
-#        time.sleep(12.1)
+        time.sleep(10.1)
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
@@ -135,7 +135,7 @@ def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,
                 initial_investment = investment
                 best_investment_dev = investment_dev_df
                 print(investment)
-                plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
+                plotting.plot_investment(investment_dev,ticker,params,margin)
     #            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
                 model.save(long_term_folder+ticker+'_'+str(window_length)+'_'+str(days_average)+'_model.h5', overwrite=True)
             print(investment)
