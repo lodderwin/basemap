@@ -271,6 +271,10 @@ def invest_sim(df_predict, df,margin,ticker):
     investment_dev = []
     end_index = len(df_merge)-1
     dct_df = {}
+    increase_correct = 0
+    increase_false = 0
+    decrease_correct = 0
+    decrease_false = 0
     
     dct_df['dates'] = [df_merge.loc[0,'date_x']]
     dct_df['y_predict_'+ticker] = [df_merge.loc[0,'close']]
@@ -285,13 +289,29 @@ def invest_sim(df_predict, df,margin,ticker):
                 investment = investment - (int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                    increase_correct = increase_correct+1
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                    increase_false = increase_false+1
             elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
-                investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])   
+                investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                    increase_correct = increase_correct+1
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                    increase_false = increase_false+1
             elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==1:
                 investment = investment-(int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
                 dummy = 0
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                    decrease_correct = decrease_correct+1
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                    decrease_false = decrease_false+1
             elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==0:
                 investment = investment
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                    decrease_correct = decrease_correct+1
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                    decrease_false = decrease_false+1
                 #### dict to datafram, output dataframe!
         investment_dev.append(investment)      
     

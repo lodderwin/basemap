@@ -29,8 +29,8 @@ current = [ 'ASUR', 'ATLC', 'AIRI', 'SNMX','ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX
                       'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS']
 #current = ['ASNA', 'ASUR', 'ATLC', 'AIRI']
 current = ['CBI', 'CAMT', 'AMAG', 'ADMP', 'DAIO', 'GALT', 'GEN']
-yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete[30:60])
-df_main = yr.get_data()
+yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete[0:20])
+df_main = yr.get_fix_yahoo_data()
 #%%
 ticker_dict = {}
 #df_main = pd.read_csv('saved_stock_data.csv')
@@ -40,7 +40,7 @@ days_ahead=1
 df_test = {}
 short_term_folder = './short_term_models/'
 
-for ticker in volatile_tickers_to_complete[30:60]:
+for ticker in volatile_tickers_to_complete[0:20]:
     initial_investment = 100.0
     window_size = 12
     for window_length in [16]:
