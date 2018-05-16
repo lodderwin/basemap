@@ -46,7 +46,7 @@ def build_model(params):
     return model
 
 def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,ticker,df,days_ahead,x_train, y_train, x_test, y_test,
-                            initial_investment=100, iterations=20, epochs=10):
+                            initial_investment=100, iterations=20, epochs=10, ratio=0.00001):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
@@ -64,7 +64,7 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
                   epochs = random.choice(np.asarray([5,6,10,14])))
-        time.sleep(10.1)
+        time.sleep(2.1)
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
@@ -76,10 +76,12 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
         print('letsgo')
         margins = list(np.linspace(1.0,1.1,40))
         for margin in margins:
-            investment, investment_dev,investment_dev_df = invest_sim(df_predict,df,margin,ticker)
+            investment, investment_dev,investment_dev_df, increase_correct, increase_false = invest_sim(df_predict,df,margin,ticker)
+#            delta_log = fluc_check(investment_dev)
             
-            if initial_investment < investment:
+            if investment>initial_investment:
                 initial_investment = investment
+#                ratio = increase_correct/increase_false
                 best_investment_dev = investment_dev_df
                 print(investment)
                 plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
@@ -87,11 +89,11 @@ def randomised_model_config(test_windows,df_p,test_days,input_dim,window_length,
                 model.save(short_term_folder+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
             print(investment)
             
-    del model        
+    del model   
     print('Loading model')
-    best_model = load_model(short_term_folder+ticker+'_'+str(window_length)+'_model.h5')
+#    best_model = load_model(short_term_folder+ticker+'_'+str(window_length)+'_model.h5')
        
-    return best_model, initial_investment, best_investment_dev
+    return initial_investment, best_investment_dev
 
 def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,window_length,ticker,df,days_average,x_train, y_train, x_test, y_test,
                             initial_investment=100., iterations=20, epochs=10):
@@ -289,34 +291,35 @@ def invest_sim(df_predict, df,margin,ticker):
                 investment = investment - (int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
-                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
-                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<1.0 :
                     increase_false = increase_false+1
+                    print(increase_false)
             elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
-                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
-                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<1.0 :
                     increase_false = increase_false+1
             elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==1:
                 investment = investment-(int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
                 dummy = 0
-                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<1.0 :
                     decrease_correct = decrease_correct+1
-                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>1.0 :
                     decrease_false = decrease_false+1
             elif (df_merge.loc[index+1, 'y_predict']<df_merge.loc[index, 'close'])<margin and dummy==0:
                 investment = investment
-                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<margin :
+                if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])<1.0 :
                     decrease_correct = decrease_correct+1
-                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin :
+                elif (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>1.0 :
                     decrease_false = decrease_false+1
                 #### dict to datafram, output dataframe!
         investment_dev.append(investment)      
     
     investment_dev_df = pd.DataFrame(dct_df)
-    return investment, investment_dev, investment_dev_df
+    return investment, investment_dev, investment_dev_df, increase_correct, increase_false
             
         
 

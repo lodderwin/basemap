@@ -10,6 +10,7 @@ import plotting
 import gc
 import pygmail
 from keras.models import Sequential, load_model
+#%%
 model_folder = './short_term_models/'
 
 volatile_tickers = pd.read_csv('volatile_complete.csv',sep=';')
@@ -60,8 +61,8 @@ for ticker in volatile_tickers_to_complete[0:20]:
             #closing price must go first 
             combined_input = np.concatenate((close_nmd_array,volumne_nmd_array,high_nmd_array,low_nmd_array, day_number_array),axis=2)
             x_train, y_train, x_test, y_test,  train_days, test_days, test_windows = utils.train_test_split(combined_input,combined_input.shape[2], dates_array, windows_array)
-        
-            model, investment, best_investment_dev = lstm_model.randomised_model_config(test_windows,
+       
+            investment, best_investment_dev = lstm_model.randomised_model_config(test_windows,
                                                             df_p,
                                                             test_days,
                                                             combined_input.shape[2],
@@ -80,7 +81,7 @@ for ticker in volatile_tickers_to_complete[0:20]:
             if investment>initial_investment :
                 initial_investment = investment
                 window_size = window_length
-            del model
+#            del model
 
                 
             
