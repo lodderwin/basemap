@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 from numpy import newaxis
@@ -12,6 +14,9 @@ import pygmail
 from keras.models import Sequential, load_model
 #%%
 model_folder = './short_term_models/'
+
+if not os.path.exists(model_folder):
+    os.mkdir(model_folder)
 
 df_tickers = pd.read_csv('tickers_of_interest.csv',sep=';')[-100:]
 tickers = df_tickers['ticker'].tolist()
