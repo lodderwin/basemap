@@ -18,7 +18,7 @@ model_folder = './short_term_models/'
 if not os.path.exists(model_folder):
     os.mkdir(model_folder)
 
-df_tickers = pd.read_csv('tickers_of_interest.csv',sep=';')[-100:]
+df_tickers = pd.read_csv('tickers_of_interest.csv',sep=';')[-200:]
 tickers = df_tickers['ticker'].tolist()
 tickers_done = utils.get_tickers_done(model_folder)
 tickers_to_do = [ticker for ticker in tickers if ticker not in tickers_done]
