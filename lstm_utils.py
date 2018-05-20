@@ -1,6 +1,8 @@
 """ A number of functions built to prep data for lstm predictions using Keras.
 """
 import numpy as np
+import os
+import re
 
 def series_to_ndarray(df, window_len, column : str, dates=False):
     """Returns numpy array of shape (1, length of window,1)
@@ -154,3 +156,22 @@ def gen_X(df,column,window_length, window=0):
     X_nmd = (X / X[0][0]) - 1
     
     return X, X_nmd
+
+def get_tickers_done(directory : str):
+    """
+    From a given directory the tickers that have models are returned as a list.
+    Directory should be a folder containing models created for tickers.
+    
+    Parameters
+    --------
+    directory : folder containing models created for tickers
+    
+    Returns
+    --------
+    tickers_done : list of tickers that have a model
+    """
+    tickers_done = os.listdir(directory)
+    
+    tickers_done = [re.sub('[^a-zA-Z]+', '', ticker[:4]) for ticker in tickers_done]
+    
+    return tickers_done
