@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
+from numpy import newaxis
 
 import yahoo_reader
-from numpy import newaxis
 import preprocessing as pp
 import lstm_utils as utils
 import lstm_model
@@ -13,12 +13,10 @@ from keras.models import Sequential, load_model
 #%%
 model_folder = './short_term_models/'
 
-volatile_tickers = pd.read_csv('volatile_complete.csv',sep=';')
-volatile_tickers_list = volatile_tickers['ticker'].tolist()
-volatile_tickers_done = pd.read_csv('tickers_done_short.csv')
-volatile_tickers_done_list = volatile_tickers_done['tickers'].tolist()
-volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
-
+df_tickers = pd.read_csv('tickers_of_interest.csv',sep=';')[-100:]
+tickers = df_tickers['ticker'].tolist()
+tickers_done = utils.get_tickers_done(model_folder)
+tickers_to_do = [ticker for ticker in tickers if ticker not in tickers_done]
 
 good_stocks = ['ADMP', 'ACHV', 'SNMX', 'CBI', 'ASNA', 'AIRI', 'BCRX']
 good_window_lengths = [21,16,16,16,16,16,16]
@@ -30,8 +28,9 @@ current = [ 'ASUR', 'ATLC', 'AIRI', 'SNMX','ALSK', 'BASI', 'BCRX', 'CAMT', 'CENX
                       'CRZO', 'DWSN', 'AXTI', 'ELTK', 'ESIO', 'EXAS']
 #current = ['ASNA', 'ASUR', 'ATLC', 'AIRI']
 current = ['CBI', 'CAMT', 'AMAG', 'ADMP', 'DAIO', 'GALT', 'GEN']
-yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete[0:20])
-df_main = yr.get_fix_yahoo_data()
+yr = yahoo_reader.finance_data(tickers=tickers_to_do)
+df_main, tickers_to_do = yr.main()
+
 #%%
 ticker_dict = {}
 #df_main = pd.read_csv('saved_stock_data.csv')
@@ -41,7 +40,7 @@ days_ahead=1
 df_test = {}
 short_term_folder = './short_term_models/'
 
-for ticker in volatile_tickers_to_complete[0:20]:
+for ticker in tickers_to_do:
     initial_investment = 100.0
     window_size = 12
     for window_length in [16]:
@@ -108,14 +107,14 @@ for ticker in volatile_tickers_to_complete[0:20]:
             growth = predicted/df_pred.loc[len(df_pred)-1,'close']
             ticker_dict[ticker] = growth
 #        #%%
-    volatile_tickers_done = pd.read_csv('tickers_done_short.csv')
-    volatile_tickers_done_lst = volatile_tickers_done['tickers'].tolist()
-        
-    volatile_tickers_done_lst.append(ticker)
-    volatile_tickers_done_lst_window_length = volatile_tickers_done['window_length'].tolist()
-    volatile_tickers_done_lst_window_length.append(window_size)
-    df_temp = pd.DataFrame({'tickers':volatile_tickers_done_lst,'window_length':volatile_tickers_done_lst_window_length})
-    df_temp.to_csv('tickers_done_short.csv')
+#    volatile_tickers_done = pd.read_csv('tickers_done_short.csv')
+#    volatile_tickers_done_lst = volatile_tickers_done['tickers'].tolist()
+#        
+#    volatile_tickers_done_lst.append(ticker)
+#    volatile_tickers_done_lst_window_length = volatile_tickers_done['window_length'].tolist()
+#    volatile_tickers_done_lst_window_length.append(window_size)
+#    df_temp = pd.DataFrame({'tickers':volatile_tickers_done_lst,'window_length':volatile_tickers_done_lst_window_length})
+#    df_temp.to_csv('tickers_done_short.csv')
     
     
 #    df_test[ticker] = best_investment_dev
