@@ -1,3 +1,4 @@
+import os
 import datetime as dt
 
 import pandas as pd
@@ -14,6 +15,13 @@ TICKERS = ['AAPL',
            'TRIP',
            'AMAG'
            ]
+DATA_DIR = './csv/'
+DATA_NAME = '/stock_data.csv'
+
+if not os.path.exists(DATA_DIR):
+    os.mkdir(DATA_DIR)
+
+#%%
 
 def _process_data(df):
     """
@@ -82,13 +90,13 @@ class finance_data():
         
         # Some tickers will not have any data, remove these from ticker list
         self.tickers = list(df.ticker.unique())
+                    
+        # Process dates
+        df = _process_data(df)
         
         # Store data
         if store:
-            df.to_csv('./csv/stock_data.csv', index=False)
-            
-        # Process dates
-        df = _process_data(df)
+            df.to_csv(DATA_DIR + DATA_NAME, index=False)
      
         return df, self.tickers
     
@@ -119,6 +127,10 @@ class finance_data():
             df = pd.concat([df, df_ticker])
             
         df = df.reset_index(drop=True)
+        
+        # Store data
+        if store:
+            df.to_csv(DATA_DIR + DATA_NAME, index=False)
         
         # Some tickers will not have any data, remove these from ticker list
         self.tickers = list(df.ticker.unique())
