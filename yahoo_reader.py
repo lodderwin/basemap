@@ -58,6 +58,7 @@ class finance_data():
         returns
         --------
         df : pd.DataFrame including stock data
+        tickers = list of tickers
         """
         print('\nDownloading Stock Data\n')
         # download Stock Data
@@ -79,6 +80,9 @@ class finance_data():
         df.columns = [col.lower().replace(' ','') for col in df.columns]
         df = df.rename(columns={'minor':'ticker'})
         
+        # Some tickers will not have any data, remove these from ticker list
+        self.tickers = list(df.ticker.unique())
+        
         # Store data
         if store:
             df.to_csv('./csv/stock_data.csv', index=False)
@@ -86,7 +90,7 @@ class finance_data():
         # Process dates
         df = _process_data(df)
      
-        return df
+        return df, self.tickers
     
     def get_yahoo_fin_data(self, store=True):
         """
@@ -97,8 +101,10 @@ class finance_data():
         returns
         --------
         df : pd.DataFrame including stock data
+        tickers = list of tickers
         """
         df = pd.DataFrame([])
+        
 
         for ticker in self.tickers:
             df_ticker = get_data(
@@ -114,7 +120,10 @@ class finance_data():
             
         df = df.reset_index(drop=True)
         
-        return df
+        # Some tickers will not have any data, remove these from ticker list
+        self.tickers = list(df.ticker.unique())
+        
+        return df, self.tickers
     
     @retry(stop=stop_after_attempt(7)) 
     def main(self):
@@ -126,10 +135,9 @@ class finance_data():
         """
         try:
             print('Trying fix_yahoo_finance...')
-            df = self.get_fix_yahoo_data()
+            df, self.tickers = self.get_fix_yahoo_data()
         except:
             print('Trying yahoo_fin...')
-            df = self.get_yahoo_fin_data()
+            df, self.tickers = self.get_yahoo_fin_data()
             
-        return df
-        
+        return df, self.tickers       
