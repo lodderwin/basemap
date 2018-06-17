@@ -33,27 +33,6 @@ def normalise_windows(df, window_length=6):
         df_temp = df_temp.reset_index(drop=True)
         # Create Window id
         df_temp['window'] = i + 1
-        
-        #ichikomu calculation
-#        df_temp['lowichigh'] = max(df_temp.close[-9:])
-#        df_temp['lowiclow'] = min(df_temp.close[-9:])
-#        df_temp['middleichigh'] = max(df_temp.close[-26:])
-#        df_temp['middleiclow'] = min(df_temp.close[-26:])
-#        df_temp['highichigh'] = max(df_temp.close[-52:])
-#        df_temp['highiclow'] = min(df_temp.close[-52:])  #or whole list
-#        df_temp['conversionline'] = (df_temp.lowichigh+df_temp.lowiclow)/2.
-#        df_temp['baseline'] = (df_temp.middleichigh+df_temp.middleiclow)/2.
-#        df_temp['leadingspana'] = (df_temp.conversionline+df_temp.baseline)/2.
-#        df_temp['leadingspanb'] = (df_temp.)
-        
-        
-        
-        
-        
-        
-        
-        
-        #
         # Normailse close price column
         df_temp['normaliser'] = df_temp.close[0]
         df_temp['normaliserv'] = df_temp.volume[0]
@@ -63,6 +42,9 @@ def normalise_windows(df, window_length=6):
         df_temp['normaliserl'] = df_temp.low[0]
         df_temp['high_nmd'] = (df_temp.high / df_temp.normaliserh) - 1
         df_temp['low_nmd'] = (df_temp.low / df_temp.normaliserl) - 1
+        df_temp['high_nmd_close'] = (df_temp.high / df_temp.normaliser) - 1
+        df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
+        df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         
@@ -164,8 +146,6 @@ def normalise_windows_average(df, days_average, window_length=6):
     df : df with extra columns: window (window id), normaliser (for 
     de-normalisation), close_nmd (nomrlaised close price)
     """
-    #ichimoku
-    #
     # Minus 5 instead of 6 due to range function used in loop
     windows = len(df) - (window_length-1)-days_average
     # Create empty dataframe to be filled with windows
@@ -189,8 +169,11 @@ def normalise_windows_average(df, days_average, window_length=6):
         
         df_temp['close_nmd'] = (df_temp.close / df_temp.normaliser) - 1
         df_temp['volume_nmd'] = (df_temp.volume / df_temp.normaliserv) - 1
-        df_temp['high_nmd'] = (df_temp.high / df_temp.normaliserh) - 1
-        df_temp['low_nmd'] = (df_temp.low / df_temp.normaliserl) - 1
+        df_temp['high_nmd'] = (df_temp.high / df_temp.normaliser) - 1
+        df_temp['low_nmd'] = (df_temp.low / df_temp.normaliser) - 1
+        df_temp['high_nmd_close'] = (df_temp.high / df_temp.normaliser) - 1
+        df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
+        df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
 
         
         average_value = sum(df_temp['close_nmd'].tolist()[-days_average:])/days_average

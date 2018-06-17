@@ -15,12 +15,12 @@ from keras.models import Sequential, load_model
 
 model_folder = './short_term_models/'
 
-volatile_tickers = pd.read_csv('volatile_complete.csv',sep=';')
-volatile_tickers_list = volatile_tickers['ticker'].tolist()
-volatile_tickers_done = pd.read_csv('tickers_done_short_correct.csv')
-volatile_tickers_done_list = volatile_tickers_done['tickers'].tolist()
-volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
-yr = yahoo_reader.finance_data(tickers=volatile_tickers_to_complete[:20])
+#volatile_tickers = pd.read_csv('Tickers.csv',sep=';')
+#volatile_tickers_list = volatile_tickers['ticker'].tolist()
+#volatile_tickers_done = pd.read_csv('tickers_done_short_correct.csv')
+#volatile_tickers_done_list = volatile_tickers_done['tickers'].tolist()
+#volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
+yr = yahoo_reader.finance_data(tickers=['DLTR', 'IFON'])
 df_main = yr.get_fix_yahoo_data()
 #%%
 df_main = df_main[0]
