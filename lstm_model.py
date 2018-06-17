@@ -14,6 +14,7 @@ from datetime import datetime
 from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 import time
+import statistics
 short_term_folder = './short_term_models/'
 long_term_folder = './long_term_models/'
 
@@ -115,8 +116,8 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
         margins = list(np.linspace(1.0,1.1,100))
         best_margin = 0.0
         for margin in margins:
-            investment, investment_dev,investment_dev_df, increase_correct, increase_false = invest_sim(df_predict,df,margin,ticker)
-            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train = invest_sim(df_predict_train,df,margin,ticker)   
+            investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test = invest_sim(df_predict,df,margin,ticker)
+            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
             if (increase_correct+increase_false)>0.0 :
                 if  (increase_correct/(increase_false+increase_correct))>0.666   and   ((investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1]))>mcr and investment>300.0 :
@@ -321,7 +322,7 @@ def invest_sim(df_predict, df,margin,ticker):
     increase_false = 0
     decrease_correct = 0
     decrease_false = 0
-    
+    distribution = []
     dct_df['dates'] = [df_merge.loc[0,'date_x']]
     dct_df['y_predict_'+ticker] = [df_merge.loc[0,'close']]
     dct_df['close_real_'+ticker] = [df_merge.loc[0,'close']]
@@ -333,6 +334,7 @@ def invest_sim(df_predict, df,margin,ticker):
 
             if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin and dummy==0 :
                 investment = investment - (int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
+                distribution.append(investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])- investment)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
@@ -341,6 +343,7 @@ def invest_sim(df_predict, df,margin,ticker):
                     increase_false = increase_false+1
 #                    print(increase_false)
             elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
+                distribution.append(investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close']) - investment)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
@@ -363,7 +366,10 @@ def invest_sim(df_predict, df,margin,ticker):
         investment_dev.append(investment)      
     
     investment_dev_df = pd.DataFrame(dct_df)
-    return investment, investment_dev, investment_dev_df, increase_correct, increase_false
+    if len(distribution)<5:
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution)
+    else:
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,10000
             
         
 

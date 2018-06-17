@@ -10,7 +10,7 @@ import lstm_utils as utils
 import lstm_model
 import plotting
 import gc
-import pygmail
+#import pygmail
 from keras.models import Sequential, load_model
 
 model_folder = './short_term_models/'
