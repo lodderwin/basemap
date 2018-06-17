@@ -1,5 +1,4 @@
-""" A number of functions built to prep data for lstm predictions using Keras.
-"""
+
 import numpy as np
 import os
 import re
@@ -70,6 +69,7 @@ def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     X = ary[:, :-1, :]
     # Split X into train and test
     x_train, x_test = np.split(X, [split_row])
+    x_train_sim = x_train
     # Shuffle train dataset using fixed random state
     np.random.RandomState(1).shuffle(x_train)
     
@@ -84,6 +84,7 @@ def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     #dates
     
     train_days, test_days = np.split(dates_array,[split_row])
+    train_days_sim = train_days
     np.random.RandomState(1).shuffle(train_days)
     train_windows_non_randomized, test_windows = np.split(window_array,[split_row])
     if input_dim>1.0:
@@ -91,7 +92,7 @@ def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
         y_test = y_test[:,0]
     
     
-    return x_train, y_train, x_test, y_test, train_days, test_days, test_windows
+    return x_train, y_train, x_test, y_test, train_days_sim, test_days, test_windows, train_windows_non_randomized,x_train_sim
 
 def lstm_ary_splits(df, cols=None):
     """This function makes use of train_test_split to split metric given in 
