@@ -1,1 +1,9 @@
-,Ticker,Price,Volatility,Industry,margin,window_length,mcr0,ABEV,5.27,0.021,Brewers1,BREW,19.6,0.0128,Brewers2,BUD,93.42,0.0187,Brewers3,CCU,25.91,0.046,Brewers4,NBEV,1.76,0.0824,Brewers5,SAM,255.0,0.0163,Brewers6,TAP,61.61,0.0111,Brewers7,TAP.A,67.0,0.0746,Brewers
+,Unnamed: 0,Ticker,Price,Volatility,Industry,margin,window_length,mcr
+0,0,ABEV,5.27,0.021,Brewers,1.0171717171717172,16.0,0.06989655249849855
+1,1,BREW,19.6,0.0128,Brewers,,,
+2,2,BUD,93.42,0.0187,Brewers,,,
+3,3,CCU,25.91,0.046,Brewers,,,
+4,4,NBEV,1.76,0.0824,Brewers,,,
+5,5,SAM,255.0,0.0163,Brewers,,,
+6,6,TAP,61.61,0.0111,Brewers,,,
+7,7,TAP.A,67.0,0.0746,Brewers,,,

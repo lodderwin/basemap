@@ -12,13 +12,15 @@ import plotting
 import gc
 #import pygmail
 from keras.models import Sequential, load_model
-#%%
+
 industry = 'brewers'
 results = './'+industry+'/results/'
 tickers = './'+industry+'/tickers/'
 volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
-
+#volatile_tickers= volatile_tickers.reset_index()
 volatile_tickers_list = volatile_tickers['Ticker'].tolist()
+
+
 shortterm_models = './'+industry+'/shortterm_models/'
 
 #volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
@@ -67,20 +69,20 @@ for ticker in volatile_tickers_list:
         #%%
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
-            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=';')
-            volatile_tickers['margin'][ticker] = margin
-            volatile_tickers['window_length'][ticker] = window_length
-            volatile_tickers['mcr'][ticker] = mcr
+            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
+            volatile_tickers['margin'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = margin
+            volatile_tickers['window_length'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = window_length
+            volatile_tickers['mcr'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = mcr
             volatile_tickers.to_csv(tickers+industry+'.csv')
         elif (investment/compare_investment)<1.00 :  
-            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=';')
-            volatile_tickers['margin'][ticker] = np.NaN
-            volatile_tickers['window_length'][ticker] = np.NaN
-            volatile_tickers['mcr'][ticker] = np.NaN
+            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
+            volatile_tickers['margin'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = np.NaN
+            volatile_tickers['window_length'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = np.NaN
+            volatile_tickers['mcr'][volatile_tickers.loc[volatile_tickers['Ticker'] == ticker].index[0]] = np.NaN
             volatile_tickers.to_csv(tickers+industry+'.csv')
             
     
-    
+df.loc[df['favorite_color'] == 'yellow']
 #    df_test[ticker] = best_investment_dev
     
 
