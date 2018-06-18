@@ -65,7 +65,7 @@ for ticker in volatile_tickers_list:
                                                         x_test,
                                                         y_test,
                                                         industry,
-                                                        iterations=1)
+                                                        iterations=15)
         #%%
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
