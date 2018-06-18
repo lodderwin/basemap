@@ -31,8 +31,6 @@ days_ahead=1
 df_test = {}
 compare_investment = 300.
 for ticker in volatile_tickers_list:
-    initial_investment = 50.0
-#    window_size = 12
     for window_length in [16]:
         df = df_main[df_main.ticker == ticker].reset_index(drop=True)
         df['volume'] = df['volume'].replace(0,1.0)
@@ -65,7 +63,7 @@ for ticker in volatile_tickers_list:
                                                         x_test,
                                                         y_test,
                                                         industry,
-                                                        iterations=15)
+                                                        iterations=1)
         #%%
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
