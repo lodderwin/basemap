@@ -12,24 +12,23 @@ import plotting
 import gc
 #import pygmail
 from keras.models import Sequential, load_model
-
-model_folder = './short_term_models/'
-
-#volatile_tickers = pd.read_csv('Tickers.csv',sep=';')
-#volatile_tickers_list = volatile_tickers['ticker'].tolist()
-#volatile_tickers_done = pd.read_csv('tickers_done_short_correct.csv')
-#volatile_tickers_done_list = volatile_tickers_done['tickers'].tolist()
-#volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
-yr = yahoo_reader.finance_data(tickers=['DLTR', 'IFON'])
-df_main = yr.get_fix_yahoo_data()
 #%%
+industry = 'brewers'
+results = './'+industry+'/results/'
+tickers = './'+industry+'/tickers/'
+volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
+
+volatile_tickers_list = volatile_tickers['Ticker'].tolist()
+shortterm_models = './'+industry+'/shortterm_models/'
+
+#volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
+yr = yahoo_reader.finance_data(tickers=volatile_tickers_list)
+df_main = yr.get_fix_yahoo_data()
 df_main = df_main[0]
-run_model=True
 days_ahead=1
 df_test = {}
-short_term_folder = './short_term_models/'
 compare_investment = 300.
-for ticker in volatile_tickers_to_complete[:20]:
+for ticker in volatile_tickers_list:
     initial_investment = 50.0
 #    window_size = 12
     for window_length in [16]:
@@ -47,7 +46,7 @@ for ticker in volatile_tickers_to_complete[:20]:
         #closing price must go first 
         combined_input = np.concatenate((close_nmd_array,open_nmd_close_array,low_nmd_close_array,high_nmd_close_array,volumne_nmd_array, day_number_array),axis=2)
         x_train, y_train, x_test, y_test, train_days, test_days, test_windows,train_windows_non_randomized,x_train_sim = utils.train_test_split(combined_input,combined_input.shape[2], dates_array, windows_array)
-       #%%
+#%%
         investment, best_investment_dev,params,margin,mcr = lstm_model.randomised_model_config(test_windows,
                                                         df_p,
                                                         test_days,
@@ -63,33 +62,23 @@ for ticker in volatile_tickers_to_complete[:20]:
                                                         y_train, 
                                                         x_test,
                                                         y_test,
-                                                        iterations=10)
+                                                        industry,
+                                                        iterations=1)
+        #%%
         gc.collect()    
-    if (investment/compare_investment)>1.00 :        
-        volatile_tickers_done = pd.read_csv('tickers_done_short_correct.csv')
-        volatile_tickers_done_lst = volatile_tickers_done['tickers'].tolist()
-        volatile_tickers_done_lst.append(ticker)
-        volatile_tickers_done_lst_margin = volatile_tickers_done['margin'].tolist()
-        volatile_tickers_done_lst_margin.append(margin)
-        volatile_tickers_done_lst_window_length = volatile_tickers_done['window_length'].tolist()
-        volatile_tickers_done_lst_window_length.append(window_length)
-        volatile_tickers_done_lst_mcr = volatile_tickers_done['mcr'].tolist()
-        volatile_tickers_done_lst_mcr.append(mcr)
-        df_temp = pd.DataFrame({'tickers':volatile_tickers_done_lst,'window_length':volatile_tickers_done_lst_window_length,'margin':volatile_tickers_done_lst_margin,'mcr':volatile_tickers_done_lst_mcr})
-        df_temp.to_csv('tickers_done_short_correct.csv')
-    elif (investment/compare_investment)<1.00 :  
-        volatile_tickers_done = pd.read_csv('tickers_done_short_correct.csv')
-        volatile_tickers_done_lst = volatile_tickers_done['tickers'].tolist()
-        volatile_tickers_done_lst.append(ticker)
-        volatile_tickers_done_lst_margin = volatile_tickers_done['margin'].tolist()
-        volatile_tickers_done_lst_margin.append(np.NaN)
-        volatile_tickers_done_lst_window_length = volatile_tickers_done['window_length'].tolist()
-        volatile_tickers_done_lst_mcr = volatile_tickers_done['mcr'].tolist()
-        volatile_tickers_done_lst_mcr.append(np.NaN)
-        volatile_tickers_done_lst_window_length.append(np.NaN)
-        df_temp = pd.DataFrame({'tickers':volatile_tickers_done_lst,'window_length':volatile_tickers_done_lst_window_length,'margin':volatile_tickers_done_lst_margin,'mcr':volatile_tickers_done_lst_mcr})
-        df_temp.to_csv('tickers_done_short_correct.csv')
-    
+        if (investment/compare_investment)>1.00 :  
+            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=';')
+            volatile_tickers['margin'][ticker] = margin
+            volatile_tickers['window_length'][ticker] = window_length
+            volatile_tickers['mcr'][ticker] = mcr
+            volatile_tickers.to_csv(tickers+industry+'.csv')
+        elif (investment/compare_investment)<1.00 :  
+            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=';')
+            volatile_tickers['margin'][ticker] = np.NaN
+            volatile_tickers['window_length'][ticker] = np.NaN
+            volatile_tickers['mcr'][ticker] = np.NaN
+            volatile_tickers.to_csv(tickers+industry+'.csv')
+            
     
     
 #    df_test[ticker] = best_investment_dev

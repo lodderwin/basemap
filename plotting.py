@@ -16,6 +16,7 @@ now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # If the folder with today's date doesnt exist then make it
 plot_folder = './plots/'
+plot_folder_train = './x_train_plots/'
 if not os.path.exists(plot_folder):
     os.mkdir(plot_folder)
     
@@ -80,7 +81,7 @@ def plot_latest_prediction(days_ahead,df, predictions, stock, growth, mse,
     
     return plt
 
-def plot_investment(investment_dev, ticker,params,margin,window_length):
+def plot_investment(investment_dev, ticker,params,margin,window_length,node):
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
     fig = plt.figure(figsize=figsize)
@@ -89,9 +90,31 @@ def plot_investment(investment_dev, ticker,params,margin,window_length):
     plt.title('Investment over time of ' +ticker, size=16)
     plt.xlabel('Days', size=13)
     plt.ylabel('Investment', size=13)
-    plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length), 
+    if len(params.keys())>5:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+                horizontalalignment='center' , size=10)
+    elif len(params.keys())==5:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
                 horizontalalignment='center' , size=10)
     plt.savefig(plot_folder + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
+    plt.show()
+    plt.close()
+def plot_investment_train(investment_dev, ticker,params,margin,window_length,node):
+    matplotlib.style.use('seaborn-darkgrid')
+    # Create plot
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax.plot(investment_dev, label='Investment of '+ticker)
+    plt.title('Investment over time of ' +ticker, size=16)
+    plt.xlabel('Days', size=13)
+    plt.ylabel('Investment', size=13)
+    if len(params.keys())>5:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+                horizontalalignment='center' , size=10)
+    elif len(params.keys())==5:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+                horizontalalignment='center' , size=10)
+    plt.savefig(plot_folder_train + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
     plt.show()
     plt.close()
 def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):

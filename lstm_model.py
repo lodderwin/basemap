@@ -15,7 +15,7 @@ from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 import time
 import statistics
-short_term_folder = './short_term_models/'
+
 long_term_folder = './long_term_models/'
 
 def build_model(params):
@@ -75,7 +75,7 @@ def build_model(params):
         
         return model
 
-def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows_non_randomized,x_train_sim,input_dim,window_length,ticker,df,days_ahead,x_train, y_train, x_test, y_test,
+def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows_non_randomized,x_train_sim,input_dim,window_length,ticker,df,days_ahead,x_train, y_train, x_test, y_test,industry,
                             initial_investment=100, iterations=20, mcr=0.00000001,best_investment_dev=100 ,beginparams={},new_test=-1000000):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
@@ -111,13 +111,15 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
-        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
+        print(df_predict)
+#        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
         
         margins = list(np.linspace(1.0,1.1,100))
         best_margin = 0.0
+        shortterm_models = './'+industry+'/shortterm_models/'
         for margin in margins:
             investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test = invest_sim(df_predict,df,margin,ticker)
-            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train = invest_sim(df_predict_train,df,margin,ticker)   
+#            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
             if  (mean_test-std_test)>new_test :
                 new_test = (mean_test-std_test)
@@ -129,10 +131,10 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
                 best_investment_dev = investment_dev_df
                 print(investment)
                 plotting.plot_investment(investment_dev,ticker,params,margin, window_length,node)
-                plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
+#                plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
 
 #                plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
-                model.save(short_term_folder+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
+                model.save(shortterm_models+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
 
             elif (increase_correct+increase_false)==0.0:
                 continue
@@ -173,6 +175,7 @@ def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test_days_average(test_windows,test_days, df_p,x_test,window_length, days_average, model, df)
+        print(df_predict)
         margins = list(np.linspace(1.0,1.1,40))
         
         for margin in margins:
@@ -366,7 +369,7 @@ def invest_sim(df_predict, df,margin,ticker):
         investment_dev.append(investment)      
     
     investment_dev_df = pd.DataFrame(dct_df)
-    if len(distribution)<5:
+    if len(distribution)>5:
         return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution)
     else:
         return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000

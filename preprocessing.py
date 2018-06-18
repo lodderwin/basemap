@@ -40,9 +40,10 @@ def normalise_windows(df, window_length=6):
         df_temp['volume_nmd'] = (df_temp.volume / df_temp.normaliserv) - 1
         df_temp['normaliserh'] = df_temp.high[0]
         df_temp['normaliserl'] = df_temp.low[0]
-        df_temp['high_nmd'] = (df_temp.high / df_temp.normaliserh) - 1
-        df_temp['low_nmd'] = (df_temp.low / df_temp.normaliserl) - 1
+        df_temp['high_nmd'] = (df_temp.high / df_temp.normaliser) - 1
+        df_temp['low_nmd'] = (df_temp.low / df_temp.normaliser) - 1
         df_temp['high_nmd_close'] = (df_temp.high / df_temp.normaliser) - 1
+#        print(df_temp['high_nmd_close'].values)
         df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
         df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
         # Concat df_temp to df_final
