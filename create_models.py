@@ -62,7 +62,7 @@ for ticker in volatile_tickers_list:
                                                         x_test,
                                                         y_test,
                                                         industry,
-                                                        iterations=15)
+                                                        iterations=20)
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
             volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
