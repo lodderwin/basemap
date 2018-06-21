@@ -24,13 +24,13 @@ volatile_tickers_list = volatile_tickers['Ticker'].tolist()
 shortterm_models = './'+industry+'/shortterm_models/'
 
 #volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
-yr = yahoo_reader.finance_data(tickers=volatile_tickers_list[4:30])
+yr = yahoo_reader.finance_data(tickers=volatile_tickers_list)
 df_main = yr.get_fix_yahoo_data()
 df_main = df_main[0]
 days_ahead=1
 df_test = {}
 compare_investment = 300.
-for ticker in volatile_tickers_list[4:30]:
+for ticker in volatile_tickers_list:
     for window_length in [16]:
         df = df_main[df_main.ticker == ticker].reset_index(drop=True)
         df['volume'] = df['volume'].replace(0,1.0)
@@ -62,7 +62,7 @@ for ticker in volatile_tickers_list[4:30]:
                                                         x_test,
                                                         y_test,
                                                         industry,
-                                                        iterations=12)
+                                                        iterations=15)
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
             volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')

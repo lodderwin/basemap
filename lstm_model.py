@@ -86,14 +86,14 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
                       'node1':np.random.randint(20,100),
                       'node2':np.random.randint(20,100),
                       'output_dim':1,
-                      'batch_size':random.choice(np.asarray([4,8,16]))}
+                      'batch_size':random.choice(np.asarray([8,16]))}
         elif node==3:
             params = {'input_dim':input_dim,
                       'node1':np.random.randint(20,100),
                       'node2':np.random.randint(20,100),
                       'node3':np.random.randint(20,100),
                       'output_dim':1,
-                      'batch_size':random.choice(np.asarray([4,8,16]))}
+                      'batch_size':random.choice(np.asarray([8,16]))}
         # Build model
         model = build_model(params)   
         # Fit using x and y test and validate on 10% of those arrays
@@ -102,7 +102,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs = random.choice(np.asarray([2,3,4,5])))
+                  epochs = random.choice(np.asarray([3,5,10])))
         time.sleep(7.1) 
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
@@ -121,7 +121,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
 #            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
             print(mean_test,std_test)
-            if  ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0:
+            if  ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0 and len_points>10 :
                 new_test = ((1+(mean_test-std_test))**len_points)
                 mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
                 beginparams = params
