@@ -102,7 +102,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs = random.choice(np.asarray([2,3,4])))
+                  epochs = random.choice(np.asarray([2,3,4,5])))
         time.sleep(7.1) 
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
@@ -111,18 +111,18 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,train_windows
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
-        print(df_predict)
 #        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
         
         margins = list(np.linspace(1.0,1.1,100))
         best_margin = 0.0
         shortterm_models = './'+industry+'/shortterm_models/'
         for margin in margins:
-            investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test = invest_sim(df_predict,df,margin,ticker)
+            investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points = invest_sim(df_predict,df,margin,ticker)
 #            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
-            if  (mean_test-std_test)>new_test :
-                new_test = (mean_test-std_test)
+            print(mean_test,std_test)
+            if  ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0:
+                new_test = ((1+(mean_test-std_test))**len_points)
                 mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
                 beginparams = params
                 initial_investment = investment
@@ -337,7 +337,7 @@ def invest_sim(df_predict, df,margin,ticker):
 
             if (df_merge.loc[index+1, 'y_predict']/df_merge.loc[index, 'close'])>margin and dummy==0 :
                 investment = investment - (int(investment/df_merge.loc[index, 'close'])*fee_per_stock+fee)
-                distribution.append(investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])- investment)
+                distribution.append(((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close']))-1)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
@@ -346,7 +346,7 @@ def invest_sim(df_predict, df,margin,ticker):
                     increase_false = increase_false+1
 #                    print(increase_false)
             elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
-                distribution.append(investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close']) - investment)
+                distribution.append((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])-1)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
@@ -370,9 +370,9 @@ def invest_sim(df_predict, df,margin,ticker):
     
     investment_dev_df = pd.DataFrame(dct_df)
     if len(distribution)>5:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution)
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution),len(distribution)
     else:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000,len(distribution)
             
         
 

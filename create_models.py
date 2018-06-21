@@ -13,7 +13,7 @@ import gc
 #import pygmail
 from keras.models import Sequential, load_model
 
-industry = 'brewers'
+industry = 'pharmaceuticals'
 results = './'+industry+'/results/'
 tickers = './'+industry+'/tickers/'
 volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
@@ -24,13 +24,13 @@ volatile_tickers_list = volatile_tickers['Ticker'].tolist()
 shortterm_models = './'+industry+'/shortterm_models/'
 
 #volatile_tickers_to_complete = [item for item in volatile_tickers_list if item not in volatile_tickers_done_list]
-yr = yahoo_reader.finance_data(tickers=volatile_tickers_list)
+yr = yahoo_reader.finance_data(tickers=volatile_tickers_list[4:30])
 df_main = yr.get_fix_yahoo_data()
 df_main = df_main[0]
 days_ahead=1
 df_test = {}
 compare_investment = 300.
-for ticker in volatile_tickers_list:
+for ticker in volatile_tickers_list[4:30]:
     for window_length in [16]:
         df = df_main[df_main.ticker == ticker].reset_index(drop=True)
         df['volume'] = df['volume'].replace(0,1.0)
@@ -62,7 +62,7 @@ for ticker in volatile_tickers_list:
                                                         x_test,
                                                         y_test,
                                                         industry,
-                                                        iterations=20)
+                                                        iterations=12)
         gc.collect()    
         if (investment/compare_investment)>1.00 :  
             volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
