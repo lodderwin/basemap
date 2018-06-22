@@ -14,8 +14,8 @@ api.yml
 gmail_settings.yml
 user_settings.yml
 
-# Input files
-csv
+# Data backup folder
+./csv
 
 # Checkpoints
 .ipynb_checkpoints
