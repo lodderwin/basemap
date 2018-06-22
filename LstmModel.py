@@ -6,7 +6,7 @@ from numpy import newaxis
 from keras.layers.recurrent import LSTM
 from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation, Dropout
-import plotting
+import Plotting
 import random
 import pandas as pd
 from datetime import datetime
@@ -133,10 +133,10 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
 #                ratio = increase_correct/increase_false
                 best_investment_dev = investment_dev_df
                 print(investment)
-                plotting.plot_investment(investment_dev,ticker,params,margin, window_length,node)
-#                plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
+                Plotting.plot_investment(investment_dev,ticker,params,margin, window_length,node)
+#                Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
 
-#                plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
+#                Plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
                 model.save(shortterm_models+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
 
             elif (increase_correct+increase_false)==0.0:
@@ -188,8 +188,8 @@ def randomised_model_config_days_average(test_windows,df_p,test_days,input_dim ,
                 initial_investment = investment
                 best_investment_dev = investment_dev_df
                 print(investment)
-                plotting.plot_investment(investment_dev,ticker,params,margin)
-    #            plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
+                Plotting.plot_investment(investment_dev,ticker,params,margin)
+    #            Plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
                 model.save(long_term_folder+ticker+'_'+str(window_length)+'_'+str(days_average)+'_model.h5', overwrite=True)            
     del model        
     print('Loading model')
