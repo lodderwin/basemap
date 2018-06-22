@@ -1,6 +1,6 @@
-#pynt
+## pynt
 
-## Training Models
+### Training Models
 
 - Run the following in terminal/powershell:
 
