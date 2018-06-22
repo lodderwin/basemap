@@ -12,6 +12,10 @@ plots
 # Sensitive files
 api.yml
 gmail_settings.yml
+user_settings.yml
 
 # Input files
 csv
+
+# Checkpoints
+.ipynb_checkpoints
