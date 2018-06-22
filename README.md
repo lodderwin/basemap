@@ -30,3 +30,16 @@ git add shortterm_models/*
 git commit -m 'adding latest training results'
 git push
 ```
+
+- Run the following code in terminal/powershell:
+
+```
+git status
+```
+
+**Output of above status should look something like:**
+```
+nothing to commit, working tree clean
+```
+
+**If the output does not say _"nothing to commit"_ please contact your local git master**
