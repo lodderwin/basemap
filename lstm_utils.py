@@ -1,7 +1,9 @@
-
-import numpy as np
 import os
 import re
+
+import yaml
+import numpy as np
+import pandas as pd
 
 def series_to_ndarray(df, window_len, column : str, dates=False):
     """Returns numpy array of shape (1, length of window,1)
@@ -176,3 +178,28 @@ def get_tickers_done(directory : str):
     tickers_done = [re.sub('[^a-zA-Z]+', '', ticker[:4]) for ticker in tickers_done]
     
     return tickers_done
+
+def load_user_from_yml(yml_file : str):
+    user_settings = yaml.load(open(yml_file))
+    
+    return user_settings['user']
+
+def get_tickers_for_a_user(user : str):
+    owners = pd.read_csv('./industry_owners.csv')
+    
+    user_industries = list(owners[owners.owner == user]['industry'].unique())
+    
+    tickers = pd.read_csv('./tickers.csv')
+    
+    user_tickers = list(tickers[tickers.industry.isin(user_industries)]['ticker'].unique())
+    
+    return user_tickers
+
+def read_results_csv(directory : str):
+    results_csv = directory + 'model_results.csv'
+    if os.path.isfile(results_csv):
+        df = pd.read_csv(results_csv)
+    else:
+        df = pd.DataFrame({})
+    
+    return df    
