@@ -1,16 +1,16 @@
 import pandas as pd
 import numpy as np
 
-import yahoo_reader
+import YahooReader
 from numpy import newaxis
-import preprocessing as pp
-import lstm_utils as utils
-import lstm_model
-import plotting
+import PreProcessing as pp
+import LstmUtils as utils
+import LstmModel
+import Plotting
 import gc
-import pygmail
+import PyGmail
 from keras.models import Sequential, load_model
-model_folder = './short_term_models/'
+model_folder = './shortterm_models/'
 
 df_stock_data = pd.read_csv('tickers_done_short_correct.csv')
 df_stock_data = df_stock_data.dropna() 
@@ -21,7 +21,7 @@ stock_margins = df_stock_data['margin'].tolist()
 
 good_stocks = ['ADMP', 'ACHV', 'SNMX', 'CBI', 'ASNA', 'AIRI', 'BCRX', 'VSAT','WBS','WMGI', 'GEN', 'GALT', 'ANTM', 'ANF','ARLP','ARNA', 'ASTE','BBGI', 'BDC', 'AKS', 'ALXN', 'AMKR','CECO', 'CETV','UNFI', 'UNP','CLH', 'CLB','CHS', 'COLB', 'CNXN','CHRW','CTAS','EEI','CHRW','CTXS','CVTI','DDE','DGICA','DLTR','DMRC','DO','EA']
 #%%
-yr = yahoo_reader.finance_data(tickers=stocks)
+yr = YahooReader.finance_data(tickers=stocks)
 df_main = yr.get_fix_yahoo_data()
 #%%
 ticker_dict = {}
