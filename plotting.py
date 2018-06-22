@@ -81,8 +81,8 @@ def plot_latest_prediction(days_ahead,df, predictions, stock, growth, mse,
     
     return plt
 
-def plot_investment(investment_dev, ticker,params,margin,window_length,node,industry):
-    results = './'+industry+'/results/'
+def plot_investment(investment_dev, ticker, params, margin, window_length, node):
+    investment_sim = './investment_sim/'
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
     fig = plt.figure(figsize=figsize)
@@ -97,9 +97,10 @@ def plot_investment(investment_dev, ticker,params,margin,window_length,node,indu
     elif len(params.keys())==5:
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
                 horizontalalignment='center' , size=10)
-    plt.savefig(results + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
+    plt.savefig(investment_sim + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
     plt.show()
     plt.close()
+    
 def plot_investment_train(investment_dev, ticker,params,margin,window_length,node):
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
@@ -118,6 +119,7 @@ def plot_investment_train(investment_dev, ticker,params,margin,window_length,nod
     plt.savefig(plot_folder_train + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
     plt.show()
     plt.close()
+    
 def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
     # Use seaborn styling
     matplotlib.style.use('seaborn-darkgrid')
@@ -138,10 +140,7 @@ def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
     plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
-    
-    
-    
-    
+        
 def plot_results_days_average(real_prices, corrected_predicted_test, days_average,ticker):
     # Use seaborn styling
     matplotlib.style.use('seaborn-darkgrid')
