@@ -1,6 +1,5 @@
 import os
 import datetime as dt
-import numpy as np
 
 import pandas as pd
 from tenacity import retry, stop_after_attempt
@@ -10,23 +9,21 @@ from yahoo_fin.stock_info import get_data
 
 START_DATE = '2000-01-01'
 END_DATE = dt.datetime.now().strftime("%Y-%m-%d")
-TICKERS = ['AAPL',
-           'MSFT',
-           'BIDU',
-           'TRIP',
-           'AMAG'
-           ]
+TICKERS = [
+   'AAPL',
+   'MSFT',
+   'BIDU',
+   'TRIP',
+   'AMAG'
+]
 DATA_DIR = './csv/'
 DATA_NAME = '/stock_data.csv'
 
 if not os.path.exists(DATA_DIR):
     os.mkdir(DATA_DIR)
 
-#%%
-
 def _process_data(df):
-    """
-    Casts date column as pd.Datetime & creates weekday number
+    """Casts date column as pd.Datetime & creates weekday number
     column.
     """
     df['date'] = pd.to_datetime(df['date'])
@@ -36,13 +33,12 @@ def _process_data(df):
 
 class finance_data():
     def __init__(self, start_date=None, end_date=None, tickers=None):
-        """
-        Uses Yahoo_finance fix to download stock data
+        """Uses Yahoo_finance fix to download stock data
         
-        Parameters
-        start_date : date from whence stock data to be downloaded, str
-        end_date : max date for stock data download, str
-        tickers : list of tickers to be downloaded, list
+        Keyword arguments:
+        start_date -- date from whence stock data to be downloaded, str
+        end_date -- max date for stock data download, str
+        tickers -- list of tickers to be downloaded, list
         """
         self.start_date = start_date
         self.end_date = end_date
@@ -60,22 +56,24 @@ class finance_data():
             self.end_date = END_DATE
         
     def get_fix_yahoo_data(self, store=True):
-        """
-        Gets Financial Stock data via Yahoo Finance for tickers defined in 
+        """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
         
-        returns
-        --------
-        df : pd.DataFrame including stock data
+        Keyword arguments:
+        store -- if True the downloaded data is stored to csv, boolean
+        
+        Returns:
+        df -- pd.DataFrame including stock data
         tickers = list of tickers
         """
         print('\nDownloading Stock Data\n')
         # download Stock Data
         yf.pdr_override() 
         df = pdr.get_data_yahoo(
-                self.tickers, 
-                start=self.start_date,
-                end=self.end_date)
+            self.tickers, 
+            start=self.start_date,
+            end=self.end_date
+        )
         
         # convert pd.Panel to pd.Frame
         if len(self.tickers) > 1:
@@ -102,14 +100,15 @@ class finance_data():
         return df, self.tickers
     
     def get_yahoo_fin_data(self, store=True):
-        """
-        Gets Financial Stock data via Yahoo Finance for tickers defined in 
+        """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded. This
         function acts as a back to get_data().
         
-        returns
-        --------
-        df : pd.DataFrame including stock data
+        Keyword arguments:
+        store -- if True the downloaded data is stored to csv, boolean
+        
+        Returns
+        df -- pd.DataFrame including stock data
         tickers = list of tickers
         """
         df = pd.DataFrame([])
@@ -117,10 +116,10 @@ class finance_data():
 
         for ticker in self.tickers:
             df_ticker = get_data(
-                    ticker, 
-                    start_date=self.start_date, 
-                    end_date=self.end_date
-                    )
+                ticker, 
+                start_date=self.start_date, 
+                end_date=self.end_date
+            )
             
             df_ticker = df_ticker.reset_index()
             df_ticker = _process_data(df_ticker)
@@ -140,8 +139,7 @@ class finance_data():
     
     @retry(stop=stop_after_attempt(7)) 
     def main(self):
-        """
-        As fix yahoo finance can be a little unstable main is used to try both
+        """As fix yahoo finance can be a little unstable main is used to try both
         fix_yahoo_finance and yahoo_fin in order to decrease the chances that
         code produces an error if no connection made. Retry decorator is used to
         improve robustness of function
