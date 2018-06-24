@@ -212,4 +212,9 @@ def read_all_results_csv(directory : str):
         df_temp = pd.read_csv(directory + file)
         df = pd.concat([df, df_temp])
         
+    df = df[df.window_length != np.NaN]
+    
+    if 'Unnamed: 0' in df.columns:
+        df = df.drop('Unnamed: 0', axis=1)
+        
     return df.reset_index(drop=True)
