@@ -1,5 +1,10 @@
 ## pynt
 
+### Important
+
+**Any time you make changes to "industry_owners.csv" commit and push changes immediately.**
+
+
 ### Training Models
 
 - Run the following in terminal/powershell:
