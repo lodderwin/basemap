@@ -21,7 +21,7 @@ days_ahead=1
 compare_investment = 300.
 for ticker in tickers:
     results_dict = {}
-    results_df = utils.read_results_csv(directory='./results/')
+    results_df = utils.read_a_user_results_csv(directory='./results/', user=user)
     for window_length in [16]:
         df = df_main[df_main.ticker == ticker].reset_index(drop=True)
         df['volume'] = df['volume'].replace(0,1.0)
@@ -78,7 +78,7 @@ for ticker in tickers:
             results_dict['date_created'] = [dt.datetime.now(),]
         
         results_df = pd.concat([results_df, pd.DataFrame(results_dict)])
-        results_df.to_csv('./results/model_results.csv', index=False)
+        results_df.to_csv('./results/model_results_{}.csv'.format(user), index=False)
 
             
 #            volatile_tickers = pd.read_csv(tickers+industry+'.csv',sep=',')
