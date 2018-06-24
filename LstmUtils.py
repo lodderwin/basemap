@@ -195,11 +195,21 @@ def get_tickers_for_a_user(user : str):
     
     return user_tickers
 
-def read_results_csv(directory : str):
-    results_csv = directory + 'model_results.csv'
+def read_a_user_results_csv(directory : str, user : str):
+    results_csv = directory + 'model_results_{}.csv'.format(user)
     if os.path.isfile(results_csv):
         df = pd.read_csv(results_csv)
     else:
         df = pd.DataFrame({})
     
-    return df    
+    return df
+
+def read_all_results_csv(directory : str):
+    files = os.listdir(directory)
+    df = pd.DataFrame({})
+    
+    for file in files:
+        df_temp = pd.read_csv(directory + file)
+        df = pd.concat([df, df_temp])
+        
+    return df.reset_index(drop=True)
