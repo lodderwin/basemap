@@ -20,7 +20,6 @@ df_main, tickers = yr.get_fix_yahoo_data()
 days_ahead = 1
 
 for ticker in tickers:
-    results_dict = {}
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     window_length = 16
     df = df_main[df_main.ticker == ticker].reset_index(drop=True)
@@ -79,5 +78,5 @@ for ticker in tickers:
         })  
 
     
-    df_results = pd.concat([df_results, pd.DataFrame(results_dict)])
+    df_results = pd.concat([df_results, df_temp])
     df_results.to_csv('./results/model_results_{}.csv'.format(user), index=False)
