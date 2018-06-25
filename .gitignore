@@ -13,6 +13,7 @@ plots
 api.yml
 gmail_settings.yml
 user_settings.yml
+slack_token.yml
 
 # Data backup folder
 csv/
