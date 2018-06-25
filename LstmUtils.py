@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 
 def series_to_ndarray(df, window_len, column : str, dates=False):
-    """Returns numpy array of shape (1, length of window,1)
+    """Returns numpy array of shape (1, length of window, 1)
     using pd.DataFrame as input
     """
     # Create empty list of arrays
     arrs_list = []
-    not_correct = 0
+#    not_correct = 0
     # Stack array for each window vertically
 #    if dates:
 #        for window in df.window.unique():
@@ -34,10 +34,10 @@ def series_to_ndarray(df, window_len, column : str, dates=False):
     for window in df.window.unique():
         # Create array and reshape
         arr = df[df.window == window][column].values
-        if len(arr)<window_len or len(arr)>window_len:
-            not_correct = not_correct + 1 
+#        if len(arr)<window_len or len(arr)>window_len:
+#            not_correct = not_correct + 1 
             
-            continue
+#            continue
         
         # Reshape: (, number of days per array, number of columns)
         arr = arr.reshape(1, len(df[df.window == window][column]), 1)
@@ -212,7 +212,7 @@ def read_all_results_csv(directory : str):
         df_temp = pd.read_csv(directory + file)
         df = pd.concat([df, df_temp])
         
-    df = df[df.window_length != np.NaN]
+    df = df[df.window_length > 0]
     
     if 'Unnamed: 0' in df.columns:
         df = df.drop('Unnamed: 0', axis=1)
