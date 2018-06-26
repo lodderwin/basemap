@@ -161,23 +161,18 @@ def gen_X(df,column,window_length, window=0):
     return X, X_nmd
 
 def get_tickers_done(directory : str):
-    """
-    From a given directory the tickers that have models are returned as a list.
-    Directory should be a folder containing models created for tickers.
+    results_files =  os.listdir(directory)
     
-    Parameters
-    --------
-    directory : folder containing models created for tickers
+    if not results_files:
+        tickers = []
+    else:
+        df = pd.DataFrame({})
+        for file in results_files:
+            df = pd.concat([df, pd.read_csv(directory + file)])
     
-    Returns
-    --------
-    tickers_done : list of tickers that have a model
-    """
-    tickers_done = os.listdir(directory)
-    
-    tickers_done = [re.sub('[^a-zA-Z]+', '', ticker[:4]) for ticker in tickers_done]
-    
-    return tickers_done
+        tickers = list(df.ticker.unique())
+            
+    return tickers
 
 def load_user_from_yml(yml_file : str):
     user_settings = yaml.load(open(yml_file))
