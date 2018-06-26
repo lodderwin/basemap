@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 import pandas as pd
 import numpy as np
@@ -11,14 +12,14 @@ import gc
 
 user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
-tickers_done = utils.get_tickers_done('./shortterm_models/')
+tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
 
 yr = YahooReader.finance_data(tickers=tickers_to_do)
 df_main, tickers = yr.get_fix_yahoo_data()
 
 days_ahead = 1
-
+#%%
 for ticker in tickers:
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     window_length = 16
@@ -57,24 +58,29 @@ for ticker in tickers:
         iterations=15
     )
     
-    gc.collect()   
+    gc.collect()
+    
+    # In params batch size is np.int64 and needs to be int in order to be json dumped
+    params = {k : int(v) for k, v in params.items()}
     
     if (investment/300) > 1.00:
         df_temp = pd.DataFrame({
-            'margin': [np.round(margin, 2),],
-            'window_length': [window_length,],
-            'mcr': [np.round(mcr, 2),],
-            'ticker': [ticker,],
-            'date_created': [dt.datetime.now(),]
+            'margin': [np.round(margin, 2)],
+            'window_length': [window_length],
+            'mcr': [np.round(mcr, 2)],
+            'ticker': [ticker],
+            'params': [json.dumps(params)],
+            'date_created': [dt.datetime.now()]
         })
 
     else: 
         df_temp = pd.DataFrame({
-            'margin': [np.NaN,],
-            'window_length': [np.NaN,],
-            'mcr': [np.NaN,],
-            'ticker': [ticker,],
-            'date_created': [dt.datetime.now(),]
+            'margin': [np.NaN],
+            'window_length': [np.NaN],
+            'mcr': [np.NaN],
+            'ticker': [ticker],
+            'params': [json.dumps(params)],
+            'date_created': [dt.datetime.now()]
         })  
 
     
