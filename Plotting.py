@@ -5,8 +5,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from pandas.tseries.offsets import BDay
 
-import LstmUtils as utils
-import LstmModel
+import lstm_utils as utils
+import lstm_model
 
 matplotlib.style.use('seaborn-darkgrid')
 figsize = (9,9*9/16)
@@ -25,7 +25,7 @@ def add_predictions_to_plt(df, model, stock,days_ahead):
     for window in range(0,17):
         X, X_nmd = utils.gen_X(df, window=window)
         
-        predictions_nmd = LstmModel.predict(model, X_nmd, days_ahead)
+        predictions_nmd = lstm_model.predict(model, X_nmd, days_ahead)
         predictions = (predictions_nmd + 1) * X[0][0]
         
         # Prep prediction data for plotting

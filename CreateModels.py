@@ -4,10 +4,10 @@ import json
 import pandas as pd
 import numpy as np
 
-import YahooReader
-import PreProcessing as pp
-import LstmUtils as utils
-import LstmModel
+import yahoo_reader
+import preprocessing as pp
+import lstm_utils as utils
+import lstm_model
 import gc
 
 user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
@@ -15,7 +15,7 @@ user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
 
-yr = YahooReader.finance_data(tickers=tickers_to_do)
+yr = yahoo_reader.finance_data(tickers=tickers_to_do)
 df_main, tickers = yr.get_fix_yahoo_data()
 
 days_ahead = 1
@@ -39,7 +39,7 @@ for ticker in tickers:
     #closing price must go first 
     combined_input = np.concatenate((close_nmd_array,open_nmd_close_array,low_nmd_close_array,high_nmd_close_array,volumne_nmd_array, day_number_array),axis=2)
     x_train, y_train, x_test, y_test, train_days, test_days, test_windows,train_windows_non_randomized,x_train_sim = utils.train_test_split(combined_input,combined_input.shape[2], dates_array, windows_array)
-    investment, best_investment_dev, params, margin, mcr = LstmModel.randomised_model_config(
+    investment, best_investment_dev, params, margin, mcr = lstm_model.randomised_model_config(
         test_windows,
         df_p,
         test_days,

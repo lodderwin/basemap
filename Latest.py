@@ -4,9 +4,10 @@ from keras.models import load_model
 import pandas as pd
 import numpy as np
 
-import YahooReader
-import PreProcessing as pp
-import LstmUtils as utils
+import yahoo_reader
+import preprocessing as pp
+import lstm_utils as utils
+from slack import PyntBot
 
 today = dt.datetime.today().strftime('%d_%m_%Y')
 
@@ -16,7 +17,7 @@ df_results = utils.read_all_results_csv(directory='./results/')
 
 tickers_to_do = list(df_results.ticker.unique())
 
-yr = YahooReader.finance_data(tickers=tickers_to_do)
+yr = yahoo_reader.finance_data(tickers=tickers_to_do)
 df_main, tickers_in_yahoo = yr.get_fix_yahoo_data()
 
 df_results = df_results[df_results.ticker.isin(tickers_in_yahoo)]
@@ -33,6 +34,7 @@ for idx, row in df_results.iterrows():
                           window_length=window_length_pred)
         .reset_index(drop=True)
     )
+        
     close_nmd_array = utils.series_to_ndarray(df_pred, row.window_length, column='close_nmd')
     volumne_nmd_array = utils.series_to_ndarray(df_pred, row.window_length, column='volume_nmd')
     high_nmd_close_array = utils.series_to_ndarray(df_pred, row.window_length, column='high_nmd_close')
@@ -62,3 +64,7 @@ for idx, row in df_results.iterrows():
     
     
 predictions.to_csv('./predictions/{}_{}.csv'.format(today, user), index=False)
+
+pyntbot = PyntBot(df=predictions)
+
+pyntbot.send_top_tickers()
