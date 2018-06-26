@@ -22,9 +22,8 @@ df_main, tickers_in_yahoo = yr.get_fix_yahoo_data()
 df_results = df_results[df_results.ticker.isin(tickers_in_yahoo)]
 
 predictions = pd.DataFrame({})
-
+#%%
 for idx, row in df_results.iterrows():
-    df_latest = pd.DataFrame({})
     model = load_model('./shortterm_models/{}_{}_model.h5'.format(row.ticker, int(row.window_length)))
     df = df_main[df_main.ticker == row.ticker].reset_index(drop=True)
     df['volume'] = df['volume'].replace(0,1.0)   
@@ -51,12 +50,12 @@ for idx, row in df_results.iterrows():
     growth = predicted/df_pred.loc[len(df_pred)-1,'close']
     
     df_temp = pd.DataFrame({
-        'ticker': [row.ticker,],
-        'margin': [np.round(row.margin, 2),],
-        'date_created': [dt.datetime.now(),],
-        'growth': [np.round(growth, 2),],
-        'growth_mt_margin': [np.where(growth > row.margin, 1, 0),],
-        'user': [user,]
+        'ticker': [row.ticker],
+        'margin': [np.round(row.margin, 2)],
+        'date_created': [dt.datetime.now()],
+        'growth': [np.round(growth, 2)],
+        'growth_mt_margin': [np.where(growth > row.margin, 1, 0)],
+        'user': [user]
     })
     
     predictions = pd.concat([predictions, df_temp])
