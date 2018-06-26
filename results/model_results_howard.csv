@@ -1,0 +1,5 @@
+date_created,margin,mcr,params,ticker,window_length
+2018-06-26 14:34:00.998980,0.0,0.07,"{""input_dim"": 6, ""node1"": 27, ""node2"": 84, ""output_dim"": 1, ""batch_size"": 8}",ABEV,16
+2018-06-26 15:19:38.020155,0.0,0.14,"{""input_dim"": 6, ""node1"": 37, ""node2"": 70, ""output_dim"": 1, ""batch_size"": 8}",ALK,16
+2018-06-26 16:08:24.752608,0.0,0.11,"{""input_dim"": 6, ""node1"": 84, ""node2"": 86, ""output_dim"": 1, ""batch_size"": 16}",BREW,16
+2018-06-26 16:58:25.910919,0.0,0.52,"{""input_dim"": 6, ""node1"": 73, ""node2"": 76, ""output_dim"": 1, ""batch_size"": 8}",CCU,16
