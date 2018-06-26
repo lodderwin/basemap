@@ -74,7 +74,7 @@ class finance_data():
             start=self.start_date,
             end=self.end_date
         )
-        
+            
         # convert pd.Panel to pd.Frame
         if len(self.tickers) > 1:
             df = df.to_frame()
