@@ -6,8 +6,6 @@ from slackclient import SlackClient
 TOKEN = yaml.load(open('./configs/slack_token.yml'))['token']
 SC = SlackClient(TOKEN)
 
-df = pd.read_csv('./predictions/26_06_2018_howard.csv')
-
 def _gen_prediction_ranking_text(df : pd.DataFrame):
     msg = ":loudspeaker: *Latest Predictions*\nTop Tickers _ranked by predicted growth_\n"
     for i, row in df[10:].iterrows():
@@ -40,7 +38,3 @@ class PyntBot():
              text=self.message,
              username='pyntbot'
         )
-
-#%%
-pyntbot = PyntBot(df=df)
-
