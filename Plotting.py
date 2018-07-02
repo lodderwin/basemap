@@ -92,10 +92,10 @@ def plot_investment(investment_dev, ticker, params, margin, window_length, node)
     plt.xlabel('Days', size=13)
     plt.ylabel('Investment', size=13)
     if len(params.keys())>5:
-        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
     elif len(params.keys())==5:
-        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
     plt.savefig(investment_sim + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
     plt.show()

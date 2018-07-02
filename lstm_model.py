@@ -99,13 +99,16 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
                       'batch_size':random.choice(np.asarray([8,16]))}
         # Build model
         model = build_model(params)   
+        
         # Fit using x and y test and validate on 10% of those arrays
         # take out dates as input
+        epochs = random.choice(np.asarray([3,5,10]))
         model.fit(x_train,
                   y_train,
                   validation_split = 0.1,
                   batch_size = params['batch_size'],
-                  epochs = random.choice(np.asarray([3,5,10])))
+                  epochs = epochs)
+        params['epochs'] = epochs
         time.sleep(7.1) 
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
@@ -132,7 +135,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
                 best_margin = margin
 #                ratio = increase_correct/increase_false
                 best_investment_dev = investment_dev_df
-                print(investment)
+                print(investment, params)
                 Plotting.plot_investment(investment_dev,ticker,params,margin, window_length,node)
 #                Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
 
