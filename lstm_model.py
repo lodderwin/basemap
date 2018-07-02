@@ -83,26 +83,19 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
-        node = np.random.randint(2,3)
-        if node==2:
-            params = {'input_dim':input_dim,
-                      'node1':np.random.randint(20,100),
-                      'node2':np.random.randint(20,100),
-                      'output_dim':1,
-                      'batch_size':random.choice(np.asarray([8,16]))}
-        elif node==3:
-            params = {'input_dim':input_dim,
-                      'node1':np.random.randint(20,100),
-                      'node2':np.random.randint(20,100),
-                      'node3':np.random.randint(20,100),
-                      'output_dim':1,
-                      'batch_size':random.choice(np.asarray([8,16]))}
+
+        params = {'input_dim':input_dim,
+                  'node1':np.random.randint(15,130),
+                  'node2':np.random.randint(15,130),
+                  'output_dim':1,
+                  'batch_size':random.choice(np.asarray([8,16,32]))}
+
         # Build model
         model = build_model(params)   
         
         # Fit using x and y test and validate on 10% of those arrays
         # take out dates as input
-        epochs = random.choice(np.asarray([3,5,10]))
+        epochs = random.choice(np.asarray([3,5,8,12]))
         model.fit(x_train,
                   y_train,
                   validation_split = 0.1,
@@ -117,8 +110,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
-        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
-        print(df_predict_train)
+#        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
         margins = list(np.linspace(1.0,1.1,100))
         best_margin = 0.0
         shortterm_models = './shortterm_models/'
@@ -126,7 +118,6 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
             investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points = invest_sim(df_predict,df,margin,ticker)
 #            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
-            print(mean_test,std_test)
             if  ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0 and len_points>10 :
                 new_test = ((1+(mean_test-std_test))**len_points)
                 mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
