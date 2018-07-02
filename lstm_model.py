@@ -127,7 +127,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
 #                ratio = increase_correct/increase_false
                 best_investment_dev = investment_dev_df
                 print(investment, params)
-                Plotting.plot_investment(investment_dev,ticker,params,margin, window_length,node)
+                Plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
 #                Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
 
 #                Plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
