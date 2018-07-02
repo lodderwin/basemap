@@ -1,0 +1,9 @@
+date_created,margin,mcr,params,ticker,window_length
+2018-07-02 14:42:54.951496,0.0,101894.3,"{""input_dim"": 6, ""node1"": 71, ""node2"": 45, ""output_dim"": 1, ""batch_size"": 8}",ABIO,16
+2018-07-02 15:06:00.629028,0.0,0.29,"{""input_dim"": 6, ""node1"": 37, ""node2"": 75, ""output_dim"": 1, ""batch_size"": 16}",ABT,16
+2018-07-02 15:30:57.142663,0.0,1.02,"{""input_dim"": 6, ""node1"": 67, ""node2"": 25, ""output_dim"": 1, ""batch_size"": 16}",ACET,16
+2018-07-02 15:58:14.155820,0.0,32.28,"{""input_dim"": 6, ""node1"": 99, ""node2"": 47, ""output_dim"": 1, ""batch_size"": 16}",ADMP,16
+2018-07-02 16:26:14.684668,1.02,0.21,"{""input_dim"": 6, ""node1"": 63, ""node2"": 59, ""output_dim"": 1, ""batch_size"": 8}",AGN,16
+2018-07-02 16:56:13.714604,0.0,0.06,"{""input_dim"": 6, ""node1"": 56, ""node2"": 81, ""output_dim"": 1, ""batch_size"": 8}",ALXN,16
+2018-07-02 17:25:17.602595,0.0,0.29,"{""input_dim"": 6, ""node1"": 92, ""node2"": 89, ""output_dim"": 1, ""batch_size"": 16}",AMAG,16
+2018-07-02 19:43:21.635845,0.0,0.37,"{""input_dim"": 6, ""node1"": 42, ""node2"": 34, ""output_dim"": 1, ""batch_size"": 16}",AMGN,16
