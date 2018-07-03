@@ -36,5 +36,6 @@ class PyntBot():
             'chat.postMessage',
              channel='slackbot_test',
              text=self.message,
-             username='pyntbot'
+             username='pyntbot',
+             footer='pyntbot'
         )
