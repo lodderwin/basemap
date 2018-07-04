@@ -1,0 +1,12 @@
+date_created,margin,mcr,params,ticker,window_length
+2018-07-03 19:31:31.330352,0.0,0.02,"{""input_dim"": 6, ""node1"": 113, ""node2"": 27, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",ATVI,16
+2018-07-03 19:51:02.673255,1.04,14.99,"{""input_dim"": 6, ""node1"": 126, ""node2"": 78, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",BCOR,16
+2018-07-03 20:11:38.609718,0.0,194.73,"{""input_dim"": 6, ""node1"": 70, ""node2"": 99, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",COOL,16
+2018-07-03 20:32:17.494661,0.0,0.09,"{""input_dim"": 6, ""node1"": 19, ""node2"": 101, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",CSGP,16
+2018-07-03 21:03:17.108161,0.0,0.19,"{""input_dim"": 6, ""node1"": 47, ""node2"": 92, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 12}",EBAY,16
+2018-07-03 21:36:40.536892,0.0,2.11,"{""input_dim"": 6, ""node1"": 98, ""node2"": 18, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",EGOV,16
+2018-07-03 22:23:34.564558,0.0,0.79,"{""input_dim"": 6, ""node1"": 24, ""node2"": 119, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",IAC,16
+2018-07-03 23:54:26.401924,0.0,0.48,"{""input_dim"": 6, ""node1"": 114, ""node2"": 38, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",TCX,16
+2018-07-04 01:31:08.598040,0.0,155.59,"{""input_dim"": 6, ""node1"": 70, ""node2"": 121, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",GIGM,16
+2018-07-04 03:59:18.061133,0.0,0.31,"{""input_dim"": 6, ""node1"": 95, ""node2"": 16, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",SINA,16
+2018-07-04 06:16:59.819416,0.0,1.02,"{""input_dim"": 6, ""node1"": 53, ""node2"": 128, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",LIVE,16
