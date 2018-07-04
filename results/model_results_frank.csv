@@ -10,3 +10,7 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-04 01:31:08.598040,0.0,155.59,"{""input_dim"": 6, ""node1"": 70, ""node2"": 121, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",GIGM,16
 2018-07-04 03:59:18.061133,0.0,0.31,"{""input_dim"": 6, ""node1"": 95, ""node2"": 16, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",SINA,16
 2018-07-04 06:16:59.819416,0.0,1.02,"{""input_dim"": 6, ""node1"": 53, ""node2"": 128, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",LIVE,16
+2018-07-04 09:51:49.986645,0.0,0.0,"{""input_dim"": 6, ""node1"": 25, ""node2"": 99, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",NFLX,16
+2018-07-04 10:13:22.271922,0.0,0.58,"{""input_dim"": 6, ""node1"": 91, ""node2"": 105, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",OSTK,16
+2018-07-04 10:30:13.117707,0.0,12261.28,"{""input_dim"": 6, ""node1"": 55, ""node2"": 15, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 12}",STG,16
+2018-07-04 10:52:24.005549,0.0,0.05,"{""input_dim"": 6, ""node1"": 37, ""node2"": 33, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",GOOG,16
