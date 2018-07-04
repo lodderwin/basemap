@@ -14,3 +14,9 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-04 10:13:22.271922,0.0,0.58,"{""input_dim"": 6, ""node1"": 91, ""node2"": 105, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",OSTK,16
 2018-07-04 10:30:13.117707,0.0,12261.28,"{""input_dim"": 6, ""node1"": 55, ""node2"": 15, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 12}",STG,16
 2018-07-04 10:52:24.005549,0.0,0.05,"{""input_dim"": 6, ""node1"": 37, ""node2"": 33, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",GOOG,16
+2018-07-04 11:20:18.727331,0.0,0.05,"{""input_dim"": 6, ""node1"": 20, ""node2"": 117, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",GOOGL,16
+2018-07-04 11:37:12.254135,0.0,66.76,"{""input_dim"": 6, ""node1"": 84, ""node2"": 21, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 12}",NCTY,16
+2018-07-04 11:58:13.320200,0.0,0.05,"{""input_dim"": 6, ""node1"": 111, ""node2"": 30, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",BIDU,16
+2018-07-04 12:20:34.496081,0.0,0.99,"{""input_dim"": 6, ""node1"": 125, ""node2"": 70, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",LOV,16
+2018-07-04 12:44:53.703351,0.0,0.03,"{""input_dim"": 6, ""node1"": 27, ""node2"": 32, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",MA,16
+2018-07-04 13:11:01.341212,0.0,0.11,"{""input_dim"": 6, ""node1"": 57, ""node2"": 25, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 12}",MELI,16
