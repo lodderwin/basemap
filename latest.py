@@ -53,9 +53,9 @@ for idx, row in df_results.iterrows():
     
     df_temp = pd.DataFrame({
         'ticker': [row.ticker],
-        'margin': [np.round(row.margin, 2)],
+        'margin': [row.margin],
         'date_created': [dt.datetime.now()],
-        'growth': [np.round(growth, 2)],
+        'growth': [growth],
         'growth_mt_margin': [np.where(growth > row.margin, 1, 0)],
         'user': [user]
     })

@@ -65,9 +65,9 @@ for ticker in tickers:
     
     if (investment/300) > 1.00:
         df_temp = pd.DataFrame({
-            'margin': [np.round(margin, 2)],
+            'margin': [margin],
             'window_length': [window_length],
-            'mcr': [np.round(mcr, 2)],
+            'mcr': [mcr],
             'ticker': [ticker],
             'params': [json.dumps(params)],
             'date_created': [dt.datetime.now()]
