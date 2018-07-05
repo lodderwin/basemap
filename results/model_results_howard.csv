@@ -1,0 +1,2 @@
+date_created,margin,mcr,params,ticker,window_length
+2018-07-05 15:29:07.505947,0.0,0.07785683416067013,"{""batch_size"": 32, ""node2"": 56, ""epochs"": 3, ""output_dim"": 1, ""node1"": 36, ""input_dim"": 6}",ABEV,16
