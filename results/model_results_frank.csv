@@ -42,3 +42,7 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-05 07:32:26.629936,0.0,0.02,"{""input_dim"": 6, ""node1"": 96, ""node2"": 93, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",ATVI,16.0
 2018-07-05 07:56:59.753728,1.03,15.2,"{""input_dim"": 6, ""node1"": 33, ""node2"": 95, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 12}",BCOR,16.0
 2018-07-05 08:24:58.222394,0.0,194.86,"{""input_dim"": 6, ""node1"": 127, ""node2"": 109, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",COOL,16.0
+2018-07-05 09:10:00.255994,0.0,0.08,"{""input_dim"": 6, ""node1"": 87, ""node2"": 69, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",ADBE,16.0
+2018-07-05 09:34:35.434778,0.0,0.07,"{""input_dim"": 6, ""node1"": 109, ""node2"": 106, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",ADSK,16.0
+2018-07-05 09:58:43.792625,0.0,1.06,"{""input_dim"": 6, ""node1"": 91, ""node2"": 125, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",AGYS,16.0
+2018-07-05 10:23:06.397130,0.0,0.68,"{""input_dim"": 6, ""node1"": 77, ""node2"": 48, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",AMSWA,16.0
