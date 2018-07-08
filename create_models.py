@@ -38,12 +38,13 @@ for ticker in tickers:
     
     #closing price must go first 
     combined_input = np.concatenate((close_nmd_array,open_nmd_close_array,low_nmd_close_array,high_nmd_close_array,volumne_nmd_array, day_number_array),axis=2)
-    x_train, y_train, x_test, y_test, train_days, test_days, test_windows,train_windows_non_randomized,x_train_sim = utils.train_test_split(combined_input,combined_input.shape[2], dates_array, windows_array)
+    x_train, y_train, x_test, y_test, train_days_sim_non_normal, test_days, test_windows,train_windows_non_randomized,x_train_sim = utils.train_test_split(combined_input,combined_input.shape[2], dates_array, windows_array)
+   #%% 
     investment, best_investment_dev, params, margin, mcr = lstm_model.randomised_model_config(
         test_windows,
         df_p,
         test_days,
-        train_days,
+        train_days_sim_non_normal,
         train_windows_non_randomized,
         x_train_sim,
         combined_input.shape[2],

@@ -73,7 +73,7 @@ def build_model(params):
         
         return model
 
-def randomised_model_config(test_windows,df_p,test_days,train_days,
+def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_normal,
                             train_windows_non_randomized,x_train_sim,
                             input_dim,window_length,ticker,df,days_ahead,
                             x_train, y_train, x_test, y_test,
@@ -102,7 +102,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
                   batch_size = params['batch_size'],
                   epochs = epochs)
         params['epochs'] = epochs
-        time.sleep(7.1) 
+        time.sleep(5.1) 
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
@@ -110,8 +110,8 @@ def randomised_model_config(test_windows,df_p,test_days,train_days,
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
-#        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
-        margins = list(np.linspace(1.0,1.1,100))
+#        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days_sim_non_normal[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
+        margins = list(np.arange(1.0,1.101,0.001))
         best_margin = 0.0
         shortterm_models = './shortterm_models/'
         for margin in margins:
