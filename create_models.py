@@ -56,7 +56,7 @@ for ticker in tickers:
         y_train, 
         x_test,
         y_test,
-        iterations=20
+        iterations=15
     )
     
     gc.collect()
