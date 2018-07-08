@@ -95,7 +95,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
         
         # Fit using x and y test and validate on 10% of those arrays
         # take out dates as input
-        epochs = random.choice(np.asarray([3,5,8,12]))
+        epochs = random.choice(np.asarray([3,5,8]))
         model.fit(x_train,
                   y_train,
                   validation_split = 0.1,
