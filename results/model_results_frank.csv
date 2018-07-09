@@ -1,0 +1,10 @@
+date_created,margin,mcr,params,ticker,window_length
+2018-07-09 13:43:02.209019,0.0,0.079465338276175,"{""input_dim"": 6, ""node1"": 38, ""node2"": 27, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",ADBE,16
+2018-07-09 13:55:52.420609,0.0,0.06351940762863326,"{""input_dim"": 6, ""node1"": 128, ""node2"": 41, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",ADSK,16
+2018-07-09 14:09:43.458409,0.0,0.9844618053110646,"{""input_dim"": 6, ""node1"": 92, ""node2"": 64, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",AGYS,16
+2018-07-09 14:26:53.781198,0.0,0.6574860904533357,"{""input_dim"": 6, ""node1"": 74, ""node2"": 118, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",AMSWA,16
+2018-07-09 14:41:37.263665,0.0,0.016824454198906498,"{""input_dim"": 6, ""node1"": 79, ""node2"": 19, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",ANSS,16
+2018-07-09 15:01:35.815345,0.0,1.5965754340924792,"{""input_dim"": 6, ""node1"": 129, ""node2"": 39, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",ASUR,16
+2018-07-09 15:25:14.047067,0.0,7.630367727579594,"{""input_dim"": 6, ""node1"": 45, ""node2"": 118, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",ATTU,16
+2018-07-09 15:47:57.410046,0.0,0.017655342446858388,"{""input_dim"": 6, ""node1"": 104, ""node2"": 88, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",ATVI,16
+2018-07-09 16:12:46.281233,1.0029999999999997,9.50498074754889,"{""input_dim"": 6, ""node1"": 122, ""node2"": 69, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",AWRE,16
