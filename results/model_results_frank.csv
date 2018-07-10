@@ -14,4 +14,12 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-09 18:36:48.756803,0.0,1.96199650899388,"{""input_dim"": 6, ""node1"": 122, ""node2"": 99, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CA,16
 2018-07-09 18:58:01.553778,0.0,0.5769700569175246,"{""input_dim"": 6, ""node1"": 39, ""node2"": 45, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CDNS,16
 2018-07-09 19:24:51.094991,0.0,0.3242030844677563,"{""input_dim"": 6, ""node1"": 60, ""node2"": 118, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",CHKP,16
-2018-07-09 20:07:34.780976,0.0,180.99837571960498,"{""input_dim"": 6, ""node1"": 96, ""node2"": 39, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",COOL,16
+2018-07-09 20:07:34.780976,0.0,180.99837571960487,"{""input_dim"": 6, ""node1"": 96, ""node2"": 39, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",COOL,16
+2018-07-10 09:01:38.372280,0.0,0.09065678471908344,"{""input_dim"": 6, ""node1"": 95, ""node2"": 68, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",CSGP,16
+2018-07-10 09:16:40.272967,0.0,2.1683669384300326,"{""input_dim"": 6, ""node1"": 76, ""node2"": 60, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CTG,16
+2018-07-10 09:30:50.346720,0.0,0.4670061142000321,"{""input_dim"": 6, ""node1"": 80, ""node2"": 28, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",CTXS,16
+2018-07-10 09:47:17.508841,0.0,67.07088805261441,"{""input_dim"": 6, ""node1"": 93, ""node2"": 19, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",CYRN,16
+2018-07-10 10:02:28.627227,0.0,1.7769782939479415,"{""input_dim"": 6, ""node1"": 87, ""node2"": 76, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",DMRC,16
+2018-07-10 10:19:05.284129,0.0,0.6323893466494765,"{""input_dim"": 6, ""node1"": 104, ""node2"": 106, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",DSGX,16
+2018-07-10 10:40:37.171030,0.0,20.95071441473949,"{""input_dim"": 6, ""node1"": 63, ""node2"": 43, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",DSS,16
+2018-07-10 11:08:42.271624,1.0319999999999965,0.5655351496897962,"{""input_dim"": 6, ""node1"": 46, ""node2"": 18, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",DWCH,16
