@@ -18,8 +18,8 @@ def _gen_prediction_ranking_text(df : pd.DataFrame):
                 .format(
                     row.ranking, 
                     row.ticker,
-                    np.round(row.growth, 3),
-                    np.round(row.margin, 3)
+                    np.round(row.growth, 10),
+                    np.round(row.margin, 10)
                 )
             )
     
