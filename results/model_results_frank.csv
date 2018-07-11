@@ -52,3 +52,17 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-10 21:34:33.416860,0.0,3.7796523590848814,"{""input_dim"": 6, ""node1"": 83, ""node2"": 65, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",QADB,16
 2018-07-10 21:53:17.496547,0.0,0.8920445676462924,"{""input_dim"": 6, ""node1"": 21, ""node2"": 123, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",RDWR,16
 2018-07-10 22:14:48.923959,0.0,0.8381915143753021,"{""input_dim"": 6, ""node1"": 92, ""node2"": 73, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",RHT,16
+2018-07-10 22:42:32.181892,0.0,71.76792843350165,"{""input_dim"": 6, ""node1"": 25, ""node2"": 72, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",RNWK,16
+2018-07-10 22:55:37.453223,0.0,0.4782111218000494,"{""input_dim"": 6, ""node1"": 96, ""node2"": 24, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",SAP,16
+2018-07-10 23:09:46.286950,0.0,14.138527208326561,"{""input_dim"": 6, ""node1"": 67, ""node2"": 22, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",SEAC,16
+2018-07-10 23:25:10.267355,0.0,4.955318250124899,"{""input_dim"": 6, ""node1"": 116, ""node2"": 21, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",SMSI,16
+2018-07-10 23:43:41.881495,0.0,0.4231902127233867,"{""input_dim"": 6, ""node1"": 86, ""node2"": 29, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",SNPS,16
+2018-07-11 00:05:00.923587,0.0,8.71409059315866,"{""input_dim"": 6, ""node1"": 71, ""node2"": 81, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",SPNS,16
+2018-07-11 00:25:51.995171,0.0,0.3721580645931742,"{""input_dim"": 6, ""node1"": 17, ""node2"": 47, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",SYMC,16
+2018-07-11 00:50:42.466951,0.0,0.4860491562598496,"{""input_dim"": 6, ""node1"": 62, ""node2"": 106, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",TCX,16
+2018-07-11 01:15:08.401104,0.0,58.0366658448514,"{""input_dim"": 6, ""node1"": 51, ""node2"": 43, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",TEUM,16
+2018-07-11 02:05:48.588487,0.0,0.11677141219785685,"{""input_dim"": 6, ""node1"": 34, ""node2"": 43, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",TRMB,16
+2018-07-11 03:06:24.729492,0.0,0.02573262886656167,"{""input_dim"": 6, ""node1"": 115, ""node2"": 44, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",TYL,16
+2018-07-11 04:17:44.223500,0.0,0.04955542401841609,"{""input_dim"": 6, ""node1"": 38, ""node2"": 114, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 3}",ULTI,16
+2018-07-11 05:53:21.487066,0.0,18.159869180232505,"{""input_dim"": 6, ""node1"": 52, ""node2"": 51, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",SMAR,16
+2018-07-11 07:09:00.802794,0.0,1779.8290598290575,"{""input_dim"": 6, ""node1"": 101, ""node2"": 94, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",TWLO,16
