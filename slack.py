@@ -12,7 +12,7 @@ def _gen_prediction_ranking_text(df : pd.DataFrame):
     if len(df) == 0:
         msg = "No tickers today :white_frowning_face:"
     else:
-        df = df.sort_values('growth').reset_index(drop=True)
+        df = df.sort_values('growth', ascending=False).reset_index(drop=True)
         msg = ":loudspeaker: *Latest Predictions*\nTop Tickers _ranked by predicted growth_\n"
         for i, row in df[:10].iterrows():
             msg = msg + ("{}. *{}: {}* _({})_\n"
