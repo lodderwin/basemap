@@ -11,7 +11,7 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-09 17:40:18.612287,0.0,14.406083126028285,"{""input_dim"": 6, ""node1"": 67, ""node2"": 26, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",BCOR,16
 2018-07-09 17:55:24.037265,0.0,72.37277758629246,"{""input_dim"": 6, ""node1"": 56, ""node2"": 53, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",BSQR,16
 2018-07-09 18:13:33.981060,0.0,16973.928506347358,"{""input_dim"": 6, ""node1"": 76, ""node2"": 57, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",BVSN,16
-2018-07-09 18:36:48.756803,0.0,1.9619965089938798,"{""input_dim"": 6, ""node1"": 122, ""node2"": 99, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CA,16
+2018-07-09 18:36:48.756803,0.0,1.96199650899388,"{""input_dim"": 6, ""node1"": 122, ""node2"": 99, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CA,16
 2018-07-09 18:58:01.553778,0.0,0.5769700569175246,"{""input_dim"": 6, ""node1"": 39, ""node2"": 45, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 8}",CDNS,16
 2018-07-09 19:24:51.094991,0.0,0.3242030844677563,"{""input_dim"": 6, ""node1"": 60, ""node2"": 118, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 5}",CHKP,16
 2018-07-09 20:07:34.780976,0.0,180.99837571960487,"{""input_dim"": 6, ""node1"": 96, ""node2"": 39, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",COOL,16
@@ -73,4 +73,5 @@ date_created,margin,mcr,params,ticker,window_length
 2018-07-11 10:46:22.284669,1.044999999999995,1.0125186993148003,"{""input_dim"": 6, ""node1"": 37, ""node2"": 28, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",LIVE,16
 2018-07-11 11:05:15.443077,0.0,0.0031751523931372546,"{""input_dim"": 6, ""node1"": 48, ""node2"": 18, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 5}",NFLX,16
 2018-07-11 11:28:06.230374,0.0,0.40808644256677823,"{""input_dim"": 6, ""node1"": 117, ""node2"": 110, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",OSTK,16
-2018-07-11 11:52:21.713597,0.0,7.4736555447740525,"{""input_dim"": 6, ""node1"": 105, ""node2"": 77, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",STG,16
+2018-07-11 11:52:21.713597,0.0,7.473655544774052,"{""input_dim"": 6, ""node1"": 105, ""node2"": 77, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",STG,16
+2018-07-11 12:33:11.829355,0.0,9730.477854129043,"{""input_dim"": 6, ""node1"": 66, ""node2"": 83, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 8}",DCAR,16
