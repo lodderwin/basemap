@@ -112,7 +112,6 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
 #        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days_sim_non_normal[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
         margins = list(np.arange(1.0,1.101,0.001))
-        best_margin = 0.0
         shortterm_models = './shortterm_models/'
         for margin in margins:
             investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points = invest_sim(df_predict,df,margin,ticker)
