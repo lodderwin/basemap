@@ -1,22 +1,9 @@
-
-# Python generated files
 __pycache__
-
-# Output files
-plots
-
-# OS generated files
 .DS_Store
 .DS_Store?
-
-# Sensitive files
 api.yml
 gmail_settings.yml
 user_settings.yml
 slack_token.yml
-
-# Data backup folder
-csv/
-
-# Checkpoints
+data/
 ipynb_checkpoints
