@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+import logging
 
 import pandas as pd
 from tenacity import retry, stop_after_attempt
@@ -7,66 +8,49 @@ from pandas_datareader import data as pdr
 import fix_yahoo_finance as yf
 from yahoo_fin.stock_info import get_data
 
-START_DATE = '2000-01-01'
-END_DATE = dt.datetime.now().strftime("%Y-%m-%d")
-TICKERS = [
-   'AAPL',
-   'MSFT',
-   'BIDU',
-   'TRIP',
-   'AMAG'
-]
-DATA_DIR = './csv/'
-DATA_NAME = '/stock_data.csv'
+logging.basicConfig(level=logging.INFO)
 
-if not os.path.exists(DATA_DIR):
-    os.mkdir(DATA_DIR)
 
-def _process_data(df):
-    """Casts date column as pd.Datetime & creates weekday number
-    column.
-    """
-    df['date'] = pd.to_datetime(df['date'])
-    df['day_number'] = df['date'].dt.weekday
-    
-    return df
-
-class finance_data():
-    def __init__(self, start_date=None, end_date=None, tickers=None):
+class FinanceData():
+    def __init__(self, start_date='2000-01-01', 
+                 end_date=dt.datetime.now().strftime("%Y-%m-%d"), 
+                 tickers=None, data_dir=None):
         """Uses Yahoo_finance fix to download stock data
         
-        Keyword arguments:
-        start_date -- date from whence stock data to be downloaded, str
-        end_date -- max date for stock data download, str
-        tickers -- list of tickers to be downloaded, list
+        Args:
+        start_date (str): date from whence stock data to be downloaded
+        end_date (str): max date for stock data download
+        tickers (list): list of tickers to be downloaded
+        data_dir (str): directory where data should be saved
+        
+        Attributes:
         """
-        self.start_date = start_date
-        self.end_date = end_date
-        self.tickers = tickers
-        
-        # Define tickers to download
-        if self.tickers == None:
-            self.tickers = TICKERS
+        for param in [start_date, end_date, tickers, data_dir]:
+            if not param:
+                raise ValueError('Keyword param has not been specified')
+            else:
+                self.start_date = start_date
+                self.end_date = end_date
+                self.tickers = tickers
+                
+        if not os.path.exists(data_dir):
+            logging.info('{} does not exist, creating directory'.format(data_dir))
+            os.mkdir(data_dir)
             
-        # Define start, default is January first 2000
-        if self.start_date == None:
-            self.start_date = START_DATE
-        # Define end date, defualt is today's date  
-        if self.end_date == None:
-            self.end_date = END_DATE
-        
+        self.data_dir = data_dir
+            
     def get_fix_yahoo_data(self, store=True):
         """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
         
-        Keyword arguments:
-        store -- if True the downloaded data is stored to csv, boolean
+        Args:
+            store (bool): if True the downloaded data is stored to csv, boolean
         
-        Returns:
-        df -- pd.DataFrame including stock data
-        tickers = list of tickers
+        Attributes:
+            df (pd.DataFrame): including stock data
+            tickers (list): list of tickers
         """
-        print('\nDownloading Stock Data\n')
+        logging.info('downloading stock data')
         # download Stock Data
         yf.pdr_override() 
         df = pdr.get_data_yahoo(
@@ -91,14 +75,13 @@ class finance_data():
         self.tickers = list(df.ticker.unique())
                     
         # Process dates
-        df = _process_data(df)
+        self.df = self._process_data(df)
         
         # Store data
         if store:
-            df.to_csv(DATA_DIR + DATA_NAME, index=False)
-     
-        return df, self.tickers
-    
+            self.df.to_csv(os.path.join(self.data_dir, 'historical_prices.csv'), 
+               index=False)
+         
     def get_yahoo_fin_data(self, store=True):
         """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded. This
@@ -112,7 +95,6 @@ class finance_data():
         tickers = list of tickers
         """
         df = pd.DataFrame([])
-        
 
         for ticker in self.tickers:
             df_ticker = get_data(
@@ -122,33 +104,48 @@ class finance_data():
             )
             
             df_ticker = df_ticker.reset_index()
-            df_ticker = _process_data(df_ticker)
+            df_ticker = self._process_data(df_ticker)
             
             df = pd.concat([df, df_ticker])
             
-        df = df.reset_index(drop=True)
+        df = df.reset_index()
         
-        # Store data
-        if store:
-            df.to_csv(DATA_DIR + DATA_NAME, index=False)
+        # Rename columns
+        df.columns = [col.lower().replace(' ','') for col in df.columns]
+        df = df.rename(columns={'minor':'ticker'})
         
         # Some tickers will not have any data, remove these from ticker list
         self.tickers = list(df.ticker.unique())
+                    
+        # Process dates
+        self.df = self._process_data(df)
         
-        return df, self.tickers
+        # Store data
+        if store:
+            self.df.to_csv(os.path.join(self.data_dir, 'historical_prices.csv'), 
+               index=False)
     
     @retry(stop=stop_after_attempt(7)) 
-    def main(self):
+    def get_fin_data(self):
         """As fix yahoo finance can be a little unstable main is used to try both
         fix_yahoo_finance and yahoo_fin in order to decrease the chances that
         code produces an error if no connection made. Retry decorator is used to
         improve robustness of function
         """
         try:
-            print('Trying fix_yahoo_finance...')
-            df, self.tickers = self.get_fix_yahoo_data()
+            logging.info('Trying fix_yahoo_finance...')
+            self.get_fix_yahoo_data()
         except:
-            print('Trying yahoo_fin...')
-            df, self.tickers = self.get_yahoo_fin_data()
-            
-        return df, self.tickers       
+            logging.info('Trying yahoo_fin...')
+            self.get_yahoo_fin_data()
+                
+    @staticmethod
+    def _process_data(df):
+        """Casts date column as pd.Datetime & creates weekday number
+        column.
+        """
+        df['date'] = pd.to_datetime(df['date'])
+        df['day_number'] = df['date'].dt.weekday
+        
+        return df
+
