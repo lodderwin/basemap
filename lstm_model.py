@@ -78,7 +78,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
                             input_dim,window_length,ticker,df,days_ahead,
                             x_train, y_train, x_test, y_test,
                             initial_investment=100, iterations=20, 
-                            mcr=0.00000001,best_investment_dev=100, best_margin=80.0
+                            mcr=0.00000001,best_investment_dev=100, best_margin=80.0,
                             beginparams={},new_test=-1000000):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
