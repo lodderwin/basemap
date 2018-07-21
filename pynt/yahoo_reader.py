@@ -3,7 +3,7 @@ import datetime as dt
 import logging
 
 import pandas as pd
-from tenacity import retry, stop_after_attempt
+from tenacity import retry, stop_after_attempt, wait_fixed
 from pandas_datareader import data as pdr
 import fix_yahoo_finance as yf
 from yahoo_fin.stock_info import get_data
@@ -29,14 +29,9 @@ class FinanceData():
         tickers (list): list of tickers to be downloaded
         data_dir (str): directory where data should be saved
         """
-        for param in [start_date, end_date, tickers, data_dir]:
-            if not param:
-                raise ValueError('keyword param has not been specified')
-            else:
-                self.start_date = start_date
-                self.end_date = end_date
-                self.tickers = tickers
-
+        self.start_date = start_date
+        self.end_date = end_date
+        self.tickers = tickers
         self.window_length = window_length
 
         if not os.path.exists(data_dir):
@@ -45,11 +40,11 @@ class FinanceData():
 
         self.data_dir = data_dir
 
-        self.df = self.get_fix_yahoo_data(store=False)
-        self.df_processed = self.pre_process_data(self.df)
+        self.df = self.get_yahoo_data(store=False)
+        self.df_processed = self.pre_process_data()
 
-    @retry(stop=stop_after_attempt(7))
-    def get_fix_yahoo_data(self, store=True):
+    @retry(stop=stop_after_attempt(10), wait=wait_fixed(10))
+    def get_yahoo_data(self, store=True):
         """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
         
@@ -62,13 +57,41 @@ class FinanceData():
         """
         try:
             logging.info('downloading stock data')
-            # download Stock Data
-            yf.pdr_override()
-            df = pdr.get_data_yahoo(
-                self.tickers,
-                start=self.start_date,
-                end=self.end_date
-            )
+            # download data using fix yahoo package
+            try:
+                logging.info('trying fix yahoo package')
+                yf.pdr_override()
+                df = pdr.get_data_yahoo(
+                    self.tickers,
+                    start=self.start_date,
+                    end=self.end_date
+                )
+            except Exception:
+                try:
+                    logging.error('fix yahoo package failed')
+                    logging.info('trying yahoo fin package')
+                    # try using yahoo_fin package
+                    df = pd.DataFrame([])
+
+                    for ticker in self.tickers:
+                        df_ticker = get_data(
+                            ticker,
+                            start_date=self.start_date,
+                            end_date=self.end_date
+                        )
+
+                        df_ticker = df_ticker.reset_index()
+                        df_ticker = self._process_data(df_ticker)
+
+                        df = pd.concat([df, df_ticker])
+
+                    df = df.reset_index()
+                except Exception:
+                    logging.error('could not download yahoo data')
+                    raise
+
+            if len(df) == 0:
+                raise ValueError('no data downloaded')
 
             # convert pd.Panel to pd.Frame
             if len(self.tickers) > 1:
@@ -77,9 +100,6 @@ class FinanceData():
                 df['ticker'] = self.tickers[0]
 
             df = df.reset_index()
-
-            if len(df) == 0:
-                raise ValueError('no data downloaded')
 
             df.columns = [col.lower().replace(' ', '') for col in df.columns]
             df = df.rename(columns={'minor': 'ticker'})
@@ -102,56 +122,7 @@ class FinanceData():
             logging.error("cannot connect to yahoo server")
             raise
 
-
-    def get_yahoo_fin_data(self, store=True):
-        """Gets Financial Stock data via Yahoo Finance for tickers defined in 
-        finance_data, if none specified a default set will be downloaded. This
-        function acts as a back to get_data().
-        
-        Args:
-            store (bool): if True the downloaded data is stored to csv, boolean
-        
-        Attributes
-            df (pd.DataFrame): pd.DataFrame including stock data
-            tickers (list): list of tickers
-        """
-        df = pd.DataFrame([])
-
-        for ticker in self.tickers:
-            df_ticker = get_data(
-                ticker,
-                start_date=self.start_date,
-                end_date=self.end_date
-            )
-
-            df_ticker = df_ticker.reset_index()
-            df_ticker = self._process_data(df_ticker)
-
-            df = pd.concat([df, df_ticker])
-
-        df = df.reset_index()
-
-        # Rename columns
-        df.columns = [col.lower().replace(' ', '') for col in df.columns]
-        df = df.rename(columns={'minor': 'ticker'})
-
-        # Some tickers will not have any data, remove these from ticker list
-        self.tickers = list(df.ticker.unique())
-
-        logging.info('{} rows downloaded for {} tickers'.
-                     format(len(df), len(self.tickers)))
-
-        # Process dates
-        df = self._process_data(df)
-
-        # Store data
-        if store:
-            df.to_csv(os.path.join(self.data_dir, 'historical_prices.csv'), index=False)
-
-        return df
-
-    # @staticmethod
-    def pre_process_data(self, df, window_length=6):
+    def pre_process_data(self):
         """
         Processes data for LSTM model
 
@@ -163,29 +134,20 @@ class FinanceData():
         --------
         df : pd.DataFrame
         """
-        # pandas datetime
-        df['date'] = pd.to_datetime(df.date)
-        # Sort dataFrame
-        df = df.sort_values(['ticker', 'date'])
+        self.df['date'] = pd.to_datetime(self.df.date)
+        self.df = self.df.sort_values(['ticker', 'date'])
         # Create empty df to be filled with windows normalised for each ticker
-        df_final = pd.DataFrame([])
-        # Create list of unique tickers
-        tickers = list(df.ticker.unique())
+        df_processed = pd.DataFrame([])
+        tickers = list(self.df.ticker.unique())
         # For each ticker in df create normalised Windows
         for idx, ticker in enumerate(tickers):
             logging.info('creating normalised windows for {} ({}/{})'
                          .format(ticker, idx + 1, len(tickers)))
-            # Create new df with one ticker only
-            df_temp = df[df.ticker == ticker]
-            # Create normalised windows
-            df_temp = self.normalise_windows(df_temp, window_length=window_length)
-            # Concat df_temp to df_final
-            df_final = pd.concat([df_final, df_temp])
+            df_temp = self.df[self.df.ticker == ticker]
+            df_temp = self.normalise_windows(df_temp, window_length=self.window_length)
+            df_processed = pd.concat([df_processed, df_temp])
 
-        # Reset index
-        df_final = df_final.reset_index(drop=True)
-
-        return df_final
+        return df_processed.reset_index(drop=True)
 
     @staticmethod
     def normalise_windows(df, window_length=6):
@@ -225,13 +187,7 @@ class FinanceData():
             df_temp['volume_nmd'] = (df_temp.volume / df_temp.normaliserv) - 1
             df_temp['normaliserh'] = df_temp.high[0]
             df_temp['normaliserl'] = df_temp.low[0]
-            df_temp['high_nmd'] = (df_temp.high / df_temp.normaliser) - 1
-            df_temp['low_nmd'] = (df_temp.low / df_temp.normaliser) - 1
-            df_temp['high_nmd_close'] = (df_temp.high / df_temp.normaliser) - 1
-            df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
-            df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
 
             df_final = pd.concat([df_final, df_temp]).reset_index(drop=True)
 
         return df_final
-
