@@ -7,3 +7,6 @@ user_settings.yml
 slack_token.yml
 data/
 ipynb_checkpoints
+.cache/
+.idea/
+.pytest_cache/
