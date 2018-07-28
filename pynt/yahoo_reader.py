@@ -1,6 +1,7 @@
 import os
 import datetime as dt
 import logging
+import re
 
 import pandas as pd
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -37,9 +38,16 @@ class FinanceData():
         """
         self.start_date = start_date
         self.end_date = end_date
+        self.window_length = window_length
+
+        # check tickers for invalidities
+        for ticker in tickers:
+            if len(re.findall("[a-z,.]", ticker)) > 0:
+                raise YahooFinanceException("ticker {} does not conform to accepted format. "
+                                            "ticker must be all capital letters and no '.'."
+                                            .format(ticker))
         self.tickers = tickers
         self.number_of_tickers = len(tickers)
-        self.window_length = window_length
 
         if not os.path.exists(data_dir):
             logging.info('{} does not exist, creating directory'.format(data_dir))
@@ -50,7 +58,7 @@ class FinanceData():
         self.df = self.get_yahoo_data(store=False)
         self.df_processed = self.pre_process_data()
 
-    @retry(stop=stop_after_attempt(10), wait=wait_fixed(5))
+    @retry(stop=stop_after_attempt(5), wait=wait_fixed(5))
     def get_yahoo_data(self, store=True):
         """Gets Financial Stock data via Yahoo Finance for tickers defined in 
         finance_data, if none specified a default set will be downloaded.
