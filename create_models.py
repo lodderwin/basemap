@@ -9,16 +9,26 @@ import preprocessing as pp
 import lstm_utils as utils
 import lstm_model
 import gc
+import matplotlib.pyplot as plt
 
 user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
-
 yr = yahoo_reader.finance_data(tickers=tickers_to_do)
-df_main, tickers = yr.get_fix_yahoo_data()
+df_main = pd.read_csv('forflight.csv', sep=',')
 
+#df_main, tickers = yr.get_fix_yahoo_data()
+#ichimoku cloud
+tickers = df_main.ticker.unique().tolist()
+df = df_main[df_main.ticker == 'AMAG'].reset_index(drop=True)
+df = pp.ichimoku_cloud(df)
+#df = df[100:]
+#connor relative strength index
+#df_main.to_csv('forflight.csv')
 days_ahead = 1
+#plt.plot()
+
 #%%
 for ticker in tickers:
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)

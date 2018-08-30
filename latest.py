@@ -16,9 +16,9 @@ user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 df_results = utils.read_all_results_csv(directory='./results/')
 
 tickers_to_do = list(df_results.ticker.unique())
-
-yr = yahoo_reader.finance_data(tickers=tickers_to_do)
-df_main, tickers_in_yahoo = yr.get_fix_yahoo_data()
+tickers_to_do = ['IFON', 'AMAG']
+yr = yahoo_reader.finance_data(tickers=tickers_to_do[:10])
+df_main, tickers_in_yahoo = yr.get_yahoo_fin_data()
 
 df_results = df_results[df_results.ticker.isin(tickers_in_yahoo)]
 
