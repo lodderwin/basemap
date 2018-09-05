@@ -56,6 +56,22 @@ def x_y_array_split(array):
     
     return X, y
 
+def train_test_split_for_x_train(array, input_dim,dates_array, window_array, ratio=0.95):
+    """Takes multi-dimensional array as input and returns arrays for:
+    x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
+    fixed random state.
+    """
+    # Create copy of np array to avoid shuffling ary
+    ary = np.copy(array)
+    # Define where to split arr based on length
+    split_row = int(ary.shape[0] * ratio)
+    
+    # Take first fice days of each window as x
+    X = ary[:, :-1, :]
+    # Split X into train and test
+    x_train, x_test = np.split(X, [split_row])
+    return x_train
+
 def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     """Takes multi-dimensional array as input and returns arrays for:
     x_train, y_train, x_test and y_test. x_test and y_test are suffled using a 
@@ -71,8 +87,9 @@ def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     # Split X into train and test
     x_train, x_test = np.split(X, [split_row])
     x_train_sim = x_train
-    # Shuffle train dataset using fixed random state
     np.random.RandomState(1).shuffle(x_train)
+    # Shuffle train dataset using fixed random state
+    
     
     
     # Take last day of each window as y
@@ -86,14 +103,14 @@ def train_test_split(array, input_dim,dates_array, window_array, ratio=0.95):
     
     train_days, test_days = np.split(dates_array,[split_row])
     train_days_sim_non_normal = train_days
-    np.random.RandomState(1).shuffle(train_days)
+#    np.random.RandomState(1).shuffle(train_days)
     train_windows_non_randomized, test_windows = np.split(window_array,[split_row])
     if input_dim>1.0:
         y_train = y_train[:,0]
         y_test = y_test[:,0]
     
     
-    return x_train, y_train, x_test, y_test, train_days_sim_non_normal, test_days, test_windows, train_windows_non_randomized,x_train_sim
+    return x_train, y_train, x_test, y_test, train_days, test_days, test_windows, train_windows_non_randomized,x_train_sim
 
 def lstm_ary_splits(df, cols=None):
     """This function makes use of train_test_split to split metric given in 

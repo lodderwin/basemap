@@ -3,7 +3,9 @@ from pandas.tseries.offsets import CustomBusinessDay, DateOffset
 from pandas.tseries.offsets import *
 from datetime import datetime
 import time
+import numpy as np
 
+import matplotlib.pyplot as plt
 
 
 
@@ -44,14 +46,14 @@ def ichimoku_cloud(df):
     df['date'] =  pd.to_datetime(df['date'], format='%Y-%m-%d')
     from datetime import timedelta
 
-    high_9 = df['high'].rolling(window= 9).max()
-    low_9 = df['low'].rolling(window= 9).min()
-    df['tenkan_sen'] = (high_9 + low_9) /2
+    df['high_9'] = df['high'].rolling(window= 9).max()
+    df['low_9'] = df['low'].rolling(window= 9).min()
+    df['tenkan_sen'] = (df['high_9'] + df['low_9']) /2
     df['tenkan_sen_average'] = pd.rolling_mean(df['tenkan_sen'],window=2)
     
-    high_26 = df['high'].rolling(window= 26).max()
-    low_26 = df['low'].rolling(window= 26).min()
-    df['kijun_sen'] = (high_26 + low_26) /2
+    df['high_26'] = df['high'].rolling(window= 26).max()
+    df['low_26'] = df['low'].rolling(window= 26).min()
+    df['kijun_sen'] = (df['high_26'] + df['low_26']) /2
     df['kijun_sen_average'] = pd.rolling_mean(df['kijun_sen'],window=2)
     
     # this is to extend the 'df' in future for 26 days
@@ -62,49 +64,79 @@ def ichimoku_cloud(df):
 #        df.loc[last_index+1 +i, 'date'] = last_date + timedelta(days=i)
     
     df['senkou_span_a'] = ((df['tenkan_sen'] + df['kijun_sen']) / 2)
-    df['senkou_span_a_average'] = pd.rolling_mean(df['senkou_span_a'],window=2)
+#    df['senkou_span_a_average'] = pd.rolling_mean(df['senkou_span_a'],window=2)
     
-    high_52 = df['high'].rolling(window= 52).max()
-    low_52 = df['low'].rolling(window= 52).min()
-    df['senkou_span_b'] = ((high_52 + low_52) /2)
-    df['senkou_span_b_average'] = pd.rolling_mean(df['senkou_span_b'],window=2) 
+    df['high_52'] = df['high'].rolling(window= 52).max()
+    df['low_52'] = df['low'].rolling(window= 52).min()
+    df['senkou_span_b'] = ((df['high_52'] + df['low_52']) /2)
+#    df['senkou_span_b_average'] = pd.rolling_mean(df['senkou_span_b'],window=2) 
     # most charting softwares dont plot this line
     df['chikou_span'] = df['close'].shift(-22) #sometimes -26 
-    df['chikou_span_average'] = pd.rolling_mean(df['chikou_span'],window=2) 
+#    df['chikou_span_average'] = pd.rolling_mean(df['chikou_span'],window=2) 
     
-    tmp = df[['close','senkou_span_a','senkou_span_b','kijun_sen','tenkan_sen']].tail(600)
+    tmp = df[['close','senkou_span_a','senkou_span_b','kijun_sen','tenkan_sen']].tail(50)
     a1 = tmp.plot(figsize=(15,10))
     a1.fill_between(tmp.index, tmp.senkou_span_a, tmp.senkou_span_b)
+    
     return df
 
 def crsi(df):
+    #3 day RSI
+    df=RSIfun(df,n=3)
+    #2 day rsi
+    df=RSIfun(df,n=2)
+    rollrank = lambda data: data.size - data.argsort().argsort()[-1]
+    df['close_pct_change'] = df['close'].pct_change()
+
+    df['rank'] = (pd.rolling_apply(df['close_pct_change'], 100, rollrank))
+    df['csri'] = ((df['rsi_3']+df['rsi_2']+df['rank'])/300)**2
+#    tmp = df[['csri']].tail(100)
+#    plt.plot(np.arange(1,101,1),tmp)
+#    plt.show()
     
-    df['diff_close'] = df['close'].diff()/df.close.shift(-1)
-    df['count_roc'] = df.count[[df['diff_close']>pd.rolling_window(df['diff_close'], window=100)]]
- #   condition smaller or larger than 0--> higher (for ROC) -->average (for RSI)
-    df['positive'] = df['close'].groupby((df['close'] < df.close.shift()).cumsum()).cumcount()
-    df['negative'] = df['close'].groupby((df['close'] > df.close.shift()).cumsum()).cumcount()*-1.0
-    df['updown'] = df['positive'] + df['negative']
     
-    #rsi 3-10 periods
-    #Updownlength if <-2 == 2, rsi 2 days
-    #ROC 50-100 days
-    pd.rolling_count((df['diff']<df['diff']),window=100)
+    
+    
+#    
+#    #relative magnitude price change
+#    df['higher_streak'] = df['close'].index.to_series().map(lambda i: consecutive_run(gt, df['close'], i))
+#    df['lower_streak'] = df['close'].index.to_series().map(lambda i: consecutive_run(lt, df['close'], i))
+#    
+#    
+#    
+#    df['diff_close'] = df['close'].pct_change()
+#    df['count_roc'] = df.count[[df['diff_close']>pd.rolling_window(df['diff_close'], window=100)]]
+# #   condition smaller or larger than 0--> higher (for ROC) -->average (for RSI)
+#    df['positive'] = df['close'].groupby((df['close'] < df.close.shift()).cumsum()).cumcount()
+#    df['negative'] = df['close'].groupby((df['close'] > df.close.shift()).cumsum()).cumcount()*-1.0
+#    df['updown'] = df['positive'] + df['negative']
+#    
+#    #rsi 3-10 periods
+#    #Updownlength if <-2 == 2, rsi 2 days
+#    #ROC 50-100 days
+##    pd.rolling_count((df['diff']<df['diff']),window=100)
     return df
 
-
-def RSIfun(price, n=14):
-    delta = price['close'].diff()
+#create rsi for every column, multiply by the streak value
+def RSIfun(df, n=3):
+    df['delta_close'+str(n)] = df['close'].diff()
     #-----------
-    dUp= delta[delta > 0]
-    dDown= delta[delta < 0]
+    df['dUp'+str(n)]= df['delta_close'+str(n)][df['delta_close'+str(n)] > 0]
+    df['dDown'+str(n)]= df['delta_close'+str(n)][df['delta_close'+str(n)] < 0]
+    df[['dUp'+str(n), 'dDown'+str(n)]] = df[['dUp'+str(n),'dDown'+str(n)]].fillna(value=0)
 
-    RolUp=pd.rolling_mean(dUp, n)
-    RolDown=pd.rolling_mean(dDown, n).abs()
-
-    RS = RolUp / RolDown
-    rsi= 100.0 - (100.0 / (1.0 + RS))
-    return rsi
+    df['RolUp_'+str(n)]=pd.rolling_mean(df['dUp'+str(n)], n)
+    df['RolDown_'+str(n)]=pd.rolling_mean(df['dDown'+str(n)], n).abs()
+    #if rollupof roldown = 0 rsi 100 or 0
+    conditions = [
+            (df['RolUp_'+str(n)] == 0),
+            (df['RolDown_'+str(n)] == 0),
+            (df['RolUp_'+str(n)] == 0) & (df['RolDown_'+str(n)] == 0)]
+    choices = [0,100,0]
+    df['rsi_'+str(n)] = np.select(conditions, choices, default=100.0 - (100.0 / (1.0 +(df['RolUp_'+str(n)]/df['RolDown_'+str(n)]))))
+#    df['RS_'+str(n)] = df['RolUp_'+str(n)]/df['RolDown_'+str(n)]
+#    df['rsi_'+str(n)]= 100.0 - (100.0 / (1.0 + df['RS_'+str(n)]))
+    return df
 import pandas as pd
 from operator import gt, lt
 
@@ -129,10 +161,10 @@ def consecutive_run(op, ser, i):
     return thresh_all[start_idx:].sum()
 
 
-#res = pd.concat([a, a.index.to_series().map(lambda i: consecutive_run(gt, a, i)),
+#res = pd.concat([a.index.to_series().map(lambda i: consecutive_run(gt, a, i)),
 #                 a.index.to_series().map(lambda i: consecutive_run(lt, a, i))],
 #       axis=1)
-#res.columns = ['Value', 'Higher than streak', 'Lower than streak']
+#res.columns = ['Higher than streak', 'Lower than streak']
 #print(res)
 
 
@@ -185,6 +217,11 @@ def normalise_windows(df, window_length=6):
 #        print(df_temp['high_nmd_close'].values)
         df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
         df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
+#        df_temp['diff_span_a_b'] = (df_temp['senkou_span_a']-df_temp['senkou_span_b'])/df_temp.normaliser
+#        df_temp['span_a'] = (df_temp['senkou_span_a']/df_temp.normaliser)-1
+#        df_temp['conversion_line'] = (df_temp['tenkan_sen']/df_temp.normaliser)-1
+#        df_temp['base_line'] = (df_temp['kijun_sen']/df_temp.normaliser)-1
+        
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
         

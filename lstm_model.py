@@ -79,23 +79,23 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
                             x_train, y_train, x_test, y_test,
                             initial_investment=100, iterations=20, 
                             mcr=0.00000001,best_investment_dev=100, best_margin=80.0,
-                            beginparams={},new_test=-1000000):
+                            beginparams={},new_test=-1000000,lst_predictions=[]):
     for iteration in range(0, iterations):
         print('iteration: {} of {}'.format(iteration + 1, iterations))
         # Define params randomly
 
         params = {'input_dim':input_dim,
-                  'node1':np.random.randint(15,130),
-                  'node2':np.random.randint(15,130),
+                  'node1':np.random.randint(10,150),
+                  'node2':np.random.randint(30,150),
                   'output_dim':1,
-                  'batch_size':random.choice(np.asarray([8,16,32]))}
+                  'batch_size':random.choice(np.asarray([8,16,32,64]))}
 
         # Build model
         model = build_model(params)   
         
         # Fit using x and y test and validate on 10% of those arrays
         # take out dates as input
-        epochs = random.choice(np.asarray([3,5,8]))
+        epochs = random.choice(np.asarray([1,3,5,8]))
         model.fit(x_train,
                   y_train,
                   validation_split = 0.1,
@@ -110,14 +110,16 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
 #        date_today = dt.datetime.now().strftime("%Y-%m-%d")
 #        real_prices = df.loc[len(df)-len(x_test):,'close'].tolist()
         df_predict = predict_test(test_windows, df_p, test_days, days_ahead,window_length, x_test, model,df)
-#        df_predict_train = (train_windows_non_randomized[-400:], df_p, train_days_sim_non_normal[-400:], days_ahead,window_length, x_train_sim[-400:], model,df)
+        df_predict_train = predict_test(train_windows_non_randomized[-1000:], df_p, train_days_sim_non_normal[-1000:], days_ahead,window_length, x_train_sim[-1000:], model,df)
         margins = list(np.arange(1.0,1.101,0.001))
         shortterm_models = './shortterm_models/'
+        
         for margin in margins:
-            investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points = invest_sim(df_predict,df,margin,ticker)
-#            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train = invest_sim(df_predict_train,df,margin,ticker)   
+            investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points,lst_predictions_test = invest_sim(df_predict,df,margin,ticker)
+            investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train,lst_predictions_train = invest_sim(df_predict_train,df,margin,ticker)   
 #            print(investment_dev_train)
             if  ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0 and len_points>10 :
+                lst_predictions_train = lst_predictions_train
                 new_test = ((1+(mean_test-std_test))**len_points)
                 mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
                 beginparams = params
@@ -127,7 +129,8 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
                 best_investment_dev = investment_dev_df
                 print(investment, params)
                 Plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
-#                Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,node)
+                Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length)
+                Plotting.histogram(lst_predictions_train)
 
 #                Plotting.plot_results(real_prices,corrected_predicted_test, days_ahead, ticker)
                 model.save(shortterm_models+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
@@ -236,12 +239,22 @@ def predict_test(test_windows,df_p,test_days, days_ahead,window_length, x_test, 
 #    y_date_first = pd.to_datetime(test_days[0][-1])[0]
     predictions_in_function = int(x_test.shape[0]/days_ahead)
     #take out unique values in df_p for window--> normalizer
-    df_p_window_index = df_p.set_index(df_p['window'])    
+    df_p_window_index = df_p.set_index(df_p['window'])  
+#    print(df_p_window_index)
+#    print(df_predict)
     
     
     ###custom calendar
     weekmask = 'Mon Tue Wed Thu Fri'
-    holidays = [datetime(2016, 3, 30), datetime(2016, 5, 28), datetime(2016, 7, 4), datetime(2016, 5, 28),
+    holidays = [datetime(2012, 3, 30), datetime(2012, 5, 28), datetime(2012, 7, 4), datetime(2012, 5, 28),
+                datetime(2012, 7, 4), datetime(2012, 9, 3), datetime(2012, 11, 22), datetime(2012, 12, 25),
+                datetime(2013, 3, 30), datetime(2013, 5, 28), datetime(2013, 7, 4), datetime(2013, 5, 28),
+                datetime(2013, 7, 4), datetime(2013, 9, 3), datetime(2013, 11, 22), datetime(2013, 12, 25),
+                datetime(2014, 3, 30), datetime(2014, 5, 28), datetime(2014, 7, 4), datetime(2014, 5, 28),
+                datetime(2014, 7, 4), datetime(2014, 9, 3), datetime(2014, 11, 22), datetime(2014, 12, 25),
+                datetime(2015, 3, 30), datetime(2015, 5, 28), datetime(2015, 7, 4), datetime(2015, 5, 28),
+                datetime(2015, 7, 4), datetime(2015, 9, 3), datetime(2015, 11, 22), datetime(2015, 12, 25),
+                datetime(2016, 3, 30), datetime(2016, 5, 28), datetime(2016, 7, 4), datetime(2016, 5, 28),
                 datetime(2016, 7, 4), datetime(2016, 9, 3), datetime(2016, 11, 22), datetime(2016, 12, 25),
                 datetime(2017, 3, 30), datetime(2017, 5, 28), datetime(2017, 7, 4), datetime(2017, 5, 28),
                 datetime(2017, 7, 4), datetime(2017, 9, 3), datetime(2017, 11, 22), datetime(2017, 12, 25),
@@ -320,6 +333,7 @@ def invest_sim(df_predict, df,margin,ticker):
     dct_df['dates'] = [df_merge.loc[0,'date_x']]
     dct_df['y_predict_'+ticker] = [df_merge.loc[0,'close']]
     dct_df['close_real_'+ticker] = [df_merge.loc[0,'close']]
+    lst_increases = []
     for index, row in df_merge.iterrows():
         if index<end_index:
             dct_df['dates'].append(df_merge.loc[index+1, 'date_x'])
@@ -331,6 +345,7 @@ def invest_sim(df_predict, df,margin,ticker):
                 distribution.append(((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close']))-1)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
                 dummy = 1
+                lst_increases.append(((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])-1.0))
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
                 elif (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])<1.0 :
@@ -339,6 +354,7 @@ def invest_sim(df_predict, df,margin,ticker):
             elif df_merge.loc[index+1, 'y_predict']>df_merge.loc[index, 'close']>margin and dummy==1:
                 distribution.append((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])-1)
                 investment = investment*(df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])
+                lst_increases.append(((df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])-1.0))
                 if (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])>1.0 :
                     increase_correct = increase_correct+1
                 elif (df_merge.loc[index+1, 'close']/df_merge.loc[index, 'close'])<1.0 :
@@ -361,9 +377,9 @@ def invest_sim(df_predict, df,margin,ticker):
     
     investment_dev_df = pd.DataFrame(dct_df)
     if len(distribution)>5:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution),len(distribution)
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution),len(distribution),lst_increases
     else:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000,len(distribution)
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000,len(distribution), lst_increases
             
 def invest_sim_days_average(df_predict, df,margin,ticker):
     df_index = df.set_index(df['date'])

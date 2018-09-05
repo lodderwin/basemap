@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from pandas.tseries.offsets import BDay
+import numpy as np
 
 import lstm_utils as utils
 import lstm_model
@@ -98,10 +99,11 @@ def plot_investment(investment_dev, ticker, params, margin, window_length):
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
     plt.savefig(investment_sim + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
-    plt.show()
-    plt.close()
+#    plt.show()
+#    plt.close()
     
-def plot_investment_train(investment_dev, ticker,params,margin,window_length,node):
+def plot_investment_train(investment_dev, ticker,params,margin,window_length):
+    investment_sim = './investment_sim/'
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
     fig = plt.figure(figsize=figsize)
@@ -110,13 +112,13 @@ def plot_investment_train(investment_dev, ticker,params,margin,window_length,nod
     plt.title('Investment over time of ' +ticker, size=16)
     plt.xlabel('Days', size=13)
     plt.ylabel('Investment', size=13)
-    if len(params.keys())>5:
-        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+    if len(params.keys())>6:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
-    elif len(params.keys())==5:
-        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(node), 
+    elif len(params.keys())==6:
+        plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
-    plt.savefig(plot_folder_train + ticker +'_'+str(window_length)+ '_investment_development.png',dpi=400)
+    plt.savefig(investment_sim + ticker +'_'+str(window_length)+ '_investment_development_train.png',dpi=400)
     plt.show()
     plt.close()
     
@@ -162,6 +164,12 @@ def plot_results_days_average(real_prices, corrected_predicted_test, days_averag
     plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
+def histogram(lst_predictions_trian):
+    plt.hist(lst_predictions_trian, bins=np.arange(-0.05,0.06,0.01))
+    plt.ylabel('Probability')
+    plt.show()
+    plt.close()
+    
 
         
         
