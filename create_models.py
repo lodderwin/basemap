@@ -73,9 +73,11 @@ df, tickers = yr.get_fix_yahoo_data()
 #connor relative strength index
 #df_main.to_csv('forflight.csv')
 days_ahead = 1
-df_main=df
+#df_main=df
 for ticker in tickers:
     new_df_main = pd.DataFrame([])
+    df = df[df.ticker == ticker].reset_index(drop=True)
+    df['volume'] = df['volume'].replace(0,1.0)
     split = 100
     rest = len(df)%split
     
@@ -96,28 +98,28 @@ for ticker in tickers:
         
         new_df_main = pd.concat([new_df_main, df_temp])
         
-    new_df_main = new_df_main[int(0.25*len(df_main)):]
+    new_df_main = new_df_main[int(0.25*len(df)):]
     new_df_main['min'].fillna(value=np.nan, inplace=True)
     new_df_main['max'].fillna(value=np.nan, inplace=True)
     
-    df_temp = new_df_main[-800:-500]
-    #plt.plot(df_temp['x_fit'].values.tolist(), df_temp['polyfit'].values.tolist() )
-    #
-    #plt.show()
-    
-    fig, ax1 = plt.subplots()
-    ax1.plot(df_temp.index.values.tolist(), df_temp['polyfit'].tolist(), 'b-')
-    ax1.scatter(df_temp.index.values.tolist(), df_temp['min'].tolist(), c='r',s=100)
-    ax1.scatter(df_temp.index.values.tolist(), df_temp['max'].tolist(), c='g',s=100)
-    #ax1.tick_params('y', colors='b')
-    
-    
-    ax2 = ax1.twinx()
-    ax2.plot(df_temp.index.values.tolist(), df_temp['close'].values.tolist(), 'b.')
-    #ax2.tick_params('y', colors='r')
-    
-    fig.tight_layout()
-    plt.show()
+#    df_temp = new_df_main[-800:-500]
+#    #plt.plot(df_temp['x_fit'].values.tolist(), df_temp['polyfit'].values.tolist() )
+#    #
+#    #plt.show()
+#    
+#    fig, ax1 = plt.subplots()
+#    ax1.plot(df_temp.index.values.tolist(), df_temp['polyfit'].tolist(), 'b-')
+#    ax1.scatter(df_temp.index.values.tolist(), df_temp['min'].tolist(), c='r',s=100)
+#    ax1.scatter(df_temp.index.values.tolist(), df_temp['max'].tolist(), c='g',s=100)
+#    #ax1.tick_params('y', colors='b')
+#    
+#    
+#    ax2 = ax1.twinx()
+#    ax2.plot(df_temp.index.values.tolist(), df_temp['close'].values.tolist(), 'b.')
+#    #ax2.tick_params('y', colors='r')
+#    
+#    fig.tight_layout()
+#    plt.show()
     
     
     
@@ -125,8 +127,7 @@ for ticker in tickers:
     
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     window_length = 31
-    df = df_main[df_main.ticker == ticker].reset_index(drop=True)
-    df['volume'] = df['volume'].replace(0,1.0)
+    
     df = pp.ichimoku_cloud(df)
     
     df = pp.crsi(df)
@@ -179,7 +180,6 @@ for ticker in tickers:
         iterations=25
     )
     #%%
-    gc.collect()
     
     final_indicator, df_selection_title_positive, df_selection_title_negative, df_selection = lstm_model.selection_mcr(new_df_main, new_df, ticker)
 #%%
