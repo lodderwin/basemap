@@ -119,8 +119,7 @@ def plot_investment_train(investment_dev, ticker,params,margin,window_length):
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
     plt.savefig(investment_sim + ticker +'_'+str(window_length)+ '_investment_development_train.png',dpi=400)
-    plt.show()
-    plt.close()
+
     
 def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
     # Use seaborn styling
@@ -164,12 +163,29 @@ def plot_results_days_average(real_prices, corrected_predicted_test, days_averag
     plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
     plt.show()
     plt.close()
-def histogram(lst_predictions_trian):
-    plt.hist(lst_predictions_trian, bins=np.arange(-0.05,0.06,0.01))
+def histogram(lst_predictions_trian,ticker):
+    investment_sim = './investment_sim/'
+    fig = plt.figure(figsize=figsize)
+    plt.hist(lst_predictions_trian, bins=np.arange(-0.1,0.11,0.01))
     plt.ylabel('Probability')
-    plt.show()
-    plt.close()
+    plt.title(ticker+str(len(lst_predictions_trian)))
+    plt.savefig(investment_sim+ticker +'_'+ 'histogram.png',dpi=400)
+
     
+def plot_mcr(df_selection,df_selection_title_positive, df_selection_title_negative, ticker,length_new_df_main):
+    investment_sim = './investment_sim/'
+    fig = plt.figure(figsize=figsize)
+    plt.scatter(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), s=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
+    line = np.polyfit(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), 1, w=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
+    x = np.arange(-1,1.01,0.01)
+    y1 = line[0]*x + line[1]
+    y = x
+    plt.plot(x,y)
+    plt.plot(x,y1)
+    plt.xlabel('close ratio')
+    plt.ylabel('investment ratio')
+    plt.title('Above : '+str(df_selection_title_positive['cirkelsize_plot'].sum())+'   Below : '+ str(df_selection_title_negative['cirkelsize_plot'].sum()) + '   Number of days : '+str(df_selection['consecutive'].sum()) +'  Total length : '+ str(length_new_df_main))
+    plt.savefig(investment_sim+ticker +'_'+ 'selection_graph.png',dpi=400)
 
         
         

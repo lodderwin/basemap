@@ -217,10 +217,10 @@ def normalise_windows(df, window_length=6):
 #        print(df_temp['high_nmd_close'].values)
         df_temp['low_nmd_close'] = (df_temp.low / df_temp.normaliser) - 1
         df_temp['open_nmd_close'] = (df_temp.open / df_temp.normaliser) - 1
-#        df_temp['diff_span_a_b'] = (df_temp['senkou_span_a']-df_temp['senkou_span_b'])/df_temp.normaliser
-#        df_temp['span_a'] = (df_temp['senkou_span_a']/df_temp.normaliser)-1
-#        df_temp['conversion_line'] = (df_temp['tenkan_sen']/df_temp.normaliser)-1
-#        df_temp['base_line'] = (df_temp['kijun_sen']/df_temp.normaliser)-1
+        df_temp['diff_span_a_b'] = (df_temp['senkou_span_a']-df_temp['senkou_span_b'])/df_temp.normaliser
+        df_temp['span_a'] = (df_temp['senkou_span_a']/df_temp.normaliser)-1
+        df_temp['conversion_line'] = (df_temp['tenkan_sen']/df_temp.normaliser)-1
+        df_temp['base_line'] = (df_temp['kijun_sen']/df_temp.normaliser)-1
         
         # Concat df_temp to df_final
         df_final = pd.concat([df_final, df_temp])
