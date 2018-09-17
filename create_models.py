@@ -15,6 +15,7 @@ user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
+tickers_to_do = tickers_to_do[:1]
 yr = yahoo_reader.finance_data(tickers=tickers_to_do)
 #df = pd.read_csv('forflight.csv', sep=',')
 
@@ -234,7 +235,7 @@ for ticker in tickers:
     plt.xlabel('close ratio')
     plt.ylabel('investment ratio')
     plt.title('Above : '+str(df_selection_title_positive['cirkelsize_plot'].sum())+'   Below : '+ str(df_selection_title_negative['cirkelsize_plot'].sum()))
-    plt.show()
+    #plt.show()
     
     
     #%%

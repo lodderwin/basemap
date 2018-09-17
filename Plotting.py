@@ -78,7 +78,7 @@ def plot_latest_prediction(days_ahead,df, predictions, stock, growth, mse,
     
     plt.savefig('{}{}_latest_prediction.png'.format(plot_folder, stock), 
                 dpi=150, bbox_inches='tight')
-    plt.show()
+    #plt.show()
     
     return plt
 
@@ -139,7 +139,7 @@ def plot_results(real_prices, corrected_predicted_test, days_ahead,ticker):
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
     plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
-    plt.show()
+    #plt.show()
     plt.close()
         
 def plot_results_days_average(real_prices, corrected_predicted_test, days_average,ticker):
@@ -161,7 +161,7 @@ def plot_results_days_average(real_prices, corrected_predicted_test, days_averag
     plt.figtext(0.5, 0.01, 'date created: ' + now, 
                 horizontalalignment='center', size=10)
     plt.savefig(plot_folder + ticker + '_predictions.png',dpi=400)
-    plt.show()
+    #plt.show()
     plt.close()
 def histogram(lst_predictions_trian,ticker):
     investment_sim = './investment_sim/'
