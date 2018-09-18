@@ -15,7 +15,7 @@ user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
-tickers_to_do = tickers_to_do[:10]
+#tickers_to_do = tickers_to_do[:10]
 yr = yahoo_reader.finance_data(tickers=tickers_to_do)
 #df = pd.read_csv('forflight.csv', sep=',')
 
@@ -76,6 +76,7 @@ df, tickers = yr.get_fix_yahoo_data()
 days_ahead = 1
 #df_main=df
 for ticker in tickers:
+    df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     new_df_main = pd.DataFrame([])
     df = df[df.ticker == ticker].reset_index(drop=True)
     df['volume'] = df['volume'].replace(0,1.0)
@@ -83,7 +84,24 @@ for ticker in tickers:
     rest = len(df)%split
     
     df = df[rest:]
-    print(len(df))
+    
+    if len(df)<1500 :
+        dct_temp = {}
+        dct_temp['bad_model'] = 0
+        df_temp = pd.DataFrame({
+            'coefficient': [np.nan],
+            'start_line': [np.nan],
+            'window_length': [np.NaN],
+            'mcr': [np.NaN],
+            'ticker': [ticker],
+            'params': [json.dumps(dct_temp)],
+            'date_created': [dt.datetime.now()]
+        })  
+        df_results = pd.concat([df_results, df_temp])
+        df_results.to_csv('./results/model_results_{}.csv'.format(user), index=False)
+        continue
+
+        
     for i in range(int(len(df)/split)-2):
         df_temp = df[i*split:((i+1)*split)]
         l = [i for i in range(len(df_temp))]
@@ -126,7 +144,7 @@ for ticker in tickers:
     
     
     
-    df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
+    
     window_length = 31
     
     df = pp.ichimoku_cloud(df)
