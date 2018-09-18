@@ -82,16 +82,24 @@ def plot_latest_prediction(days_ahead,df, predictions, stock, growth, mse,
     
     return plt
 
-def plot_investment(investment_dev, ticker, params, margin, window_length):
+def plot_investment(investment_dev, ticker, params, margin, window_length,stock_dev):
     investment_sim = './investment_sim/'
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111)#, figsize=figsize)
-    ax.plot(investment_dev, label='Investment of '+ticker)
+    fig, ax1 = plt.subplots(figsize=figsize)
+#    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax1.plot(investment_dev, label='Investment of '+ticker, color='#5b9aff')
     plt.title('Investment over time of ' +ticker, size=16)
-    plt.xlabel('Days', size=13)
-    plt.ylabel('Investment', size=13)
+    ax1.set_xlabel('Days', size=13)
+    ax1.set_ylabel('Investment', size=13, color='#5b9aff')
+    
+    ax2 = ax1.twinx()
+    ax2.plot(stock_dev, label='Closing price of '+ticker, color='#ff5959')
+#    ax2.title('Investment over time of ' +ticker, size=16)
+#    ax2.xlabel('Days', size=13)
+    ax2.set_ylabel('Close', size=13, color='#ff5959')
+    
+    
     if len(params.keys())>6:
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)
@@ -102,16 +110,22 @@ def plot_investment(investment_dev, ticker, params, margin, window_length):
 #    plt.show()
 #    plt.close()
     
-def plot_investment_train(investment_dev, ticker,params,margin,window_length):
+def plot_investment_train(investment_dev, ticker,params,margin,window_length,stock_dev_train):
     investment_sim = './investment_sim/'
     matplotlib.style.use('seaborn-darkgrid')
     # Create plot
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111)#, figsize=figsize)
-    ax.plot(investment_dev, label='Investment of '+ticker)
+    fig, ax1 = plt.subplots(figsize=figsize)
+#    ax = fig.add_subplot(111)#, figsize=figsize)
+    ax1.plot(investment_dev, label='Investment of '+ticker, color='#5b9aff')
     plt.title('Investment over time of ' +ticker, size=16)
-    plt.xlabel('Days', size=13)
-    plt.ylabel('Investment', size=13)
+    ax1.set_xlabel('Days', size=13)
+    ax1.set_ylabel('Investment', size=13, color='#5b9aff')
+    
+    ax2 = ax1.twinx()
+    ax2.plot(stock_dev_train, label='Closing price of '+ticker, color='#ff5959')
+#    ax2.title('Investment over time of ' +ticker, size=16)
+#    ax2.xlabel('Days', size=13)
+    ax2.set_ylabel('Close', size=13, color='#ff5959')
     if len(params.keys())>6:
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
                 horizontalalignment='center' , size=10)

@@ -89,7 +89,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
                   'node1':np.random.randint(50,250),
                   'node2':np.random.randint(40,250),
                   'output_dim':1,
-                  'batch_size':random.choice(np.asarray([8,16,32,64]))}
+                  'batch_size':random.choice(np.asarray([8,16,32,64,128]))}
 
         # Build model
         model = build_model(params)   
@@ -103,7 +103,7 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
                   batch_size = params['batch_size'],
                   epochs = epochs)
         params['epochs'] = epochs
-        time.sleep(5.1) 
+#        time.sleep(5.1) 
         # Get models MSE 
 #        score = model.evaluate(x_test, y_test, verbose=0)[1]
         
@@ -116,8 +116,8 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
 #        print(df_predict_train)
 #        margins = list(np.arange(1.0,1.002,0.001))
         shortterm_models = './shortterm_models/'
-        investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points,lst_predictions_test,df_merge = invest_sim(df_predict,df,margin,ticker)
-        investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train,lst_predictions_train,df_merge_train = invest_sim(df_predict_train,df,margin,ticker)   
+        investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points,lst_predictions_test,df_merge,stock_dev = invest_sim(df_predict,df,margin,ticker)
+        investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train,lst_predictions_train,df_merge_train,stock_dev_train = invest_sim(df_predict_train,df,margin,ticker)   
         final_indicator, df_selection_title_positive, df_selection_title_negative, df_selection = selection_mcr(new_df_main, investment_dev_df_train,ticker)
         if final_indicator>new_selection_test:
             mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
@@ -126,8 +126,8 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
             line = np.polyfit(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), 1, w=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
             angle_coefficient = line[0]
             start_coefficient = line[1]
-            Plotting.plot_investment(investment_dev,ticker,params,margin, window_length)
-            Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length)
+            Plotting.plot_investment(investment_dev,ticker,params,margin, window_length, stock_dev)
+            Plotting.plot_investment_train(investment_dev_train,ticker,params,margin, window_length,stock_dev_train)
             Plotting.plot_mcr(df_selection,df_selection_title_positive,df_selection_title_negative, ticker,len(new_df_main))
             Plotting.histogram(lst_predictions_train, ticker)
             model.save(shortterm_models+ticker+'_'+str(window_length)+'_model.h5', overwrite=True)
@@ -186,7 +186,7 @@ def selection_mcr(new_df_main, new_df, ticker):
               'consecutive' : new_new_df.groupby('value_grp').size()}).reset_index(drop=True)
     df_selection['closeratio'] = df_selection['closeend']/df_selection['closebegin']
     df_selection['investmentratio'] = df_selection['investmentend']/df_selection['investmentbegin']
-    df_selection = df_selection[df_selection.consecutive >= 10]
+    df_selection = df_selection[df_selection.consecutive >= 8]
     df_selection = df_selection.reset_index(drop=True)
     df_selection['indicator'] = df_selection['investmentratio'] - df_selection['closeratio']
     df_selection['closeratio_plot'] = df_selection['closeratio'] - 1
@@ -414,6 +414,7 @@ def invest_sim(df_predict, df,margin,ticker):
     fee = 0.60
     dummy = 0
     investment_dev = []
+    stock_dev = []
     end_index = len(df_merge)-1
     dct_df = {}
     increase_correct = 0
@@ -471,16 +472,17 @@ def invest_sim(df_predict, df,margin,ticker):
                     decrease_false = decrease_false+1
                 #### dict to datafram, output dataframe!
         investment_dev.append(investment)  
+        stock_dev.append(df_merge.loc[index, 'close'])
         dct_df['investment'].append(investment)
     
-    se = pd.Series(dct_df['investment'])
+#    se = pd.Series(dct_df['investment'])
 #    df_merge['investment'] = [dct_df['investment'+ticker]]*len(dct_df['investment'+ticker])
     
     investment_dev_df = pd.DataFrame(dct_df)
     if len(distribution)>5:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution),len(distribution),lst_increases, df_merge
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,statistics.mean(distribution),statistics.stdev(distribution),len(distribution),lst_increases, df_merge, stock_dev
     else:
-        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000,len(distribution), lst_increases,df_merge
+        return investment, investment_dev, investment_dev_df, increase_correct, increase_false,-100,100000,len(distribution), lst_increases,df_merge, stock_dev
             
 def invest_sim_days_average(df_predict, df,margin,ticker):
     df_index = df.set_index(df['date'])
