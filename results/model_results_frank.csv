@@ -1,1 +1,8 @@
-date_created,margin,mcr,params,ticker,window_length
+coefficient,date_created,margin,mcr,params,start_line,ticker,window_length
+0.5209488572957722,2018-09-18 08:43:27.183860,,,"{""input_dim"": 11, ""node1"": 201, ""node2"": 162, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",0.007767668195943733,ABCB,
+1.313108091951655,2018-09-18 08:55:45.162417,,,"{""input_dim"": 11, ""node1"": 189, ""node2"": 132, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 5}",0.14320063602930444,ABIL,
+1.0188849967388751,2018-09-18 09:06:23.892640,,,"{""input_dim"": 11, ""node1"": 225, ""node2"": 47, ""output_dim"": 1, ""batch_size"": 16, ""epochs"": 3}",-0.0033781183708320645,ABTX,
+0.8724668084249813,2018-09-18 09:17:02.319458,,,"{""input_dim"": 11, ""node1"": 241, ""node2"": 199, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 8}",-0.009938121363462721,ACBI,
+0.4732342638296145,2018-09-18 10:18:09.705054,,,"{""input_dim"": 11, ""node1"": 152, ""node2"": 160, ""output_dim"": 1, ""batch_size"": 64, ""epochs"": 1}",-0.0064490056819134865,ACIW,
+0.5385521885301687,2018-09-18 11:08:04.012179,,,"{""input_dim"": 11, ""node1"": 66, ""node2"": 195, ""output_dim"": 1, ""batch_size"": 32, ""epochs"": 1}",0.009563768213677085,ACN,
+0.07141424645288622,2018-09-18 11:54:10.573271,,,"{""input_dim"": 11, ""node1"": 149, ""node2"": 208, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 1}",0.045703625690045796,ACNB,
