@@ -75,7 +75,7 @@ df, tickers = yr.get_fix_yahoo_data()
 #df_main.to_csv('forflight.csv')
 days_ahead = 1
 #df_main=df
-for ticker in tickers:
+for ticker in [tickers[0]]:
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     new_df_main = pd.DataFrame([])
     df = df[df.ticker == ticker].reset_index(drop=True)
