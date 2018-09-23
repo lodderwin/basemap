@@ -92,13 +92,19 @@ def plot_investment(investment_dev, ticker, params, margin, window_length,stock_
     plt.title('Investment over time of ' +ticker, size=16)
     ax1.set_xlabel('Days', size=13)
     ax1.set_ylabel('Investment', size=13, color='#5b9aff')
+    max_ratio = min((investment_dev[0]/max(investment_dev)),(stock_dev[0]/max(stock_dev)))
+#    delendoor
+    min_ratio = max((investment_dev[0]/min(investment_dev)),(stock_dev[0]/min(stock_dev)))
+                   
+    ax1.set_ybound(lower=investment_dev[0]/min_ratio, upper=investment_dev[0]/max_ratio)
     
     ax2 = ax1.twinx()
     ax2.plot(stock_dev, label='Closing price of '+ticker, color='#ff5959')
 #    ax2.title('Investment over time of ' +ticker, size=16)
 #    ax2.xlabel('Days', size=13)
     ax2.set_ylabel('Close', size=13, color='#ff5959')
-    
+    ax2.set_ybound(lower=stock_dev[0]/min_ratio, upper=stock_dev[0]/max_ratio)
+   
     
     if len(params.keys())>6:
         plt.figtext(0.5, 0.01, 'date created: ' + now +' '+ str(params['node1'])+' '+str(params['node2']) +' '+str(params['node3']) +' '+ str(params['batch_size']) +' '+ str(margin)+ ' '+str(window_length)+' '+str(params['epochs']), 
@@ -121,8 +127,18 @@ def plot_investment_train(investment_dev, ticker,params,margin,window_length,sto
     ax1.set_xlabel('Days', size=13)
     ax1.set_ylabel('Investment', size=13, color='#5b9aff')
     
+    max_ratio = min((investment_dev[0]/max(investment_dev)),(stock_dev_train[0]/max(stock_dev_train)))
+#    delendoor
+    min_ratio = max((investment_dev[0]/min(investment_dev)),(stock_dev_train[0]/min(stock_dev_train)))
+    
+    
+                   
+                   
+    ax1.set_ybound(lower=investment_dev[0]/min_ratio, upper=investment_dev[0]/max_ratio)
+    
     ax2 = ax1.twinx()
     ax2.plot(stock_dev_train, label='Closing price of '+ticker, color='#ff5959')
+    ax2.set_ybound(lower=stock_dev_train[0]/min_ratio, upper=stock_dev_train[0]/max_ratio)
 #    ax2.title('Investment over time of ' +ticker, size=16)
 #    ax2.xlabel('Days', size=13)
     ax2.set_ylabel('Close', size=13, color='#ff5959')

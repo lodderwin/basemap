@@ -119,11 +119,13 @@ def randomised_model_config(test_windows,df_p,test_days,train_days_sim_non_norma
         investment, investment_dev,investment_dev_df, increase_correct, increase_false,mean_test,std_test,len_points,lst_predictions_test,df_merge,stock_dev = invest_sim(df_predict,df,margin,ticker)
         investment_train, investment_dev_train,investment_dev_df_train, increase_correct_train, increase_false_train,mean_train,std_train,len_points_train,lst_predictions_train,df_merge_train,stock_dev_train = invest_sim(df_predict_train,df,margin,ticker)   
         final_indicator, df_selection_title_positive, df_selection_title_negative, df_selection = selection_mcr(new_df_main, investment_dev_df_train,ticker)
-        if ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0 and len_points>10 :
+        if investment_dev[-1]>initial_investment:
+            initial_investment =investment_dev[-1]
+#        ((1+(mean_test-std_test))**len_points)>new_test and  investment>300.0 and len_points>10 :
 #        final_indicator>new_selection_test:
             mcr=(investment/300.0)*(df_p['close'].tolist()[0]/df_p['close'].tolist()[-1])
 #            new_selection_test=final_indicator
-            new_test = ((1+(mean_test-std_test))**len_points)
+#            new_test = ((1+(mean_test-std_test))**len_points)
             beginparams = params
             line = np.polyfit(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), 1, w=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
             angle_coefficient = line[0]
@@ -415,7 +417,7 @@ def invest_sim(df_predict, df,margin,ticker):
     fee_per_stock = 0.005
     fee = 0.60
     dummy = 0
-    investment_dev = []
+    investment_dev = [300]
     stock_dev = []
     end_index = len(df_merge)-1
     dct_df = {}

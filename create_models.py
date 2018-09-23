@@ -16,7 +16,7 @@ user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
 #tickers_to_do = tickers_to_do[:10]
-yr = yahoo_reader.finance_data(tickers=tickers_to_do)
+yr = yahoo_reader.finance_data(tickers=tickers_to_do[:5])
 #df = pd.read_csv('forflight.csv', sep=',')
 
 df, tickers = yr.get_fix_yahoo_data()
@@ -74,11 +74,11 @@ df, tickers = yr.get_fix_yahoo_data()
 #connor relative strength index
 #df_main.to_csv('forflight.csv')
 days_ahead = 1
-#df_main=df
-for ticker in [tickers[0]]:
+df_main=df
+for ticker in tickers:
     df_results = utils.read_a_user_results_csv(directory='./results/', user=user)
     new_df_main = pd.DataFrame([])
-    df = df[df.ticker == ticker].reset_index(drop=True)
+    df = df_main[df_main.ticker == ticker].reset_index(drop=True)
     df['volume'] = df['volume'].replace(0,1.0)
     split = 100
     rest = len(df)%split
@@ -145,7 +145,7 @@ for ticker in [tickers[0]]:
     
     
     
-    window_length = 31
+    window_length = 21
     
     df = pp.ichimoku_cloud(df)
     
@@ -202,57 +202,57 @@ for ticker in [tickers[0]]:
     
     final_indicator, df_selection_title_positive, df_selection_title_negative, df_selection = lstm_model.selection_mcr(new_df_main, new_df, ticker)
 #%%
-    new_df_main['date'] = new_df_main['date'].astype('datetime64[ns]')
-    new_new_df = lstm_model.merge_df_predict(new_df,new_df_main,ticker )
-    new_new_df['min'].fillna(value=np.nan, inplace=True)
-    new_new_df['max'].fillna(value=np.nan, inplace=True)
-    new_new_df['min'].fillna(value=0, inplace=True)
-    new_new_df['max'].fillna(value=0, inplace=True)
-    new_new_df['minmax'] = new_new_df['min']+new_new_df['max']
-    new_new_df['check'] = 0
-    mask = (new_new_df['minmax'] == 0)
-    new_new_df_valid = new_new_df[mask]
-#    new_new_df['c'] = 0
-    new_new_df.loc[mask, 'check'] = 1
-    new_new_df['value_grp'] = (new_new_df.check.diff(1) != 0).astype('int').cumsum()
-    df_selection = pd.DataFrame({'begindate' : new_new_df.groupby('value_grp').date.first(), 
-              'enddate' : new_new_df.groupby('value_grp').date.last(),
-              'closebegin' : new_new_df.groupby('value_grp').close.first(),
-              'closeend' : new_new_df.groupby('value_grp').close.last(),
-              'investmentbegin' : new_new_df.groupby('value_grp').investment.first(),
-              'investmentend' : new_new_df.groupby('value_grp').investment.last(),
-              'consecutive' : new_new_df.groupby('value_grp').size()}).reset_index(drop=True)
-    df_selection['closeratio'] = df_selection['closeend']/df_selection['closebegin']
-    df_selection['investmentratio'] = df_selection['investmentend']/df_selection['investmentbegin']
-    df_selection = df_selection[df_selection.consecutive >= 10]
-    df_selection = df_selection.reset_index(drop=True)
-    df_selection['indicator'] = df_selection['investmentratio'] - df_selection['closeratio']
-    df_selection['closeratio_plot'] = df_selection['closeratio'] - 1
-    df_selection['investmentratio_plot'] = df_selection['investmentratio'] - 1
-    df_selection['cirkelsize_plot'] = df_selection['consecutive']/(df_selection['consecutive'].sum())
-    df_selection_title_positive = df_selection[df_selection.investmentratio>df_selection.closeratio]
-    df_selection_title_negative = df_selection[df_selection.investmentratio<=df_selection.closeratio]
-    df_selection_decrease = df_selection[df_selection.closeratio <= 1.]
-    df_selection_increase = df_selection[df_selection.closeratio > 1.]
-    df_selection_decrease['indicator_negative_negative'] = df_selection_decrease['investmentratio'] - 1.0
-    df_selection_decrease['indicator_final'] = ((df_selection_decrease['indicator']+df_selection_decrease['indicator_negative_negative'])*df_selection_decrease['consecutive'])/df_selection_decrease['consecutive'].sum()
-    final_indicator_decrease = df_selection_decrease['indicator_final'].sum()
-    df_selection_increase['indicator_positive_negative'] = df_selection_increase['investmentratio'] - 1.0
-    df_selection_increase['indicator_final'] = ((df_selection_increase['indicator']+df_selection_increase['indicator_positive_negative'])*df_selection_increase['consecutive'])/df_selection_increase['consecutive'].sum()
-    final_indicator_increase = df_selection_increase['indicator_final'].sum()
-    final_indicator = final_indicator_decrease + final_indicator_increase
-    print(final_indicator)
+#    new_df_main['date'] = new_df_main['date'].astype('datetime64[ns]')
+#    new_new_df = lstm_model.merge_df_predict(new_df,new_df_main,ticker )
+#    new_new_df['min'].fillna(value=np.nan, inplace=True)
+#    new_new_df['max'].fillna(value=np.nan, inplace=True)
+#    new_new_df['min'].fillna(value=0, inplace=True)
+#    new_new_df['max'].fillna(value=0, inplace=True)
+#    new_new_df['minmax'] = new_new_df['min']+new_new_df['max']
+#    new_new_df['check'] = 0
+#    mask = (new_new_df['minmax'] == 0)
+#    new_new_df_valid = new_new_df[mask]
+##    new_new_df['c'] = 0
+#    new_new_df.loc[mask, 'check'] = 1
+#    new_new_df['value_grp'] = (new_new_df.check.diff(1) != 0).astype('int').cumsum()
+#    df_selection = pd.DataFrame({'begindate' : new_new_df.groupby('value_grp').date.first(), 
+#              'enddate' : new_new_df.groupby('value_grp').date.last(),
+#              'closebegin' : new_new_df.groupby('value_grp').close.first(),
+#              'closeend' : new_new_df.groupby('value_grp').close.last(),
+#              'investmentbegin' : new_new_df.groupby('value_grp').investment.first(),
+#              'investmentend' : new_new_df.groupby('value_grp').investment.last(),
+#              'consecutive' : new_new_df.groupby('value_grp').size()}).reset_index(drop=True)
+#    df_selection['closeratio'] = df_selection['closeend']/df_selection['closebegin']
+#    df_selection['investmentratio'] = df_selection['investmentend']/df_selection['investmentbegin']
+#    df_selection = df_selection[df_selection.consecutive >= 10]
+#    df_selection = df_selection.reset_index(drop=True)
+#    df_selection['indicator'] = df_selection['investmentratio'] - df_selection['closeratio']
+#    df_selection['closeratio_plot'] = df_selection['closeratio'] - 1
+#    df_selection['investmentratio_plot'] = df_selection['investmentratio'] - 1
+#    df_selection['cirkelsize_plot'] = df_selection['consecutive']/(df_selection['consecutive'].sum())
+#    df_selection_title_positive = df_selection[df_selection.investmentratio>df_selection.closeratio]
+#    df_selection_title_negative = df_selection[df_selection.investmentratio<=df_selection.closeratio]
+#    df_selection_decrease = df_selection[df_selection.closeratio <= 1.]
+#    df_selection_increase = df_selection[df_selection.closeratio > 1.]
+#    df_selection_decrease['indicator_negative_negative'] = df_selection_decrease['investmentratio'] - 1.0
+#    df_selection_decrease['indicator_final'] = ((df_selection_decrease['indicator']+df_selection_decrease['indicator_negative_negative'])*df_selection_decrease['consecutive'])/df_selection_decrease['consecutive'].sum()
+#    final_indicator_decrease = df_selection_decrease['indicator_final'].sum()
+#    df_selection_increase['indicator_positive_negative'] = df_selection_increase['investmentratio'] - 1.0
+#    df_selection_increase['indicator_final'] = ((df_selection_increase['indicator']+df_selection_increase['indicator_positive_negative'])*df_selection_increase['consecutive'])/df_selection_increase['consecutive'].sum()
+#    final_indicator_increase = df_selection_increase['indicator_final'].sum()
+#    final_indicator = final_indicator_decrease + final_indicator_increase
+#    print(final_indicator)
 #%%    
-    plt.scatter(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), s=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
-    line = np.polyfit(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), 1, w=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
-    x = np.arange(-1,1.01,0.01)
-    y1 = line[0]*x + line[1]
-    y = x
-    plt.plot(x,y)
-    plt.plot(x,y1)
-    plt.xlabel('close ratio')
-    plt.ylabel('investment ratio')
-    plt.title('Above : '+str(df_selection_title_positive['cirkelsize_plot'].sum())+'   Below : '+ str(df_selection_title_negative['cirkelsize_plot'].sum()))
+#    plt.scatter(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), s=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
+#    line = np.polyfit(np.asarray(df_selection['closeratio_plot'].tolist()), np.asarray(df_selection['investmentratio_plot'].tolist()), 1, w=np.asarray(df_selection['cirkelsize_plot'].tolist())*1000)
+#    x = np.arange(-1,1.01,0.01)
+#    y1 = line[0]*x + line[1]
+#    y = x
+#    plt.plot(x,y)
+#    plt.plot(x,y1)
+#    plt.xlabel('close ratio')
+#    plt.ylabel('investment ratio')
+#    plt.title('Above : '+str(df_selection_title_positive['cirkelsize_plot'].sum())+'   Below : '+ str(df_selection_title_negative['cirkelsize_plot'].sum()))
     #plt.show()
     
     
