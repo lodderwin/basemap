@@ -1,1 +1,2 @@
 coefficient,date_created,margin,mcr,params,start_line,ticker,window_length
+0.48239325858646087,2018-09-24 19:14:16.632814,,1.522046647254663,"{""input_dim"": 11, ""node1"": 120, ""node2"": 173, ""output_dim"": 1, ""batch_size"": 8, ""epochs"": 3}",0.005447813206276601,ASRV,21
