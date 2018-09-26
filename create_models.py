@@ -15,8 +15,7 @@ user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
-#tickers_to_do = tickers_to_do[:10]
-yr = yahoo_reader.finance_data(tickers=tickers_to_do[:5])
+yr = yahoo_reader.finance_data(tickers=tickers_to_do[:1])
 #df = pd.read_csv('forflight.csv', sep=',')
 
 df, tickers = yr.get_fix_yahoo_data()
