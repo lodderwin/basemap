@@ -15,9 +15,48 @@ user = utils.load_user_from_yml(yml_file='./configs/user_settings.yml')
 user_tickers = utils.get_tickers_for_a_user(user=user)
 tickers_done = utils.get_tickers_done('./results/')
 tickers_to_do = [ticker for ticker in user_tickers if ticker not in tickers_done]
-tickers_to_do = tickers_to_do[:1]
+#tickers_to_do = tickers_to_do[:1]
 #%% 
 
+#function returns a random sample of 'samplesize' tickers for each industry
+#accounts for number of tickers already trained in an industry
+
+def get_random_samples_per_industry(samplesize):
+        
+    #dataframe of all tickers and industries and list of all tickers
+    df_tickers = pd.read_csv('./tickers.csv')
+    
+    #create one dataframe of tickers that are done (df_tickers_done) and one of tickers to do (df_tickers)
+    df_tickers_done = pd.DataFrame()
+    for ticker in tickers_done:
+        df_tickerindustry = df_tickers[df_tickers.ticker == ticker]
+        df_tickers_done = df_tickers_done.append(df_tickerindustry)
+        df_tickers = df_tickers[df_tickers.ticker != ticker]
+    
+    industries = list(df_tickers.industry.unique())
+    industrysamples = []
+    
+    for industry in industries:
+        
+        #check how much tickers still need to be trained for this industry
+        stilltotrain = samplesize - len(df_tickers_done[df_tickers_done.industry == industry])  
+        print(stilltotrain)
+        
+        #make dataframe and list of all tickers in the industry
+        df_industrytickers = df_tickers[df_tickers.industry == industry]
+        industrytickers = list(df_industrytickers.ticker.unique())
+        
+        #if there are enough tickers left in industry: take random sample, else: take all
+        if len(industrytickers)>stilltotrain:
+            industrytickers = random.sample(industrytickers, stilltotrain)  
+        industrysamples.extend(industrytickers)
+        
+    return industrysamples
+
+#%%
+#get_random_samples_per_industry(samplesize=20)
+
+#%%
 def get_same_industry_tickers(ticker, samplesize):
     
     #create usefull string for ticker    
@@ -47,7 +86,7 @@ def get_same_industry_tickers(ticker, samplesize):
     
     return df_sameindustrytickers
 #%%
-get_same_industry_tickers(tickers_to_do,5)
+#get_same_industry_tickers(tickers_to_do,5)
 
 
 
