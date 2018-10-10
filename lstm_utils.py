@@ -187,7 +187,7 @@ def get_tickers_done(directory : str):
             df = pd.concat([df, pd.read_csv(directory + file)])
     
         tickers = list(df.ticker.unique())
-            
+        
     return tickers
 
 def load_user_from_yml(yml_file : str):

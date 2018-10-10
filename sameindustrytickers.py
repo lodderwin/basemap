@@ -25,15 +25,16 @@ def get_same_industry_tickers(ticker, samplesize):
     for character in ["[","]","'"]:
         if character in str(ticker):
             ticker = ticker.replace(character,"")
-    
+    print(ticker)
     #create list of all tickers in same industry
     df_alltickers = pd.read_csv('./tickers.csv')
     industry = df_alltickers[df_alltickers.ticker == ticker].iloc[0]['industry']
     industrytickers = df_alltickers[df_alltickers.industry == industry]['ticker'].tolist()
-    
+    industrytickers.remove(ticker)
+
     #select random sample of same-industry tickers
     sameindustrytickers = random.sample(industrytickers, samplesize)
-    
+
     #create dataframe
     df_sameindustrytickers = pd.DataFrame()
 
@@ -45,6 +46,11 @@ def get_same_industry_tickers(ticker, samplesize):
         df_sameindustrytickers = df_sameindustrytickers.append(df, ignore_index=True)
     
     return df_sameindustrytickers
+#%%
+get_same_industry_tickers(tickers_to_do,5)
+
+
+
 
 #%%
 def get_large_decreases_in_industry(ticker, percentage):
@@ -59,7 +65,8 @@ def get_large_decreases_in_industry(ticker, percentage):
     df_alltickers = pd.read_csv('./tickers.csv')
     industry = df_alltickers[df_alltickers.ticker == ticker].iloc[0]['industry']
     industrytickers = df_alltickers[df_alltickers.industry == industry]['ticker'].tolist()
-
+    industrytickers.remove(ticker)
+    
     #for counter
     number = len(industrytickers)
 
@@ -93,7 +100,4 @@ def get_large_decreases_in_industry(ticker, percentage):
     
     return df_largedecreases
 #%%
-get_large_decreases_in_industry(tickers_to_do, 0.95)
-
-
-#%%
+#df_largedecreases = get_large_decreases_in_industry(tickers_to_do, 0.95)
