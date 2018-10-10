@@ -64,7 +64,7 @@ def get_same_industry_tickers(ticker, samplesize):
     for character in ["[","]","'"]:
         if character in str(ticker):
             ticker = ticker.replace(character,"")
-    print(ticker)
+    
     #create list of all tickers in same industry
     df_alltickers = pd.read_csv('./tickers.csv')
     industry = df_alltickers[df_alltickers.ticker == ticker].iloc[0]['industry']
@@ -87,6 +87,80 @@ def get_same_industry_tickers(ticker, samplesize):
     return df_sameindustrytickers
 #%%
 #get_same_industry_tickers(tickers_to_do,5)
+#%%
+
+#function returns the data for a sample of 'samplesize' tickers, from the same industry
+#which have had the most similar volatility over the last 'window' number of days
+
+def get_same_industry_similar_volatility_tickers(ticker, window, samplesize):
+    
+    #download data for ticker A
+    yr = yahoo_reader.finance_data(tickers=[ticker])
+    dfA, tickersA = yr.get_fix_yahoo_data()    
+    
+    #calculate price and volatility (average standarddeviation over window) and save it for the last day
+    dfA['volatility'] = dfA.close.rolling(window).std()
+    volatilityA = dfA.volatility.tail(1)
+
+    #create usefull string for ticker    
+    ticker = str(ticker)
+    for character in ["[","]","'"]:
+        if character in str(ticker):
+            ticker = ticker.replace(character,"")
+
+    #create list of all tickers in same industry
+    df_alltickers = pd.read_csv('./tickers.csv')
+    industry = df_alltickers[df_alltickers.ticker == ticker].iloc[0]['industry']
+    industrytickers = df_alltickers[df_alltickers.industry == industry]['ticker'].tolist()
+    industrytickers.remove(ticker)
+
+    #for counter
+    number = len(industrytickers)
+    
+    #main dataframe and dataframe for last day of dataframe
+    df_industrytickers = pd.DataFrame()
+    df_tails = pd.DataFrame()
+    
+    #dowload and append data for each ticker (one-by-one to avoid Frank's error)
+    for sit in industrytickers:
+        try:
+            print("Downloading data for " + str(number) + " same-industry tickers.")
+            sit = [sit]
+            yr = yahoo_reader.finance_data(tickers=sit)
+            df, tickers = yr.get_fix_yahoo_data()
+            
+            #calculate volatility
+            df['volatility'] = df.close.rolling(window).std()
+            
+            #take the last day of dataframe and compare volatility with that of ticker A
+            df_tail = df.tail(1)
+            volatility = df_tail.volatility.tail(1)
+            df_tail['vol_diff'] = abs(volatilityA - volatility)
+            df_industrytickers = df_industrytickers.append(df, ignore_index=True)
+            df_tails = df_tails.append(df_tail, ignore_index=True)
+            number = number-1
+            print("Ticker data added") 
+            
+        except: 
+            number = number-1
+            print("No data")  
+
+    #sort the tickers by the difference in volatility compared to ticker A
+    df_tails = df_tails.sort_values('vol_diff', ascending=True) 
+    df_tails = df_tails.head(samplesize)
+    sample = list(df_tails.ticker.unique())
+    
+    #make final dataframe with all data from stocks in sample
+    df_sample = pd.DataFrame()
+    for ticker in sample:
+        df = df_industrytickers[df_industrytickers.ticker == ticker]
+        df_sample = df_sample.append(df, ignore_index=True)
+
+    return df_sample
+
+
+#%%
+#get_same_industry_similar_volatility_tickers(ticker='AA', window=3, samplesize=2) 
 
 
 
@@ -127,7 +201,7 @@ def get_large_decreases_in_industry(ticker, percentage):
                 df['arounddecrease'] = np.where(df.perc_change.shift(X)<percentage, 1, df.arounddecrease)
             
             #append ticker data to main dataframe
-            df_largedecreases = df.append(df, ignore_index=True)
+            df_largedecreases = df_largedecreases.append(df, ignore_index=True)
             number = number-1
             print("Ticker data added") 
         except: 
